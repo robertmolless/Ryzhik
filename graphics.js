@@ -231,16 +231,26 @@ function drawCat(ctx, opts = {}) {
    HUMAN NPC RENDERER
    ────────────────────────────────────────────── */
 const NPC_STYLES = {
-  lyokha:   { hair:'#d4c080', shirt:'#b8d0e8', pants:'#6080a0', skin:'#f5c5a0', hairStyle:'medium', acc:null },
-  igor:     { hair:'#222222', shirt:'#222222', pants:'#333344', skin:'#e8b890', hairStyle:'short',  acc:'chain' },
-  nastya:   { hair:'#8b5a2b', shirt:'#c84040', pants:'#446688', skin:'#f8d0b0', hairStyle:'long',   acc:'camera' },
-  liza:     { hair:'#e87ab0', shirt:'#e870c0', pants:'#6040c0', skin:'#f5c0b0', hairStyle:'wavy',   acc:'stars' },
-  mag:      { hair:'#1a1a2a', shirt:'#2a1a4a', pants:'#1a1030', skin:'#c0a890', hairStyle:'long',   acc:'hat' },
-  sonya:    { hair:'#c8a060', shirt:'#4a7040', pants:'#3a5060', skin:'#e8c0a0', hairStyle:'pony',   acc:'backpack' },
-  nena:     { hair:'#2a1a10', shirt:'#8ab090', pants:'#4a6050', skin:'#e0b898', hairStyle:'curly',  acc:'glasses' },
-  kristina: { hair:'#6a3a20', shirt:'#2a2a3a', pants:'#1a1a2a', skin:'#e8c0b0', hairStyle:'short',  acc:'tattoo' },
-  danya:    { hair:'#3a3a3a', shirt:'#4a70c0', pants:'#2a3a50', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2' },
-  prokhor:  { hair:'#2a2010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a080', hairStyle:'bald',   acc:'mustache' },
+  // Лёха: блондин, oversized кофта светло-голубая, спокойный
+  lyokha:   { hair:'#e8d870', shirt:'#b8d4f0', pants:'#7090b8', skin:'#f5c8a8', hairStyle:'medium', acc:null,      eyeColor:'#5a88cc' },
+  // Игорь: рокер, чёрная куртка, цепочка
+  igor:     { hair:'#111111', shirt:'#1a1a1a', pants:'#222233', skin:'#e0b080', hairStyle:'short',  acc:'chain',   eyeColor:'#3a2a10' },
+  // Настя: тёплая кофта, зелёные глаза, фотоаппарат
+  nastya:   { hair:'#b07840', shirt:'#d06040', pants:'#446688', skin:'#f8d0b0', hairStyle:'long',   acc:'camera',  eyeColor:'#2a7a2a' },
+  // Лиза: розовые волосы, яркая одежда, звёздочки
+  liza:     { hair:'#f080c0', shirt:'#e060c0', pants:'#6040c8', skin:'#f5c0b8', hairStyle:'wavy',   acc:'stars',   eyeColor:'#884488' },
+  // Маг: тёмный, таинственный, шляпа
+  mag:      { hair:'#1a1020', shirt:'#221838', pants:'#180e28', skin:'#b89878', hairStyle:'long',   acc:'hat',     eyeColor:'#6030a8' },
+  // Соня: рыжеватые волосы, походная куртка, рюкзак
+  sonya:    { hair:'#c89050', shirt:'#4a7040', pants:'#3a5060', skin:'#e8c0a0', hairStyle:'pony',   acc:'backpack',eyeColor:'#4a7040' },
+  // Нэна: тёмные волосы, очки, блокнот
+  nena:     { hair:'#2a1a10', shirt:'#8ab490', pants:'#4a6050', skin:'#e0b898', hairStyle:'curly',  acc:'glasses', eyeColor:'#4a6040' },
+  // Кристина: тёмная одежда, татуировки, короткие волосы
+  kristina: { hair:'#3a2010', shirt:'#1e1e2e', pants:'#141424', skin:'#e8c0b0', hairStyle:'short',  acc:'tattoo',  eyeColor:'#2a1a40' },
+  // Даня: тёмные волосы, красные очки, худи
+  danya:    { hair:'#2a2a2a', shirt:'#4060c0', pants:'#283848', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2',eyeColor:'#cc2222' },
+  // Прохор: лысый, усы, большой
+  prokhor:  { hair:'#302010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a070', hairStyle:'bald',   acc:'mustache',eyeColor:'#6a4a20' },
 };
 
 function drawHumanNPC(ctx, opts = {}) {
@@ -301,16 +311,34 @@ function drawHumanNPC(ctx, opts = {}) {
   ctx.save(); ctx.translate(12, -2 + bob); ctx.rotate((10 - armSwing) * Math.PI / 180);
   ctx.fillRect(-3, 0, 6, 16); ctx.restore();
 
-  // Accessory in hand
+  // Accessory in hand / body
   if (style.acc === 'camera') {
-    ctx.save(); ctx.translate(16, 8 + bob);
-    ctx.fillStyle = '#222'; ctx.fillRect(-5,-4,10,8); ctx.fillStyle='#666'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+    ctx.save(); ctx.translate(16, 6 + bob);
+    // Camera body
+    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(-6,-5,12,9);
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(-5,-4,10,7);
+    // Lens
+    ctx.fillStyle = '#444'; ctx.beginPath(); ctx.arc(0,0,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#aaccff'; ctx.beginPath(); ctx.arc(0,0,2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(-0.8,-0.8,0.8,0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
   if (style.acc === 'backpack') {
-    ctx.save(); ctx.translate(-13, 0 + bob);
-    ctx.fillStyle = '#3a5060'; ctx.fillRect(-8,-10,10,20); ctx.fillStyle='#2a4050'; ctx.fillRect(-7,-8,8,16);
+    ctx.save(); ctx.translate(-14, -2 + bob);
+    ctx.fillStyle = '#3a5060'; ctx.fillRect(-9,-12,11,22);
+    ctx.fillStyle = '#2a4050'; ctx.fillRect(-8,-10,9,18);
+    // Strap buckle
+    ctx.fillStyle = '#c8a060'; ctx.fillRect(-4,-14,5,3);
     ctx.restore();
+  }
+  if (style.acc === 'stars') {
+    // Liza's star stickers on shirt
+    ctx.fillStyle = '#ffdd44';
+    const starPositions = [[-6, -2+bob], [5, 2+bob], [-3, 8+bob]];
+    starPositions.forEach(([sx, sy]) => {
+      ctx.font = '8px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('★', sx, sy);
+    });
   }
 
   // ── Neck ──
@@ -332,15 +360,22 @@ function drawHumanNPC(ctx, opts = {}) {
 
   // ── Eyes ──
   const eyeY = -2;
+  const eyeCol = style.eyeColor || '#3a2a10';
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.ellipse(-4, eyeY, 3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(4, eyeY, 3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#3a2a10';
-  ctx.beginPath(); ctx.ellipse(-4, eyeY, 1.8, 2.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(4, eyeY, 1.8, 2.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.8)';
-  ctx.beginPath(); ctx.arc(-5, eyeY - 1, 0.8, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(3, eyeY - 1, 0.8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-4, eyeY, 3.2, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(4, eyeY, 3.2, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+  // Iris
+  ctx.fillStyle = eyeCol;
+  ctx.beginPath(); ctx.ellipse(-4, eyeY, 2.2, 2.8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(4, eyeY, 2.2, 2.8, 0, 0, Math.PI * 2); ctx.fill();
+  // Pupil
+  ctx.fillStyle = '#0a0508';
+  ctx.beginPath(); ctx.ellipse(-4, eyeY, 1.2, 1.8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(4, eyeY, 1.2, 1.8, 0, 0, Math.PI * 2); ctx.fill();
+  // Highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.beginPath(); ctx.arc(-5, eyeY - 1.2, 0.9, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(3, eyeY - 1.2, 0.9, 0, Math.PI * 2); ctx.fill();
 
   // Eyelashes (female chars)
   if (['nastya','liza','nena','sonya','kristina'].includes(id)) {
@@ -377,11 +412,26 @@ function drawHumanNPC(ctx, opts = {}) {
   }
   if (style.acc === 'mustache') {
     ctx.fillStyle = '#3a2a10';
-    ctx.beginPath(); ctx.ellipse(-3, 5, 4, 2, -0.2, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(3, 5, 4, 2, 0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-3, 5, 5, 2.5, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(3, 5, 5, 2.5, 0.2, 0, Math.PI * 2); ctx.fill();
+  }
+  if (style.acc === 'tattoo') {
+    // Tattoo hint visible on the neck/face area (geometric symbol)
+    ctx.save();
+    ctx.strokeStyle = 'rgba(80,50,150,0.55)'; ctx.lineWidth = 0.8;
+    // Small geometric tattoo on neck/chin area
+    ctx.beginPath(); ctx.moveTo(-4, 10); ctx.lineTo(-1, 7); ctx.lineTo(2, 10); ctx.stroke();
+    ctx.restore();
   }
   if (style.acc === 'chain') {
-    // Implied by style, would need neck position — skip for head block
+    // Chain at chin/neck in head coordinate space
+    ctx.strokeStyle = '#c8c8c8'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(0, 15, 7, 0.3, Math.PI - 0.3); ctx.stroke();
+    ctx.fillStyle = '#dddddd';
+    ctx.beginPath(); ctx.ellipse(0, 21, 2.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+    // Small star/gem pendant
+    ctx.fillStyle = '#aaaaff';
+    ctx.beginPath(); ctx.ellipse(0, 21, 1.5, 1.5, 0, 0, Math.PI*2); ctx.fill();
   }
 
   ctx.restore(); // end head
@@ -1421,11 +1471,16 @@ function drawPortrait(ctx, id, mood = 'neutral') {
   // Eyes
   const eyeMoods = { happy: 0.7, neutral: 1, sad: 0.8, surprised: 1.3 };
   const em = eyeMoods[mood] || 1;
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(cx-10, cy-4, 8, 9*em, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(cx+10, cy-4, 8, 9*em, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#2a1a08'; ctx.beginPath(); ctx.ellipse(cx-10, cy-4, 5, 7*em, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(cx+10, cy-4, 5, 7*em, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.arc(cx-13, cy-6, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(cx+7, cy-6, 2, 0, Math.PI*2); ctx.fill();
+  const eyeCol = style.eyeColor || '#2a1a08';
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(cx-10, cy-4, 8.5, 10*em, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+10, cy-4, 8.5, 10*em, 0, 0, Math.PI*2); ctx.fill();
+  // Iris
+  ctx.fillStyle = eyeCol; ctx.beginPath(); ctx.ellipse(cx-10, cy-4, 5.5, 7.5*em, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+10, cy-4, 5.5, 7.5*em, 0, 0, Math.PI*2); ctx.fill();
+  // Pupil
+  ctx.fillStyle = '#080408'; ctx.beginPath(); ctx.ellipse(cx-10, cy-4, 3, 5*em, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+10, cy-4, 3, 5*em, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.beginPath(); ctx.arc(cx-13, cy-6, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(cx+7, cy-6, 2, 0, Math.PI*2); ctx.fill();
 
   // Accessories
   if (style.acc === 'glasses' || style.acc === 'glasses2') {
