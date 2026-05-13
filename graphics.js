@@ -232,15 +232,16 @@ function drawCat(ctx, opts = {}) {
    ────────────────────────────────────────────── */
 const NPC_STYLES = {
   lyokha:   { hair:'#e0cc80', shirt:'#b8d0e8', pants:'#6080a0', skin:'#f5c5a0', hairStyle:'medium', acc:null },
-  igor:     { hair:'#1a1a1a', shirt:'#1a1a1a', pants:'#2a2a3a', skin:'#e8b890', hairStyle:'short',  acc:'chain' },
-  nastya:   { hair:'#8b5a2b', shirt:'#c06050', pants:'#446688', skin:'#f8d0b0', hairStyle:'long',   acc:'camera' },
+  igor:     { hair:'#1a1a1a', shirt:'#1a1a1a', pants:'#2a2a3a', skin:'#e8b890', hairStyle:'spiky',  acc:'chain' },
+  nastya:   { hair:'#8b5a2b', shirt:'#e87099', pants:'#9060b0', skin:'#f8d0b0', hairStyle:'wavy',   acc:'camera' },
   liza:     { hair:'#ff80c0', shirt:'#e870c0', pants:'#6040c0', skin:'#f5c0b0', hairStyle:'wavy',   acc:'stars' },
   mag:      { hair:'#1a1a2a', shirt:'#2a1a4a', pants:'#1a1030', skin:'#c0a890', hairStyle:'long',   acc:'hat' },
   sonya:    { hair:'#c8a060', shirt:'#4a7040', pants:'#3a5060', skin:'#e8c0a0', hairStyle:'pony',   acc:'backpack' },
-  nena:     { hair:'#2a1a10', shirt:'#8ab090', pants:'#4a6050', skin:'#e0b898', hairStyle:'curly',  acc:'glasses' },
-  kristina: { hair:'#3a2a1a', shirt:'#2a2a3a', pants:'#1a1a2a', skin:'#e8c0b0', hairStyle:'short',  acc:'tattoo' },
+  nena:     { hair:'#2a1a10', shirt:'#70b0a0', pants:'#508a74', skin:'#e0b898', hairStyle:'long',   acc:'glasses' },
+  kristina: { hair:'#3a2a1a', shirt:'#7a3060', pants:'#4a2050', skin:'#e8c0b0', hairStyle:'medium', acc:'tattoo' },
   danya:    { hair:'#3a3a3a', shirt:'#4a70c0', pants:'#2a3a50', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2' },
   prokhor:  { hair:'#2a2010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a080', hairStyle:'bald',   acc:'mustache' },
+  mitrych:  { hair:'#c8c4b0', shirt:'#7a6a50', pants:'#4a4030', skin:'#c8a070', hairStyle:'bald',   acc:'mustache' },
 };
 
 function drawHumanNPC(ctx, opts = {}) {
@@ -316,6 +317,13 @@ function drawHumanNPC(ctx, opts = {}) {
   // ── Neck ──
   ctx.fillStyle = style.skin;
   ctx.fillRect(-3, -12 + bob, 6, 6);
+  // Chain necklace
+  if (style.acc === 'chain') {
+    ctx.strokeStyle = '#b8b8b8'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(0, -8 + bob, 6, 0.4, Math.PI - 0.4); ctx.stroke();
+    ctx.fillStyle = '#888';
+    ctx.beginPath(); ctx.arc(0, -3 + bob, 2, 0, Math.PI * 2); ctx.fill();
+  }
 
   // ── Head ──
   ctx.save();
@@ -350,7 +358,7 @@ function drawHumanNPC(ctx, opts = {}) {
   }
 
   // Lips
-  if (id === 'nastya') {
+  if (['nastya','liza','nena','sonya','kristina'].includes(id)) {
     ctx.fillStyle = '#cc3355';
     ctx.beginPath(); ctx.ellipse(0, 6, 4, 1.8, 0, 0, Math.PI); ctx.fill();
     ctx.beginPath(); ctx.ellipse(0, 6, 4, 1, 0, Math.PI, Math.PI * 2); ctx.fill();
@@ -379,9 +387,6 @@ function drawHumanNPC(ctx, opts = {}) {
     ctx.fillStyle = '#3a2a10';
     ctx.beginPath(); ctx.ellipse(-3, 5, 4, 2, -0.2, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(3, 5, 4, 2, 0.2, 0, Math.PI * 2); ctx.fill();
-  }
-  if (style.acc === 'chain') {
-    // Implied by style, would need neck position — skip for head block
   }
 
   ctx.restore(); // end head
@@ -475,6 +480,19 @@ function _drawHair(ctx, color, style, t) {
       ctx.globalAlpha = 0.4;
       ctx.beginPath(); ctx.ellipse(0, -9, 11, 9, 0, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
+      break;
+    case 'spiky':
+      ctx.beginPath(); ctx.ellipse(0, -8, 11, 8, 0, 0, Math.PI * 2); ctx.fill();
+      // Spiky top strands
+      for (let i = -3; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * 3 - 1, -14);
+        ctx.lineTo(i * 3 + (i < 0 ? -3 : 3), -22 - Math.abs(i) * 1.5);
+        ctx.lineTo(i * 3 + 3, -14);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.beginPath(); ctx.ellipse(-10, -4, 4, 6, -0.4, 0, Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(10, -4, 4, 6, 0.4, 0, Math.PI); ctx.fill();
       break;
   }
 }
