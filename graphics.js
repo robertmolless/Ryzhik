@@ -231,14 +231,14 @@ function drawCat(ctx, opts = {}) {
    HUMAN NPC RENDERER
    ────────────────────────────────────────────── */
 const NPC_STYLES = {
-  lyokha:   { hair:'#d4c080', shirt:'#b8d0e8', pants:'#6080a0', skin:'#f5c5a0', hairStyle:'medium', acc:null },
-  igor:     { hair:'#222222', shirt:'#222222', pants:'#333344', skin:'#e8b890', hairStyle:'short',  acc:'chain' },
-  nastya:   { hair:'#8b5a2b', shirt:'#c84040', pants:'#446688', skin:'#f8d0b0', hairStyle:'long',   acc:'camera' },
-  liza:     { hair:'#e87ab0', shirt:'#e870c0', pants:'#6040c0', skin:'#f5c0b0', hairStyle:'wavy',   acc:'stars' },
+  lyokha:   { hair:'#e0cc80', shirt:'#b8d0e8', pants:'#6080a0', skin:'#f5c5a0', hairStyle:'medium', acc:null },
+  igor:     { hair:'#1a1a1a', shirt:'#1a1a1a', pants:'#2a2a3a', skin:'#e8b890', hairStyle:'short',  acc:'chain' },
+  nastya:   { hair:'#8b5a2b', shirt:'#c06050', pants:'#446688', skin:'#f8d0b0', hairStyle:'long',   acc:'camera' },
+  liza:     { hair:'#ff80c0', shirt:'#e870c0', pants:'#6040c0', skin:'#f5c0b0', hairStyle:'wavy',   acc:'stars' },
   mag:      { hair:'#1a1a2a', shirt:'#2a1a4a', pants:'#1a1030', skin:'#c0a890', hairStyle:'long',   acc:'hat' },
   sonya:    { hair:'#c8a060', shirt:'#4a7040', pants:'#3a5060', skin:'#e8c0a0', hairStyle:'pony',   acc:'backpack' },
   nena:     { hair:'#2a1a10', shirt:'#8ab090', pants:'#4a6050', skin:'#e0b898', hairStyle:'curly',  acc:'glasses' },
-  kristina: { hair:'#6a3a20', shirt:'#2a2a3a', pants:'#1a1a2a', skin:'#e8c0b0', hairStyle:'short',  acc:'tattoo' },
+  kristina: { hair:'#3a2a1a', shirt:'#2a2a3a', pants:'#1a1a2a', skin:'#e8c0b0', hairStyle:'short',  acc:'tattoo' },
   danya:    { hair:'#3a3a3a', shirt:'#4a70c0', pants:'#2a3a50', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2' },
   prokhor:  { hair:'#2a2010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a080', hairStyle:'bald',   acc:'mustache' },
 };
