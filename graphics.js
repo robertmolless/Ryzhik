@@ -241,7 +241,6 @@ const NPC_STYLES = {
   kristina: { hair:'#3a2a1a', shirt:'#7a3060', pants:'#4a2050', skin:'#e8c0b0', hairStyle:'medium', acc:'tattoo' },
   danya:    { hair:'#3a3a3a', shirt:'#4a70c0', pants:'#2a3a50', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2' },
   prokhor:  { hair:'#2a2010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a080', hairStyle:'bald',   acc:'mustache' },
-  mitrych:  { hair:'#c8c4b0', shirt:'#7a6a50', pants:'#4a4030', skin:'#c8a070', hairStyle:'bald',   acc:'mustache' },
 };
 
 function drawHumanNPC(ctx, opts = {}) {
