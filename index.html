@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2d5a1b">
+<title>Рыжик: Тайна загородного дома</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- SPLASH / MAIN MENU -->
+  <div id="splash-screen">
+    <div id="splash-bg"></div>
+    <div id="splash-fireflies-wrap"></div>
+    <div id="splash-content">
+      <div id="splash-cat">🐱</div>
+      <h1 id="game-title">Рыжик</h1>
+      <p id="game-subtitle">Тайна загородного дома</p>
+      <div id="menu-buttons">
+        <button id="btn-continue" class="menu-btn btn-primary" style="display:none">▶ Продолжить</button>
+        <button id="btn-new-game" class="menu-btn btn-primary">🐾 Новая игра</button>
+        <button id="btn-settings-menu" class="menu-btn btn-secondary">⚙️ Настройки</button>
+        <button id="btn-about" class="menu-btn btn-secondary">ℹ️ Об игре</button>
+        <button id="btn-reset" class="menu-btn btn-danger" style="display:none">🗑️ Сбросить прогресс</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME CANVAS -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" style="display:none">
+    <div id="top-bar">
+      <div id="stats-row">
+        <div class="stat-wrap"><span class="se">🍖</span><div class="st"><div class="sf" id="sf-food"></div></div></div>
+        <div class="stat-wrap"><span class="se">⚡</span><div class="st"><div class="sf" id="sf-energy"></div></div></div>
+        <div class="stat-wrap"><span class="se">😸</span><div class="st"><div class="sf" id="sf-mood"></div></div></div>
+        <div class="stat-wrap"><span class="se">✨</span><div class="st"><div class="sf" id="sf-clean"></div></div></div>
+      </div>
+      <div id="time-weather">
+        <span id="time-icon">☀️</span><span id="time-label">Утро</span>
+        <span id="day-label"> · День 1</span>
+        <span id="weather-icon">☀️</span>
+      </div>
+    </div>
+    <canvas id="minimap-canvas" width="110" height="82"></canvas>
+    <div id="quest-tracker">
+      <div id="qt-name">📋 Исследуй двор</div>
+      <div id="qt-step"></div>
+    </div>
+    <div id="notif-container"></div>
+    <div id="interact-hint"></div>
+    <div id="mobile-ui">
+      <div id="joystick-zone">
+        <div id="joystick-base"><div id="joystick-knob"></div></div>
+      </div>
+      <div id="action-zone">
+        <div id="action-row-top">
+          <button class="act-btn" id="ab-quest">📋</button>
+          <button class="act-btn" id="ab-inv">🎒</button>
+          <button class="act-btn" id="ab-map">🗺️</button>
+        </div>
+        <div id="action-row-bot">
+          <button class="act-btn act-meow" id="ab-meow">😺</button>
+          <button class="act-btn act-action" id="ab-action">⚡</button>
+          <button class="act-btn act-pause" id="ab-pause">⏸️</button>
+        </div>
+        <div id="action-label"></div>
+      </div>
+    </div>
+    <div id="kb-hint">WASD — движение · E — действие · Space — мяу · I/Q/M — меню · Esc — пауза</div>
+  </div>
+
+  <!-- ДИАЛОГ -->
+  <div id="dialogue-box" style="display:none">
+    <div id="dlg-left"><div id="dlg-portrait"></div><div id="dlg-trust"></div></div>
+    <div id="dlg-body">
+      <div id="dlg-name"></div>
+      <div id="dlg-text"></div>
+      <div id="dlg-choices"></div>
+      <div id="dlg-tap-hint">Тапни или нажми ⚡ для продолжения</div>
+    </div>
+  </div>
+
+  <!-- ИНВЕНТАРЬ -->
+  <div id="inventory-screen" class="ovl" style="display:none">
+    <div class="ovl-panel">
+      <div class="ovl-hdr"><span>🎒 Инвентарь</span><button class="ov-x" data-close="inventory-screen">✕</button></div>
+      <div id="inv-grid"></div>
+      <div id="inv-info"></div>
+    </div>
+  </div>
+
+  <!-- КВЕСТЫ -->
+  <div id="quest-screen" class="ovl" style="display:none">
+    <div class="ovl-panel">
+      <div class="ovl-hdr"><span>📋 Квесты</span><button class="ov-x" data-close="quest-screen">✕</button></div>
+      <div id="quest-tabs">
+        <button class="qtab active" data-tab="active">Активные</button>
+        <button class="qtab" data-tab="done">Выполненные</button>
+      </div>
+      <div id="quest-list"></div>
+    </div>
+  </div>
+
+  <!-- КАРТА -->
+  <div id="map-screen" class="ovl" style="display:none">
+    <div class="ovl-panel ovl-wide">
+      <div class="ovl-hdr"><span>🗺️ Карта двора</span><button class="ov-x" data-close="map-screen">✕</button></div>
+      <canvas id="bigmap-canvas" width="560" height="380"></canvas>
+      <div id="map-zone-info"></div>
+    </div>
+  </div>
+
+  <!-- ДОСТИЖЕНИЯ -->
+  <div id="ach-screen" class="ovl" style="display:none">
+    <div class="ovl-panel">
+      <div class="ovl-hdr"><span>🏆 Достижения</span><button class="ov-x" data-close="ach-screen">✕</button></div>
+      <div id="ach-grid"></div>
+    </div>
+  </div>
+
+  <!-- УЛУЧШЕНИЯ УГОЛКА -->
+  <div id="upgrade-screen" class="ovl" style="display:none">
+    <div class="ovl-panel">
+      <div class="ovl-hdr"><span>🏠 Кошачий уголок</span><button class="ov-x" data-close="upgrade-screen">✕</button></div>
+      <div id="upgrade-grid"></div>
+    </div>
+  </div>
+
+  <!-- ПАУЗА -->
+  <div id="pause-screen" class="ovl" style="display:none">
+    <div class="ovl-panel ovl-sm">
+      <div class="ovl-hdr"><span>⏸️ Пауза</span></div>
+      <button class="menu-btn btn-primary" id="btn-resume">▶ Продолжить</button>
+      <button class="menu-btn btn-secondary" id="btn-save">💾 Сохранить</button>
+      <button class="menu-btn btn-secondary" id="btn-ach">🏆 Достижения</button>
+      <button class="menu-btn btn-secondary" id="btn-upgrade">🏠 Кошачий уголок</button>
+      <button class="menu-btn btn-secondary" id="btn-settings-pause">⚙️ Настройки</button>
+      <button class="menu-btn btn-danger" id="btn-to-menu">🏠 В меню</button>
+    </div>
+  </div>
+
+  <!-- НАСТРОЙКИ -->
+  <div id="settings-screen" class="ovl" style="display:none">
+    <div class="ovl-panel ovl-sm">
+      <div class="ovl-hdr"><span>⚙️ Настройки</span><button class="ov-x" data-close="settings-screen">✕</button></div>
+      <div class="srow"><label>🔊 Звук</label><input type="range" id="vol-sfx" min="0" max="100" value="70"></div>
+      <div class="srow"><label>🎵 Музыка</label><input type="range" id="vol-music" min="0" max="100" value="40"></div>
+      <div class="srow"><label>📳 Вибрация</label><label class="tog"><input type="checkbox" id="chk-vibration" checked><span class="tog-sl"></span></label></div>
+      <div class="srow"><label>🕹️ Джойстик</label><label class="tog"><input type="checkbox" id="chk-joystick" checked><span class="tog-sl"></span></label></div>
+    </div>
+  </div>
+
+  <!-- ОБ ИГРЕ -->
+  <div id="about-screen" class="ovl" style="display:none">
+    <div class="ovl-panel ovl-sm">
+      <div class="ovl-hdr"><span>ℹ️ Об игре</span><button class="ov-x" data-close="about-screen">✕</button></div>
+      <div class="about-body">
+        <div style="font-size:52px;text-align:center;margin:8px 0">🐱</div>
+        <p><b>Рыжик: Тайна загородного дома</b></p>
+        <p>Cozy 2D-adventure о добром рыжем коте.</p>
+        <p>Помогай соседям, собирай предметы, исследуй двор и раскрой тайну старой теплицы!</p>
+        <p>Работает в браузере и Telegram WebApp.</p>
+        <p style="opacity:.5;font-size:11px;margin-top:12px">v1.0 · 2024 · Canvas + Web Audio API</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- МИНИ-ИГРА -->
+  <div id="minigame-screen" class="ovl" style="display:none">
+    <div class="ovl-panel">
+      <div class="ovl-hdr"><span id="mg-title">Мини-игра</span><button class="ov-x" data-close="minigame-screen" id="mg-close">✕</button></div>
+      <canvas id="mg-canvas" width="360" height="260"></canvas>
+      <div id="mg-ui"></div>
+    </div>
+  </div>
+
+  <!-- ЕЖЕДНЕВНАЯ НАГРАДА -->
+  <div id="daily-screen" class="ovl" style="display:none">
+    <div class="ovl-panel ovl-sm">
+      <div class="ovl-hdr"><span>🎁 Ежедневная награда!</span></div>
+      <div id="daily-body"></div>
+      <button class="menu-btn btn-primary" id="btn-claim">🐾 Забрать!</button>
+    </div>
+  </div>
+
+  <!-- БАННЕР СОБЫТИЯ -->
+  <div id="event-banner" style="display:none">
+    <span id="ev-icon"></span><span id="ev-text"></span>
+  </div>
+
+  <!-- ПОПАП ДОСТИЖЕНИЯ -->
+  <div id="ach-popup" style="display:none">
+    <div id="ach-pop-icon"></div>
+    <div><div style="font-size:10px;opacity:.7">Достижение!</div><div id="ach-pop-name"></div></div>
+  </div>
+
+</div>
+<script src="graphics.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

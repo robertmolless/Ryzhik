@@ -1,0 +1,26 @@
+{
+  "name": "Рыжик: Тайна загородного дома",
+  "short_name": "Рыжик",
+  "description": "Cozy 2D adventure — рыжий кот, двор, тайна теплицы",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0d0905",
+  "theme_color": "#f4873a",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230d0905'/><text x='96' y='140' font-size='120' text-anchor='middle'>🐱</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230d0905'/><text x='256' y='380' font-size='320' text-anchor='middle'>🐱</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "screenshots": [],
+  "features": ["offline"]
+}
