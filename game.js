@@ -873,6 +873,7 @@ class NPC {
     this.wx = data.x; this.wy = data.y;
     this.trust = 0; // 0-3
     this.visible = true;
+    this.facing = 1;
     this.animTime = 0;
     this.bobY = 0;
     this.emotion = null; this.emotionTime = 0;
@@ -898,7 +899,10 @@ class NPC {
       const dx = this.moveTarget.x - this.wx, dy = this.moveTarget.y - this.wy;
       const d = Math.sqrt(dx*dx+dy*dy);
       if (d < 3) { this.moveTarget = null; }
-      else { const s = 30 * dt; this.wx += dx/d*s; this.wy += dy/d*s; }
+      else {
+        if (dx !== 0) this.facing = dx > 0 ? 1 : -1;
+        const s = 30 * dt; this.wx += dx/d*s; this.wy += dy/d*s;
+      }
     }
   }
   showEmotion(e) { this.emotion = e; this.emotionTime = 2; }
@@ -1297,7 +1301,7 @@ class Inventory {
       if (slot.qty > 1) div.innerHTML += `<span style="font-size:9px;color:#f4873a">×${slot.qty}</span>`;
       div.onclick = () => {
         info.innerHTML = `<b>${slot.item.icon[0]} ${slot.item.name}</b><br>${slot.item.desc}${slot.item.rare?'<span style="color:#ffd844"> ★ Редкий</span>':''}`;
-        // Use item
+        // Use food items
         if (slot.id === 'dryCat' || slot.id === 'fish' || slot.id === 'apple') {
           const btn = document.createElement('button');
           btn.textContent = 'Использовать'; btn.className = 'mg-btn';
@@ -1311,6 +1315,30 @@ class Inventory {
             game.ui.renderInventory();
           };
           info.appendChild(btn);
+        }
+        // Use quest items near NPCs
+        const questItemNpc = {
+          'cassette':'lyokha', 'pick':'igor', 'diary':'nena',
+          'flashPart':'kristina', 'sticker':'liza',
+        };
+        if (questItemNpc[slot.id]) {
+          const nearNpc = game.npcs.find(n => n.id === questItemNpc[slot.id] && n.visible && n.distTo(game.player.x, game.player.y) < 100);
+          if (nearNpc) {
+            const giveBtn = document.createElement('button');
+            giveBtn.textContent = `Отдать ${nearNpc.name}`; giveBtn.className = 'mg-btn';
+            giveBtn.style.marginTop = '6px';
+            giveBtn.onclick = () => {
+              game.inventory.remove(slot.id);
+              game.audio.questDone();
+              nearNpc.trust = Math.min(3, nearNpc.trust + 1);
+              nearNpc.showEmotion('happy');
+              const questMap = { 'cassette':'q_lyokha','pick':'q_igor','diary':'q_nena','flashPart':'q_kristina','sticker':'q_liza' };
+              if (questMap[slot.id] && game.quests.isActive(questMap[slot.id])) game._onQuestAdvance(questMap[slot.id]);
+              game.ui.notify(`✨ ${nearNpc.name} рад(а)!`);
+              game.ui.renderInventory();
+            };
+            info.appendChild(giveBtn);
+          }
         }
         game.audio.uiClick();
         document.querySelectorAll('.inv-slot').forEach(s => s.classList.remove('selected'));
@@ -2589,10 +2617,18 @@ NPC.prototype.draw = function(ctx, cam, period) {
   if (this.human) {
     drawHumanNPC(ctx, {
       id: this.id, x: sx, y: sy, t: GFX.t,
-      facing: this.facing || 1,
+      facing: this.facing,
       moving: !!this.moveTarget,
       trust: this.trust, emotion: this.emotion,
     });
+    // Name badge
+    ctx.save();
+    const bw = this.name.length * 6 + 12;
+    ctx.fillStyle='rgba(20,10,0,0.75)';
+    GFX.roundRect(ctx, sx - bw/2, sy - 52, bw, 16, 4); ctx.fill();
+    ctx.fillStyle = this.color||'#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+    ctx.fillText(this.name, sx, sy - 40);
+    ctx.restore();
   } else {
     // Animal NPC — draw with emoji + glow
     ctx.save();
