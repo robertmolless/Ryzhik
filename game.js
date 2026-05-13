@@ -308,10 +308,12 @@ class WeatherSystem {
       alpha: 0.04 + Math.random() * 0.06, vx: 0.2 + Math.random() * 0.3
     });
   }
-  update(dt, worldW, worldH) {
+  update(dt, worldW, worldH, period = 'day') {
     this.timer += dt;
     if (this.timer > this.duration && Math.random() < 0.005) {
       this.timer = 0;
+      const next = this.random(period);
+      if (next !== this.current) this.set(next);
     }
     if (this.current === 'rain') {
       this.particles.forEach(p => { p.x += p.vx * 2; p.y += p.vy * 2; if (p.y > worldH) { p.y = -10; p.x = Math.random() * worldW; } });
@@ -399,17 +401,17 @@ const ITEMS = {
 const QUESTS = [
   // Стартовые квесты
   { id:'q01', title:'Найти миску Рыжика', icon:'🥣', desc:'Рыжик потерял свою миску после зимы. Нужно найти её во дворе!', steps:['Осмотри двор','Найди миску у крыльца'], reward:{item:'bowl',xp:10}, npc:null, unlock:true },
-  { id:'q02', title:'Ключ от сарая', icon:'🗝️', desc:'В сарае что-то интересное, но он заперт. Найди ключ!', steps:['Поищи ключ во дворе','Проверь у колодца','Открой сарай'], reward:{item:'barnKey',xp:15,zone:'barn'}, npc:null, unlock:true },
+  { id:'q02', title:'Ключ от сарая', icon:'🗝️', desc:'В сарае что-то интересное, но он заперт. Найди ключ — ищи у колодца!', steps:['Найди ключ от сарая (у колодца)','Открой сарай с ключом'], reward:{xp:20,zone:'barn'}, npc:null, unlock:true },
   { id:'q03', title:'Познакомиться с соседями', icon:'👥', desc:'Поговори с жителями двора и узнай, кто тут живёт.', steps:['Поговори с 3 персонажами'], reward:{xp:15}, npc:null, unlock:true },
 
   // Квесты персонажей
-  { id:'q_lyokha', title:'Старая кассета', icon:'📼', desc:'Лёха потерял любимую кассету где-то в сарае. Помоги найти!', steps:['Поговори с Лёхой','Поищи кассету в сарае','Верни кассету Лёхе'], reward:{item:'cassette',xp:20,trust:'lyokha'}, npc:'lyokha', unlock:true },
-  { id:'q_igor', title:'Пропавший медиатор', icon:'🎸', desc:'Игорь потерял свой любимый медиатор у пруда. Нужно найти!', steps:['Поговори с Игорем','Найди медиатор у пруда','Верни медиатор'], reward:{item:'pick',xp:18,trust:'igor'}, npc:'igor', unlock:true },
+  { id:'q_lyokha', title:'Старая кассета', icon:'📼', desc:'Лёха потерял любимую кассету где-то в сарае. Открой сарай и верни её Лёхе!', steps:['Поговори с Лёхой о кассете','Верни кассету Лёхе'], reward:{xp:20,trust:'lyokha'}, npc:'lyokha', unlock:true },
+  { id:'q_igor', title:'Пропавший медиатор', icon:'🎸', desc:'Игорь потерял свой любимый медиатор где-то у пруда. Нужно найти!', steps:['Поговори с Игорем','Верни медиатор Игорю'], reward:{xp:18,trust:'igor'}, npc:'igor', unlock:true },
   { id:'q_nastya', title:'Фото со светлячками', icon:'📸', desc:'Настя мечтает сделать ночную фотографию со светлячками.', steps:['Поговори с Настей','Дождись ночи','Найди место со светлячками','Помоги сделать фото'], reward:{item:'photo',xp:22,trust:'nastya'}, npc:'nastya', unlock:false },
   { id:'q_liza', title:'Потерянные наклейки', icon:'⭐', desc:'Лиза потеряла наклейки по всему двору. Собери все 5!', steps:['Поговори с Лизой','Собери 5 наклеек по двору','Верни наклейки Лизе'], reward:{xp:18,trust:'liza'}, npc:'liza', unlock:false },
-  { id:'q_mag', title:'Колокольчик луны', icon:'🌙', desc:'Маг рассказывает о мистическом колокольчике луны. Найди его ночью!', steps:['Встреть Мага ночью','Выслушай легенду','Найди колокольчик на поляне'], reward:{item:'moonBell',xp:28,trust:'mag'}, npc:'mag', unlock:false },
+  { id:'q_mag', title:'Колокольчик луны', icon:'🌙', desc:'Маг рассказывает о мистическом колокольчике луны. Найди его ночью!', steps:['Встреть Мага ночью','Выслушай легенду','Найди колокольчик на поляне'], reward:{xp:28,trust:'mag'}, npc:'mag', unlock:false },
   { id:'q_sonya', title:'Лесная тропа', icon:'🌲', desc:'Соня знает тайную тропу через лес. Пройди её вместе с ней.', steps:['Поговори с Соней','Иди вместе по лесной тропе','Найди выход на поляну'], reward:{item:'trailMap',xp:22,trust:'sonya',zone:'forest_path'}, npc:'sonya', unlock:false },
-  { id:'q_nena', title:'Странные записи', icon:'📓', desc:'Нэна нашла странные записи о доме, но потеряла страницу. Помоги найти!', steps:['Поговори с Нэной','Найди потерянную страницу','Верни записи Нэне'], reward:{item:'diary',xp:20,trust:'nena'}, npc:'nena', unlock:false },
+  { id:'q_nena', title:'Странные записи', icon:'📓', desc:'Нэна нашла странные записи о доме, но потеряла страницу. Помоги найти!', steps:['Поговори с Нэной','Верни страницу Нэне'], reward:{xp:20,trust:'nena'}, npc:'nena', unlock:false },
   { id:'q_kristina', title:'Сломанный фонарик', icon:'🔦', desc:'Кристина пытается починить фонарик, но не хватает детали.', steps:['Поговори с Кристиной','Найди деталь фонарика','Помоги починить'], reward:{xp:22,trust:'kristina',upgrade:'corner'}, npc:'kristina', unlock:false },
   { id:'q_danya', title:'Коробка сокровищ', icon:'📦', desc:'Даня хочет собрать особую коробку сокровищ. Помоги найти компоненты!', steps:['Поговори с Даней','Найди 3 необычных предмета','Принеси Дане'], reward:{item:'treasure',xp:22,trust:'danya'}, npc:'danya', unlock:false },
 
@@ -891,9 +893,12 @@ class NPC {
     if (this.moveTimer > 5 && this.schedule) {
       this.moveTimer = 0;
       const pos = this.schedule[period];
-      if (pos) { this.moveTarget = { x: pos[0] + (Math.random()-0.5)*40, y: pos[1] + (Math.random()-0.5)*40 }; }
-      else { this.visible = !this.human; } // человеки исчезают если не в расписании
-      if (pos) this.visible = true;
+      if (pos) {
+        this.moveTarget = { x: pos[0] + (Math.random()-0.5)*40, y: pos[1] + (Math.random()-0.5)*40 };
+        this.visible = true;
+      } else {
+        this.visible = false; // персонаж отсутствует в это время суток
+      }
     }
     if (this.moveTarget) {
       const dx = this.moveTarget.x - this.wx, dy = this.moveTarget.y - this.wy;
@@ -981,19 +986,16 @@ class World {
     this.solids = [
       // Дом
       { x:150, y:50,  w:300, h:200 },
-      // Сарай
+      // Сарай (только стены, без проёма у двери)
       { x:50,  y:350, w:120, h:100 },
       // Колодец
       { x:80,  y:200, w:50,  h:50  },
-      // Забор (сегменты)
-      { x:0,   y:500, w:600, h:20  },
-      { x:0,   y:0,   w:20,  h:500 },
-      { x:580, y:0,   w:20,  h:500 },
-      // Пруд
-      { x:650, y:450, w:250, h:180 },
+      // Пруд — только вода (берег проходим для рыбалки)
+      { x:685, y:468, w:185, h:138 },
       // Теплица
       { x:1100,y:200, w:200, h:200 },
     ];
+    // Забор НЕ является препятствием — кот свободно перелезает
   }
   _spawnCollectibles() {
     const items = [
@@ -1001,9 +1003,11 @@ class World {
       { x:620, y:300, item:'apple',    id:'c02' },
       { x:640, y:280, item:'apple',    id:'c03' },
       { x:580, y:320, item:'seeds',    id:'c04' },
-      { x:160, y:370, item:'barnKey',  id:'c05' },
+      // barnKey — у колодца (доступно с начала, квест отправляет к колодцу)
+      { x:148, y:268, item:'barnKey',  id:'c05' },
       { x:380, y:460, item:'coin',     id:'c08' },
-      { x:700, y:530, item:'fish',     id:'c09' },
+      // Рыбка — на западном берегу пруда (доступно)
+      { x:635, y:512, item:'fish',     id:'c09' },
       { x:900, y:450, item:'leaf',     id:'c10' },
       { x:450, y:520, item:'pebble',   id:'c11' },
       { x:500, y:530, item:'pebble',   id:'c12' },
@@ -1012,10 +1016,11 @@ class World {
       { x:1050,y:300, item:'acorn',    id:'c15' },
       { x:250, y:260, item:'button',   id:'c16' },
       { x:700, y:410, item:'pebble',   id:'c17' },
-      { x:900, y:620, item:'bell',     id:'c18' },
-      // Character quest items
-      { x:120, y:380, item:'cassette', id:'c19' },
-      { x:710, y:500, item:'pick',     id:'c20' },
+      { x:900, y:622, item:'bell',     id:'c18' },
+      // Кассета — у двери сарая (появится после открытия через авто-выдачу)
+      { x:184, y:458, item:'cassette', id:'c19' },
+      // Медиатор Игоря — на берегу пруда (доступно после снятия забора)
+      { x:632, y:490, item:'pick',     id:'c20' },
       { x:660, y:340, item:'diary',    id:'c21' },
       { x:350, y:440, item:'flashPart',id:'c22' },
       { x:420, y:290, item:'sticker',  id:'c23' },
@@ -2268,7 +2273,7 @@ class Game {
     this.world.update(dt, this.weather, this.time);
 
     // Weather
-    this.weather.update(dt, this.world.width, this.world.height);
+    this.weather.update(dt, this.world.width, this.world.height, this.time.period);
 
     // NPCs
     this.npcs.forEach(npc => npc.update(dt, this.time.period));
@@ -2360,8 +2365,9 @@ class Game {
     }
 
     // Special locations
-    if (this.player.x > 640 && this.player.x < 790 && this.player.y > 440 && this.player.y < 560) {
-      // Pond — fishing
+
+    // Пруд — рыбалка (на берегу)
+    if (this.player.x > 600 && this.player.x < 688 && this.player.y > 445 && this.player.y < 615) {
       if (this.quests.isActive('q_fish')) {
         this.miniGame.start('fishing', this);
         this.quests.advanceStep('q_fish');
@@ -2370,16 +2376,73 @@ class Game {
       this.miniGame.start('fishing', this);
       return;
     }
-    if (this.player.x > 1100 && this.player.x < 1200 && this.player.y > 200 && this.player.y < 320) {
-      // Greenhouse
-      if (this.inventory.has('barnKey') && !this.unlockedZones.includes('greenhouse')) {
-        this.unlockedZones.push('greenhouse');
-        this.ui.notify('🌿 Теплица открыта!');
-        this.achievements.unlock('ach14');
-        if (this.quests.isActive('q_greenhouse')) this.quests.advanceStep('q_greenhouse');
-        const finalItem = this.world.collectibles.find(c => c.id === 'c_final' && !c.collected);
-        if (finalItem) { this.ui.notify('🔔 Ты чувствуешь что-то особенное рядом...'); }
+
+    // Сарай — открыть ключом
+    if (this.player.x > 30 && this.player.x < 260 && this.player.y > 330 && this.player.y < 490) {
+      if (!this.unlockedZones.includes('barn')) {
+        if (this.inventory.has('barnKey')) {
+          // Открываем сарай
+          if (this.quests.isActive('q02')) {
+            this._onQuestAdvance('q02');
+          }
+          if (!this.unlockedZones.includes('barn')) {
+            this.unlockedZones.push('barn');
+            this.ui.notify('🏚️ Сарай открыт ключом!');
+          }
+          // Авто-выдача кассеты Лёхи из сарая
+          const cassette = this.world.collectibles.find(c => c.id === 'c19' && !c.collected);
+          if (cassette) {
+            cassette.collected = true;
+            this.inventory.add('cassette');
+            this.collectedCount++;
+            this.ui.notify('📼 Нашёл кассету Лёхи в сарае! Верни её Лёхе.');
+          }
+          return;
+        } else {
+          this.ui.notify('🔒 Сарай заперт. Найди ключ — ищи у колодца!');
+          return;
+        }
       }
+      return;
+    }
+
+    // Теплица — открыть колокольчиком луны
+    if (this.player.x > 1055 && this.player.x < 1112 && this.player.y > 188 && this.player.y < 415) {
+      if (!this.unlockedZones.includes('greenhouse')) {
+        if (this.inventory.has('moonBell')) {
+          this.unlockedZones.push('greenhouse');
+          this.achievements.unlock('ach14');
+          this.ui.notify('🌿 Теплица открыта! Магия колокольчика...');
+          // Завершаем квест на теплицу
+          while (this.quests.isActive('q_greenhouse')) {
+            const r = this.quests.advanceStep('q_greenhouse');
+            if (r === 'complete') {
+              const q = QUESTS.find(x => x.id === 'q_greenhouse');
+              if (q && q.reward.xp) {
+                this.player.glory += q.reward.xp;
+                this.ui.notify(`⭐ +${q.reward.xp} Слава`);
+              }
+              this.ui.notify('✅ Квест выполнен: Открыть теплицу!');
+              this.audio.questDone();
+              break;
+            }
+          }
+          // Авто-сбор Солнечного колокольчика
+          const finalItem = this.world.collectibles.find(c => c.id === 'c_final' && !c.collected);
+          if (finalItem) {
+            finalItem.collected = true;
+            this.inventory.add('sunBell');
+            this.collectedCount++;
+            this.ui.notify('🔔✨ Солнечный колокольчик найден!');
+            this._checkQuestItem('sunBell');
+          }
+          return;
+        } else {
+          this.ui.notify('🔒 Теплица закрыта. Маг говорил о колокольчике луны...');
+          return;
+        }
+      }
+      return;
     }
 
     // Purr if nothing
@@ -2396,7 +2459,6 @@ class Game {
       return;
     }
     const line = lines[Math.floor(Math.random() * lines.length)];
-    npc.trust = Math.min(3, npc.trust + 0);
     npc.showEmotion('happy');
     this.audio.uiClick();
 
@@ -2407,7 +2469,6 @@ class Game {
       const choices = [
         { text: `💬 ${step ? 'О квесте: ' + step : 'Поговорить'}`, action: () => {
           npc.trust = Math.min(3, npc.trust + 1);
-          this.quests.advanceStep(npc.quest);
           this._onQuestAdvance(npc.quest);
           this.achievements.unlock('ach02');
         }},
@@ -2477,8 +2538,8 @@ class Game {
   _checkQuestItem(itemId) {
     const checks = {
       'bowl': 'q01', 'barnKey': 'q02',
-      'cassette': 'q_lyokha', 'pick': 'q_igor',
-      'diary': 'q_nena', 'flashPart': 'q_kristina',
+      // cassette/pick/diary сдаются через инвентарь ("Отдать NPC"), не через _checkQuestItem
+      'flashPart': 'q_kristina',
       'sticker': 'q_liza', 'moonBell': 'q_mag',
       'sunBell': 'q_secret', 'letter': 'q_notes',
     };
@@ -2490,6 +2551,12 @@ class Game {
       const cnt = this.inventory.count('sticker');
       if (cnt >= 5 && this.quests.isActive('q_liza')) {
         this._onQuestAdvance('q_liza');
+      }
+    }
+    // Колокольчик луны → сдвигаем квест на теплицу ("Найди ключ от теплицы")
+    if (itemId === 'moonBell' && this.quests.isActive('q_greenhouse')) {
+      if ((this.quests.progress['q_greenhouse'] || 0) === 0) {
+        this._onQuestAdvance('q_greenhouse');
       }
     }
     const shiny = ['coin','pebble','bell','leaf','button','acorn','ribbon','moonBell'];
@@ -2516,17 +2583,25 @@ class Game {
     // NPCs
     const npc = this.npcs.find(n => n.visible && n.distTo(this.player.x, this.player.y) < 70);
     if (npc) hint = `Поговорить с ${npc.name}`;
-    // Pond
-    if (!hint && this.player.x > 640 && this.player.x < 790 && this.player.y > 440 && this.player.y < 560) {
-      hint = '🎣 Порыбачить';
+    // Пруд (берег)
+    if (!hint && this.player.x > 600 && this.player.x < 688 && this.player.y > 445 && this.player.y < 615) {
+      hint = '🎣 Порыбачить [E]';
     }
-    // Barn
-    if (!hint && this.player.x > 50 && this.player.x < 170 && this.player.y > 350 && this.player.y < 460) {
-      hint = this.inventory.has('barnKey') ? '🏚️ Войти в сарай' : '🔒 Закрыто';
+    // Сарай
+    if (!hint && this.player.x > 30 && this.player.x < 260 && this.player.y > 330 && this.player.y < 490) {
+      if (!this.unlockedZones.includes('barn')) {
+        hint = this.inventory.has('barnKey') ? '🏚️ Открыть сарай [E]' : '🔒 Сарай закрыт — ищи ключ у колодца';
+      } else {
+        hint = '🏚️ Сарай (открыт)';
+      }
     }
-    // Greenhouse
-    if (!hint && this.player.x > 1090 && this.player.x < 1220 && this.player.y > 190 && this.player.y < 320) {
-      hint = '🌿 Теплица';
+    // Теплица (снаружи, у западной стены)
+    if (!hint && this.player.x > 1055 && this.player.x < 1112 && this.player.y > 188 && this.player.y < 415) {
+      if (!this.unlockedZones.includes('greenhouse')) {
+        hint = this.inventory.has('moonBell') ? '🌿 Открыть теплицу [E]' : '🔒 Теплица закрыта — нужен колокольчик луны';
+      } else {
+        hint = '🌿 Теплица (открыта)';
+      }
     }
     this.ui.setInteractHint(hint);
   }
