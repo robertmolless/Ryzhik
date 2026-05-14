@@ -71,6 +71,7 @@ class AudioSystem {
     this.volMusic = 0.4;
     this.enabled = true;
     this._musicInterval = null;
+    this._musicActive = false;
     this._init();
   }
   _init() {
@@ -158,19 +159,23 @@ class AudioSystem {
   }
   startMusic() {
     if (!this.enabled || this._musicInterval) return;
+    this._musicActive = true;
     this._musicInterval = setInterval(() => this._playMusicPhrase(), 3000);
     this._playMusicPhrase();
   }
   stopMusic() {
+    this._musicActive = false;
     if (this._musicInterval) { clearInterval(this._musicInterval); this._musicInterval = null; }
   }
   _playMusicPhrase() {
-    if (!this.enabled) return; this._resume();
+    if (!this.enabled || !this._musicActive) return;
+    this._resume();
     const scale = [261, 293, 329, 349, 392, 440, 494, 523];
     const phrase = [];
     for (let i = 0; i < 4; i++) phrase.push(scale[Math.floor(Math.random() * scale.length)]);
     phrase.forEach((f, i) => {
       setTimeout(() => {
+        if (!this._musicActive) return;
         this._tone(f, 'sine', 0.45, 0.06, this.musicGain);
         this._tone(f/2, 'sine', 0.5, 0.03, this.musicGain);
       }, i * 500);
@@ -401,6 +406,7 @@ const ITEMS = {
   tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
   oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
   nickCertificate:  { id:'nickCertificate',  name:'Потерянная справка',   icon:'📄', desc:'Мятая справка Ника, которую сдуло вентилятором.', rare:false },
+  milStamp:         { id:'milStamp',         name:'Военная печать',       icon:'🔏', desc:'Круглая печать военкомата. Без неё ни одна бумага не имеет силы.', rare:false },
   sonyaCompass:     { id:'sonyaCompass',     name:'Старый компас Сони',   icon:'🧭', desc:'Немного потёртый компас Сони. Стрелка всё ещё тянется к северу.', rare:false },
   nickMug:          { id:'nickMug',          name:'Кружка Ника',          icon:'☕', desc:'Любимая кружка Ника. Без кофе — никуда.', rare:false },
   nickScarf:        { id:'nickScarf',        name:'Шарф Ника',            icon:'🧣', desc:'Тёплый шарф. Без него в дорогу не выйдет.', rare:false },
@@ -461,7 +467,7 @@ const QUESTS = [
   { id:'q_prokhor2',  title:'Тяжёлая доска',          icon:'🪵', desc:'Прохор просит доску для починки забора.',             steps:['Найди доску в сарае','Отдай Прохору'],                            reward:{xp:25,zone:'secret_path'},npc:'prokhor',unlock:false },
   // Nick quests
   { id:'q_nick1',  title:'Потерянная справка',     icon:'📄', desc:'Ник потерял справку в военкомате.',                   steps:['Найди справку у вентилятора','Отдай Нику'],                       reward:{xp:20},                  npc:'nick',   unlock:true  },
-  { id:'q_nick2',  title:'Очень важная печать',    icon:'🔏', desc:'Нику нужна печать с верхнего этажа.',                 steps:['Найди печать на втором этаже','Отдай Нику'],                      reward:{xp:25},                  npc:'nick',   unlock:false },
+  { id:'q_nick2',  title:'Очень важная печать',    icon:'🔏', desc:'Военная печать закатилась за коробки у входа в военкомат.',    steps:['Найди военную печать у входа в военкомат','Отдай Нику'],          reward:{xp:25},                  npc:'nick',   unlock:false },
   { id:'q_nick3',  title:'Побег к костру',         icon:'🔥', desc:'Ник собирает вещи, чтобы наконец выбраться из военкомата.',  steps:['Найди кружку Ника','Найди шарф Ника','Найди рюкзак','Найди кассету','Отдай всё Нику'], reward:{xp:40,event:'nick_free'},npc:'nick',   unlock:false },
 ];
 // Merge interior quests (INDOOR_QUESTS defined in interior.js, loaded before game.js)
@@ -720,9 +726,9 @@ const NPC_QUEST_DEFS = {
     q2: {
       id: 'q_nick2',
       title: 'Очень важная печать',
-      item: 'oldBadge',
-      intro: 'Без этой печати меня опять никуда не отпустят. Говорят, видели её в кладовке дома, в старых вещах.',
-      hint: 'Печать в кладовке дома (первый этаж, справа). Покопайся в старых коробках.',
+      item: 'milStamp',
+      intro: 'Без этой печати меня опять никуда не отпустят. Вчера её куда-то закатили — кажется, упала за коробки у входа.',
+      hint: 'Военная печать закатилась к коробкам у входа в военкомат. Поищи там — должна быть на полу.',
       thanks: 'Вот эта! Отлично. Осталось совсем немного — я почти свободен.',
     },
     q3: {
@@ -1866,6 +1872,7 @@ class World {
       { x:1090, y:262, item:'sonyaCompass', id:'c_sonya_compass' },
       { x:200, y:380, item:'tools',    id:'c_tools' },
       { x:230, y:430, item:'plank',    id:'c_plank' },
+      { x:75,  y:1115, item:'milStamp', id:'c_milstamp' },
     ];
     this.collectibles = items.map(i => ({ ...i, collected: false }));
   }
