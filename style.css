@@ -359,6 +359,34 @@ html, body {
 }
 .dlg-choice:active { background: rgba(244,135,58,0.2); }
 
+/* Typing cursor */
+.dlg-cursor {
+  display: inline-block;
+  animation: dlgBlink 0.7s step-end infinite;
+  color: var(--c-orange);
+  font-weight: bold;
+  margin-left: 1px;
+}
+@keyframes dlgBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Ryzhik speaking — subtle shift */
+#dialogue-box.dlg-ryzhik-speaking #dlg-portrait {
+  border-color: #f07030 !important;
+  box-shadow: 0 0 16px rgba(240,112,48,0.5);
+}
+#dialogue-box.dlg-ryzhik-speaking #dlg-name {
+  font-style: italic;
+}
+#dialogue-box.dlg-ryzhik-speaking #dlg-text {
+  font-style: italic;
+  color: rgba(255,240,220,0.9);
+}
+
+/* Smooth line transition */
+#dlg-text {
+  transition: opacity 0.15s ease;
+}
+
 #dlg-tap-hint { font-size: 10px; color: var(--c-text2); text-align: right; }
 
 /* ===== OVERLAYS ===== */
