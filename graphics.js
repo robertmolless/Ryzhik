@@ -241,6 +241,7 @@ const NPC_STYLES = {
   kristina: { hair:'#3a2a1a', shirt:'#7a3060', pants:'#4a2050', skin:'#e8c0b0', hairStyle:'medium', acc:'tattoo' },
   danya:    { hair:'#3a3a3a', shirt:'#4a70c0', pants:'#2a3a50', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2' },
   prokhor:  { hair:'#2a2010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a080', hairStyle:'bald',   acc:'mustache' },
+  nick:     { hair:'#2a1a0a', shirt:'#333344', pants:'#222234', skin:'#c8a882', hairStyle:'medium', acc:null },
 };
 
 function drawHumanNPC(ctx, opts = {}) {
@@ -1456,6 +1457,88 @@ function drawCollectible(ctx, item, x, y, t) {
   ctx.shadowBlur = 0;
 
   ctx.restore();
+}
+
+/* ──────────────────────────────────────────────
+   MILITARY OFFICE (Военкомат)
+   ────────────────────────────────────────────── */
+function drawMilitaryOffice(ctx, x, y, t, period) {
+  const night = period === 'night' || period === 'evening';
+  // Main building body — weathered grey
+  ctx.fillStyle = '#7a7a80';
+  ctx.fillRect(x, y + 20, 100, 80);
+  // Roof — slightly darker
+  ctx.fillStyle = '#5a5a60';
+  ctx.beginPath();
+  ctx.moveTo(x - 6, y + 22);
+  ctx.lineTo(x + 50, y);
+  ctx.lineTo(x + 106, y + 22);
+  ctx.closePath(); ctx.fill();
+  // Wall texture — faded stripes
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath(); ctx.moveTo(x, y + 30 + i * 14); ctx.lineTo(x + 100, y + 30 + i * 14); ctx.stroke();
+  }
+  // Door — worn wood
+  ctx.fillStyle = '#5c3d1e';
+  ctx.fillRect(x + 38, y + 60, 24, 40);
+  ctx.strokeStyle = '#3a2010'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(x + 38, y + 60, 24, 40);
+  // Door handle
+  ctx.fillStyle = '#c8a44a';
+  ctx.beginPath(); ctx.arc(x + 59, y + 80, 2.5, 0, Math.PI * 2); ctx.fill();
+  // Window — warm glow at night
+  const winGlow = night ? 'rgba(255,220,140,0.85)' : 'rgba(200,220,255,0.5)';
+  ctx.fillStyle = '#334';
+  ctx.fillRect(x + 10, y + 35, 22, 20);
+  ctx.fillRect(x + 68, y + 35, 22, 20);
+  ctx.fillStyle = winGlow;
+  ctx.fillRect(x + 11, y + 36, 20, 18);
+  ctx.fillRect(x + 69, y + 36, 20, 18);
+  if (night) {
+    // Warm lamp glow
+    const grd = ctx.createRadialGradient(x + 21, y + 45, 2, x + 21, y + 45, 30);
+    grd.addColorStop(0, 'rgba(255,200,80,0.18)');
+    grd.addColorStop(1, 'rgba(255,200,80,0)');
+    ctx.fillStyle = grd; ctx.fillRect(x - 10, y + 20, 60, 60);
+  }
+  // Old sign above door — faded
+  ctx.fillStyle = 'rgba(60,55,50,0.9)';
+  ctx.fillRect(x + 20, y + 18, 60, 14);
+  ctx.fillStyle = 'rgba(200,195,180,0.7)';
+  ctx.font = 'bold 6px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('ВОЕНКОМАТ', x + 50, y + 25);
+  // Papers on wall (quirky detail)
+  ctx.fillStyle = 'rgba(240,240,220,0.6)';
+  [[x+5,y+45],[x+8,y+58],[x+88,y+42]].forEach(([px,py]) => {
+    ctx.save(); ctx.translate(px, py);
+    ctx.rotate(Math.sin(t * 0.3 + px) * 0.15);
+    ctx.fillRect(0, 0, 8, 10); ctx.restore();
+  });
+  // Old fence post left side
+  ctx.fillStyle = '#6a5a40'; ctx.fillRect(x - 12, y + 50, 6, 50);
+  ctx.fillStyle = '#5a4a30'; ctx.fillRect(x - 16, y + 48, 14, 5);
+  // Tula lamp above door (glows at night)
+  ctx.fillStyle = night ? '#ffdd88' : '#aaa';
+  ctx.beginPath(); ctx.arc(x + 50, y + 14, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#666'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x + 50, y + 10); ctx.lineTo(x + 50, y + 5); ctx.stroke();
+  if (night) {
+    const lg = ctx.createRadialGradient(x + 50, y + 14, 1, x + 50, y + 14, 25);
+    lg.addColorStop(0, 'rgba(255,220,100,0.3)'); lg.addColorStop(1, 'rgba(255,220,100,0)');
+    ctx.fillStyle = lg;
+    ctx.beginPath(); ctx.arc(x + 50, y + 14, 25, 0, Math.PI * 2); ctx.fill();
+  }
+  // Puddle
+  ctx.fillStyle = 'rgba(100,120,160,0.25)';
+  ctx.beginPath(); ctx.ellipse(x + 50, y + 106, 28, 6, 0, 0, Math.PI * 2); ctx.fill();
+  // Bicycle leaning on wall
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x + 90, y + 88, 8, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x + 90, y + 72, 8, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + 90, y + 80); ctx.lineTo(x + 90, y + 64); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + 90, y + 80); ctx.lineTo(x + 84, y + 88); ctx.stroke();
+  ctx.textAlign = 'left';
 }
 
 /* ──────────────────────────────────────────────
