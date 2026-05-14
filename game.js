@@ -400,8 +400,11 @@ const ITEMS = {
   plank:       { id:'plank',       name:'Доска',               icon:'🪵', desc:'Крепкая деревянная доска для Прохора.', rare:false },
   tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
   oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
-  warmScarf:        { id:'warmScarf',        name:'Тёплый шарф',          icon:'🧣', desc:'Уютный шарф. Нику он очень нужен.', rare:false },
   nickCertificate:  { id:'nickCertificate',  name:'Потерянная справка',   icon:'📄', desc:'Мятая справка Ника, которую сдуло вентилятором.', rare:false },
+  nickMug:          { id:'nickMug',          name:'Кружка Ника',          icon:'☕', desc:'Любимая кружка Ника. Без кофе — никуда.', rare:false },
+  nickScarf:        { id:'nickScarf',        name:'Шарф Ника',            icon:'🧣', desc:'Тёплый шарф. Без него в дорогу не выйдет.', rare:false },
+  nickBackpack:     { id:'nickBackpack',     name:'Рюкзак Ника',          icon:'🎒', desc:'Потрёпанный рюкзак Ника. Всё своё ношу с собой.', rare:false },
+  nickCassette:     { id:'nickCassette',     name:'Кассета Ника',         icon:'📼', desc:'Любимая кассета Ника. Без музыки — никуда.', rare:false },
 };
 // Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
@@ -457,7 +460,7 @@ const QUESTS = [
   // Nick quests
   { id:'q_nick1',  title:'Потерянная справка',     icon:'📄', desc:'Ник потерял справку в военкомате.',                   steps:['Найди справку у вентилятора','Отдай Нику'],                       reward:{xp:20},                  npc:'nick',   unlock:true  },
   { id:'q_nick2',  title:'Очень важная печать',    icon:'🔏', desc:'Нику нужна печать с верхнего этажа.',                 steps:['Найди печать на втором этаже','Отдай Нику'],                      reward:{xp:25},                  npc:'nick',   unlock:false },
-  { id:'q_nick3',  title:'Побег к костру',         icon:'🔥', desc:'Ник хочет выбраться из военкомата к костру.',         steps:['Найди шарф','Найди кассету','Отдай Нику'],                        reward:{xp:40,event:'nick_free'},npc:'nick',   unlock:false },
+  { id:'q_nick3',  title:'Побег к костру',         icon:'🔥', desc:'Ник собирает вещи, чтобы наконец выбраться из военкомата.',  steps:['Найди кружку Ника','Найди шарф Ника','Найди рюкзак','Найди кассету','Отдай всё Нику'], reward:{xp:40,event:'nick_free'},npc:'nick',   unlock:false },
 ];
 // Merge interior quests (INDOOR_QUESTS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
@@ -716,9 +719,9 @@ const NPC_QUEST_DEFS = {
       id: 'q_nick3',
       title: 'Побег к костру',
       item: null,
-      intro: 'Если честно… я просто хочу выбраться отсюда и наконец увидеть дом. Мне нужны: шарф и кассета — без них не чувствую себя собой.',
-      hint: 'Найди шарф и кассету — они разбросаны по двору.',
-      thanks: 'Всё есть. Я готов. Наконец-то.',
+      intro: 'Рыжик… кажется, это последний круг бумажного ада. Мне нужно собрать вещи, и тогда я наконец выберусь отсюда.',
+      hint: 'Найди 4 вещи Ника в военкомате: кружку ☕ (на столе), шарф 🧣 (у стены слева), рюкзак 🎒 (у дальней стены), кассету 📼 (у коробок).',
+      thanks: 'Нашёл всё! Я готов. Наконец-то выберусь отсюда.',
     },
   },
 };
@@ -1851,8 +1854,6 @@ class World {
       { x:185, y:615, item:'compass',  id:'c_compass' },
       { x:200, y:380, item:'tools',    id:'c_tools' },
       { x:230, y:430, item:'plank',    id:'c_plank' },
-      // Nick quest items
-      { x:150, y:950, item:'warmScarf', id:'c_warmScarf' },
     ];
     this.collectibles = items.map(i => ({ ...i, collected: false }));
   }
@@ -3380,8 +3381,15 @@ class Game {
       const milNear = this.militaryOffice.nearestFurniture();
       const nearNick = this.militaryOffice.nearNick();
       const nearCert = this.militaryOffice.nearCertificate();
+      const nickForHint = this.npcs.find(n => n.id === 'nick');
+      const nickQS = (nickForHint && nickForHint.questStage) || 0;
       let milHint = null;
-      if (milNear) milHint = `[E] ${milNear.label}`;
+      if (milNear) {
+        // Only show nick item pickup hint when q3 is active
+        if (milNear.action !== 'pickup_nick' || nickQS >= 3) {
+          milHint = `[E] ${milNear.label}`;
+        }
+      }
       // Nick hint overrides furniture hint
       if (nearNick && !this.flags.nickStoryComplete) milHint = '[E] ☕ Поговорить с Ником';
       // Certificate hint overrides everything
@@ -3586,6 +3594,20 @@ class Game {
         this.ui.notify('📄 Подобрал: Потерянная справка Ника!');
         this._checkQuestItem('nickCertificate');
         return;
+      }
+      // Nick q3 item pickup (only active when questStage >= 3)
+      const nickForPick = this.npcs.find(n => n.id === 'nick');
+      if (nickForPick && (nickForPick.questStage || 0) >= 3) {
+        const near = this.militaryOffice.nearestFurniture();
+        if (near && near.action === 'pickup_nick') {
+          this.militaryOffice.pickedMilItems.add(near.id);
+          this.inventory.add(near.item);
+          this.audio.pickup();
+          this.telegram.vibrate(25);
+          const idata = ITEMS[near.item];
+          this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : near.item}`);
+          return;
+        }
       }
       // Talk to Nick (wide zone — player can stand in front of desk)
       if (this.militaryOffice.nearNick()) {
@@ -4151,11 +4173,14 @@ class Game {
       }
       if (qs === 3) {
         const q3 = def.q3;
-        const hasAll = this.inventory.has('warmScarf') && this.inventory.has('cassette');
+        const hasMug      = this.inventory.has('nickMug');
+        const hasScarf    = this.inventory.has('nickScarf');
+        const hasBackpack = this.inventory.has('nickBackpack');
+        const hasCassette = this.inventory.has('nickCassette');
+        const hasAll = hasMug && hasScarf && hasBackpack && hasCassette;
         if (hasAll) {
           this.dialogue.start(npc, [q3.thanks], () => {
-            this.inventory.remove('warmScarf');
-            this.inventory.remove('cassette');
+            ['nickMug', 'nickScarf', 'nickBackpack', 'nickCassette'].forEach(i => this.inventory.remove(i));
             npc.questStage = 4;
             npc.trust = 3;
             this._giveQuestReward(q3, npc);
@@ -4163,9 +4188,11 @@ class Game {
           });
         } else {
           const missing = [];
-          if (!this.inventory.has('warmScarf')) missing.push('шарф');
-          if (!this.inventory.has('cassette'))  missing.push('кассету');
-          this.dialogue.start(npc, [`Почти всё есть… не хватает: ${missing.join(', ')}. Поищи ещё!`]);
+          if (!hasMug)      missing.push('кружку ☕');
+          if (!hasScarf)    missing.push('шарф 🧣');
+          if (!hasBackpack) missing.push('рюкзак 🎒');
+          if (!hasCassette) missing.push('кассету 📼');
+          this.dialogue.start(npc, [q3.intro, `Не хватает: ${missing.join(', ')}.`]);
         }
         return;
       }

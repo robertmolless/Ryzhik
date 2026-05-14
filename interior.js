@@ -1841,11 +1841,16 @@ function _lightenHex(hex, amt) {
    MILITARY OFFICE INTERIOR
    ────────────────────────────────────────────── */
 const MILITARY_FURNITURE = [
-  { id:'mo_exit',  x:10,  y:200, w:55, h:120, type:'mil_door',  label:'Выйти из военкомата 🚪', action:'exit_mil' },
-  { id:'mo_desk',  x:280, y:140, w:180,h:80,  type:'desk',      label:'Стол с бумагами 📄',      action:'examine' },
-  { id:'mo_boxes', x:450, y:250, w:90, h:90,  type:'boxes',     label:'Коробки с документами',    action:'examine' },
-  { id:'mo_fan',   x:450, y:88,  w:60, h:60,  type:'mil_fan',   label:'Старый вентилятор',        action:'examine' },
-  { id:'mo_papers',x:200, y:310, w:80, h:30,  type:'papers',    label:'Бумаги на полу 📄',         action:'examine' },
+  { id:'mo_exit',     x:10,  y:200, w:55, h:120, type:'mil_door',  label:'Выйти из военкомата 🚪',  action:'exit_mil' },
+  { id:'mo_desk',     x:280, y:140, w:180,h:80,  type:'desk',      label:'Стол с бумагами 📄',       action:'examine' },
+  { id:'mo_boxes',    x:450, y:250, w:90, h:90,  type:'boxes',     label:'Коробки с документами',     action:'examine' },
+  { id:'mo_fan',      x:450, y:88,  w:60, h:60,  type:'mil_fan',   label:'Старый вентилятор',         action:'examine' },
+  { id:'mo_papers',   x:200, y:310, w:80, h:30,  type:'papers',    label:'Бумаги на полу 📄',          action:'examine' },
+  // Nick q3 pickup items (appear when questStage >= 3)
+  { id:'mo_mug',      x:282, y:222, w:32, h:32,  type:'nick_item', label:'☕ Кружка Ника',            action:'pickup_nick', item:'nickMug'      },
+  { id:'mo_scarf',    x:100, y:222, w:36, h:32,  type:'nick_item', label:'🧣 Шарф Ника',              action:'pickup_nick', item:'nickScarf'    },
+  { id:'mo_backpack', x:478, y:342, w:44, h:44,  type:'nick_item', label:'🎒 Рюкзак Ника',            action:'pickup_nick', item:'nickBackpack' },
+  { id:'mo_cassette', x:410, y:288, w:36, h:32,  type:'nick_item', label:'📼 Кассета Ника',           action:'pickup_nick', item:'nickCassette' },
 ];
 
 class MilitaryOfficeManager {
@@ -1857,6 +1862,7 @@ class MilitaryOfficeManager {
     this.fadeDir = 0;
     this.pendingAction = null;
     this.certPickedUp = false;
+    this.pickedMilItems = new Set(); // tracks picked nick q3 items by furniture id
   }
   startEnter() {
     if (this.fading) return;
@@ -1911,6 +1917,7 @@ class MilitaryOfficeManager {
     let best = null, bestD = 65;
     for (const f of MILITARY_FURNITURE) {
       if (!f.action) continue;
+      if (f.action === 'pickup_nick' && this.pickedMilItems.has(f.id)) continue;
       const cx = f.x + f.w / 2, cy = f.y + f.h / 2;
       const d = Math.sqrt((cx - this.px) ** 2 + (cy - this.py) ** 2);
       if (d < bestD) { bestD = d; best = f; }
@@ -1925,7 +1932,11 @@ class MilitaryOfficeManager {
     return !this.certPickedUp && Math.sqrt((this.px - 420) ** 2 + (this.py - 260) ** 2) < 70;
   }
   save() {
-    return { active: this.active, px: this.px, py: this.py, certPickedUp: this.certPickedUp };
+    return {
+      active: this.active, px: this.px, py: this.py,
+      certPickedUp: this.certPickedUp,
+      pickedMilItems: [...this.pickedMilItems],
+    };
   }
   load(s) {
     if (!s) return;
@@ -1933,6 +1944,7 @@ class MilitaryOfficeManager {
     this.px = s.px || 100;
     this.py = s.py || 280;
     this.certPickedUp = s.certPickedUp || false;
+    this.pickedMilItems = new Set(s.pickedMilItems || []);
   }
 }
 
@@ -2116,6 +2128,50 @@ function drawMilitaryOfficeScene(ctx, opts) {
       ctx.fillText('📄', certX, certY - 22 + Math.sin(t * 2) * 3);
       ctx.globalAlpha = 1;
       ctx.restore();
+    }
+  }
+
+  // ── Nick q3 pickup items (visible when questStage >= 3) ──
+  if (nickNPC && (nickNPC.questStage || 0) >= 3) {
+    const nickItems = [
+      { id:'mo_mug',      picked: mil.pickedMilItems.has('mo_mug'),      x:305, y:155, label:'☕' },
+      { id:'mo_scarf',    picked: mil.pickedMilItems.has('mo_scarf'),    x:118, y:232, label:'🧣' },
+      { id:'mo_backpack', picked: mil.pickedMilItems.has('mo_backpack'), x:500, y:362, label:'🎒' },
+      { id:'mo_cassette', picked: mil.pickedMilItems.has('mo_cassette'), x:428, y:298, label:'📼' },
+    ];
+    const furnitureCenters = {
+      mo_mug:      { px: 298, py: 238 },
+      mo_scarf:    { px: 118, py: 238 },
+      mo_backpack: { px: 500, py: 364 },
+      mo_cassette: { px: 428, py: 304 },
+    };
+    for (const ni of nickItems) {
+      if (ni.picked) continue;
+      const pulse = Math.sin(t * 2.2 + ni.x * 0.01) * 0.3 + 0.7;
+      const fc = furnitureCenters[ni.id];
+      const dist = Math.sqrt((px - fc.px) ** 2 + (py - fc.py) ** 2);
+      // Glow halo
+      const grd = ctx.createRadialGradient(ni.x, ni.y, 2, ni.x, ni.y, 22);
+      grd.addColorStop(0, `rgba(255,200,60,${0.4 * pulse})`);
+      grd.addColorStop(1, 'rgba(255,200,60,0)');
+      ctx.fillStyle = grd;
+      ctx.fillRect(ni.x - 24, ni.y - 24, 48, 48);
+      // Emoji icon with float
+      ctx.save();
+      ctx.font = '16px serif'; ctx.textAlign = 'center';
+      ctx.globalAlpha = 0.85 + Math.sin(t * 1.6 + ni.x) * 0.12;
+      ctx.fillText(ni.label, ni.x, ni.y + 6 + Math.sin(t * 1.4 + ni.x * 0.02) * 3);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+      // Pickup hint when close
+      if (dist < 65) {
+        ctx.save();
+        ctx.globalAlpha = 0.6 + Math.sin(t * 3) * 0.3;
+        ctx.font = '10px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#ffe080';
+        ctx.fillText('[E]', ni.x, ni.y - 18 + Math.sin(t * 2) * 2);
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      }
     }
   }
 
