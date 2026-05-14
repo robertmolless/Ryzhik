@@ -365,6 +365,7 @@ class WeatherSystem {
 /* ──────────────────────────────────────────────
    GAME DATA: ITEMS
    ────────────────────────────────────────────── */
+// INDOOR_ITEMS merged at bottom of ITEMS definition (interior.js loaded first)
 const ITEMS = {
   bowl:     { id:'bowl',     name:'Миска',         icon:'🥣', desc:'Любимая миска Рыжика. Из неё так вкусно есть!', rare:false },
   fish:     { id:'fish',     name:'Рыбка',          icon:'🐟', desc:'Свежая рыбка. Рыжик будет в восторге!', rare:false },
@@ -394,6 +395,8 @@ const ITEMS = {
   toyMouse: { id:'toyMouse', name:'Игрушечная мышь',icon:'🐭', desc:'Мягкая игрушечная мышка. Отличная игрушка!', rare:false },
   feather:  { id:'feather',  name:'Перо',           icon:'🪶', desc:'Красивое перо, найденное во дворе.', rare:false },
 };
+// Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
+if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
 
 /* ──────────────────────────────────────────────
    GAME DATA: QUESTS
@@ -429,6 +432,8 @@ const QUESTS = [
   { id:'q_secret', title:'Тайна старой теплицы', icon:'🔮', desc:'Что скрывает заброшенная теплица? Разгадай тайну!', steps:['Войди в теплицу','Найди Солнечный колокольчик','Узнай историю дома'], reward:{item:'sunBell',xp:60}, npc:null, unlock:false },
   { id:'q_finale', title:'Финал: Вернуть уют дому', icon:'🏡', desc:'Рыжик почти всё сделал! Собери всех и верни дому уют.', steps:['Завершить основные квесты','Собрать всех у дома вечером','Позвонить в Солнечный колокольчик'], reward:{xp:100,event:'finale'}, npc:null, unlock:false },
 ];
+// Merge interior quests (INDOOR_QUESTS defined in interior.js, loaded before game.js)
+if (typeof INDOOR_QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
 
 /* ──────────────────────────────────────────────
    GAME DATA: ACHIEVEMENTS
@@ -1381,7 +1386,7 @@ class Inventory {
    ────────────────────────────────────────────── */
 class QuestSystem {
   constructor() {
-    this.active    = new Set(['q01','q02','q03','q_lyokha','q_igor']); // стартовые
+    this.active    = new Set(['q01','q02','q03','q_lyokha','q_igor','q_ind1']); // стартовые
     this.completed = new Set();
     this.progress  = {}; // id -> stepIndex
     QUESTS.forEach(q => { if (q.unlock) this.active.add(q.id); });
@@ -2010,6 +2015,7 @@ class Game {
     this.input        = new Input();
     this.player       = new Player();
     this.world        = new World();
+    this.interior     = new InteriorManager();
     this.inventory    = new Inventory();
     this.quests       = new QuestSystem();
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
@@ -2050,6 +2056,18 @@ class Game {
     this._bindMenuButtons();
     this._bindGameButtons();
     initSplashFireflies();
+
+    // Mobile interior enter/exit button
+    this._mobileEnterBtn = null;
+    const mobileEnterBtn = document.createElement('button');
+    mobileEnterBtn.id = 'btn-enter-house';
+    mobileEnterBtn.className = 'act-btn';
+    mobileEnterBtn.textContent = '🏠';
+    mobileEnterBtn.style.cssText = 'display:none;position:fixed;right:90px;bottom:90px;z-index:200;font-size:22px;width:50px;height:50px;border-radius:50%;background:rgba(255,200,100,0.85);border:2px solid #c8860a;cursor:pointer;';
+    mobileEnterBtn.addEventListener('touchstart', e => { e.preventDefault(); if (this.running && !this.paused) this._handleInteraction(); });
+    mobileEnterBtn.addEventListener('click', () => { if (this.running && !this.paused) this._handleInteraction(); });
+    document.body.appendChild(mobileEnterBtn);
+    this._mobileEnterBtn = mobileEnterBtn;
 
     // Check save
     if (this.save.hasSave()) {
@@ -2138,6 +2156,7 @@ class Game {
     this.time         = new TimeSystem();
     this.weather      = new WeatherSystem(this.audio);
     this.npcs         = NPC_DATA.map(d => new NPC(d));
+    this.interior     = new InteriorManager();
     this.upgrades     = new Set();
     this.achievements = new AchievementSystem(this.ui, this.audio, this.telegram);
     this.unlockedZones= ['yard','porch','garden','well','fence'];
@@ -2184,6 +2203,7 @@ class Game {
         });
       }
       if (d.weather) this.weather.set(d.weather);
+      if (d.interior && this.interior) this.interior.load(d.interior);
       this._startPlaying();
       this.ui.notify('✅ Прогресс загружен!');
     } catch(e) {
@@ -2208,6 +2228,7 @@ class Game {
       upgrades:      [...this.upgrades],
       npc_trust:     this.npcs.map(n => [n.id, n.trust]),
       weather:       this.weather.current,
+      interior:      this.interior ? this.interior.save() : null,
     });
   }
 
@@ -2279,7 +2300,51 @@ class Game {
       if (lastDay !== today) { localStorage.setItem('ryzhik_lastday',today); setTimeout(()=>this.ui.showDailyReward(this),2000); }
     }
 
-    // Player
+    // Interior system update (always runs, handles fading)
+    if (this.interior) this.interior.update(dt);
+
+    // ── INDOOR mode ──
+    if (this.interior && this.interior.active) {
+      // Indoor movement via input
+      const dx = this.input.dx;
+      const dy = this.input.dy;
+      this.interior.move(dx, dy, dt);
+
+      // Nearest furniture hint
+      const near = this.interior.nearestFurniture();
+      const hint = document.getElementById('interact-hint');
+      // Exit hint if near left edge
+      if (this.interior.floor === 1 && this.interior.px < 100) {
+        if (hint) { hint.style.display = 'block'; hint.textContent = '[E] Выйти из дома 🌿'; }
+        const al = document.getElementById('action-label'); if (al) al.textContent = '[E] Выйти из дома 🌿';
+      } else if (near) {
+        if (hint) { hint.style.display = 'block'; hint.textContent = `[E] ${near.label}`; }
+        const al = document.getElementById('action-label'); if (al) al.textContent = `[E] ${near.label}`;
+      } else {
+        if (hint) hint.style.display = 'none';
+        const al = document.getElementById('action-label'); if (al) al.textContent = '';
+      }
+
+      // Action key
+      if (this.input.consumeAction()) this._handleInteraction();
+      if (this.input.consumeMeow()) { this.player.playAction('meow'); this.audio.meow(); }
+
+      // UI updates (stats etc still update)
+      this.ui.updateStats(this.player);
+      this.ui.updateTime(this.time);
+      this.ui.updateWeather(this.weather);
+      this.ui.updateQuestTracker(this.quests);
+
+      // Mobile enter button show/hide
+      if (this._mobileEnterBtn) {
+        const canExit = this.interior.floor === 1 && this.interior.px < 100;
+        this._mobileEnterBtn.style.display = 'block';
+        this._mobileEnterBtn.textContent = canExit ? '🚪' : '🏠';
+      }
+      return; // skip outdoor update
+    }
+
+    // Player (outdoor)
     this.player.update(dt, this.input, this.world);
 
     // Camera
@@ -2353,6 +2418,35 @@ class Game {
   /* ── INTERACTION ── */
   _handleInteraction() {
     if (this.dialogue.active) { this.dialogue.advance(); return; }
+
+    // ── INTERIOR: handle all interior interactions ──
+    if (this.interior && this.interior.active) {
+      // Exit house (near left wall on floor 1)
+      if (this.interior.floor === 1 && this.interior.px < 100) {
+        this.interior.startExit();
+        this.audio.uiClick();
+        this.ui.notify('🌿 Рыжик выходит на улицу...');
+        return;
+      }
+      // Furniture interaction
+      const near = this.interior.nearestFurniture();
+      if (near) {
+        this._interactFurniture(near);
+        return;
+      }
+      return;
+    }
+
+    // ── DOOR OF HOUSE (enter) ──
+    if (this.interior && !this.interior.active) {
+      if (this.player.x > 250 && this.player.x < 350 && this.player.y > 230 && this.player.y < 270) {
+        this.interior.startEnter();
+        this.audio.uiClick();
+        this.ui.notify('🏠 Рыжик входит в дом...');
+        if (this.quests.isActive('q_ind1')) this._onQuestAdvance('q_ind1');
+        return;
+      }
+    }
 
     // Check collectibles first
     const item = this.world.collectibles.find(c => !c.collected && Math.sqrt((c.x-this.player.x)**2+(c.y-this.player.y)**2) < 50);
@@ -2466,6 +2560,166 @@ class Game {
     this.audio.purr();
   }
 
+  /* ── FURNITURE INTERACTION ── */
+  _interactFurniture(f) {
+    const interior = this.interior;
+    const period = this.time.period;
+
+    // Period restriction
+    if (f.period && f.period !== period) {
+      const when = f.period === 'evening' ? 'вечером' : 'ночью';
+      this.ui.notify(`💭 Это работает только ${when}...`);
+      return;
+    }
+
+    switch (f.action) {
+      case 'sit':
+        interior.sitting = !interior.sitting;
+        if (interior.sitting) {
+          this.ui.notify(`😺 Рыжик удобно устроился на ${f.label.toLowerCase()}!`);
+          this.player.energy = Math.min(100, this.player.energy + 5);
+        } else {
+          this.ui.notify('🐾 Рыжик встаёт...');
+        }
+        this.player.playAction('purr');
+        break;
+
+      case 'sleep':
+        this.ui.notify('😴 Рыжик свернулся клубочком на кровати! Так мягко...');
+        this.player.energy = Math.min(100, this.player.energy + 30);
+        this.player.mood   = Math.min(100, this.player.mood + 15);
+        this.player.playAction('purr');
+        break;
+
+      case 'watch':
+        interior.tvOn = !interior.tvOn;
+        this.ui.notify(interior.tvOn ? '📺 Телевизор включён! Что-то интересное...' : '📺 Телевизор выключен.');
+        break;
+
+      case 'listen':
+        if (f.id === 'vinyl_pl' || f.label === 'Проигрыватель') {
+          this.ui.notify('🎵 Тихая музыка наполняет комнату...');
+        } else {
+          this.ui.notify('🎵 Рыжик тихо мурлычет в такт!');
+        }
+        this.player.mood = Math.min(100, this.player.mood + 10);
+        if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+        if (f.id === 'guitar1' && this.quests.isActive('q_ind2')) this._onQuestAdvance('q_ind2');
+        break;
+
+      case 'lamp': {
+        const lampId = f.id;
+        interior.lampOn[lampId] = !interior.lampOn[lampId];
+        this.ui.notify(interior.lampOn[lampId] ? '💡 Лампа включена! Как уютно...' : '💡 Лампа выключена.');
+        if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+        break;
+      }
+
+      case 'open':
+        if (f.id === 'fridge') {
+          interior.fridgeOpen = !interior.fridgeOpen;
+          this.ui.notify(interior.fridgeOpen ? '🧊 Холодильник открыт! Тут яблоки и кефир.' : '🧊 Холодильник закрыт.');
+        } else if (f.id === 'cabinet') {
+          if (!interior.cabinetOpen) {
+            interior.cabinetOpen = true;
+            if (f.item && !interior.pickedItems.has(f.id)) {
+              interior.pickedItems.add(f.id);
+              this.inventory.add(f.item);
+              this.collectedCount++;
+              this.ui.notify(`🔑 В шкафчике нашёлся ${ITEMS[f.item] ? ITEMS[f.item].name : f.item}!`);
+              this._checkQuestItem(f.item);
+              if (this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
+            } else {
+              this.ui.notify('📦 Шкафчик открыт — внутри пусто.');
+            }
+          } else {
+            interior.cabinetOpen = false;
+            this.ui.notify('📦 Шкафчик закрыт.');
+          }
+        }
+        break;
+
+      case 'open_chest':
+        if (!interior.chestOpen) {
+          if (this.inventory.has('houseKey')) {
+            interior.chestOpen = true;
+            this.inventory.remove('houseKey');
+            this.ui.notify('🗝️ Сундук открыт ключом! Там что-то старое...');
+            this.player.glory += 20;
+            if (this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
+          } else {
+            this.ui.notify('🔒 Сундук заперт. Нужен ключ — может быть в кухне?');
+          }
+        } else {
+          this.ui.notify('📦 Сундук уже открыт.');
+        }
+        break;
+
+      case 'pickup':
+        if (!interior.pickedItems.has(f.id) && f.item) {
+          interior.pickedItems.add(f.id);
+          this.inventory.add(f.item);
+          this.collectedCount++;
+          const iname = ITEMS[f.item] ? ITEMS[f.item].name : f.item;
+          this.ui.notify(`✨ Рыжик подобрал: ${iname}!`);
+          this._checkQuestItem(f.item);
+          if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+          if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+          if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        } else {
+          this.ui.notify('💭 Рыжик уже взял всё интересное здесь.');
+        }
+        break;
+
+      case 'examine': {
+        const msgs = {
+          shelf:    '📚 Книги, старые журналы, пара кассет... Всё пыльное, но уютное.',
+          photos:   '📸 Старые фотографии. Радостные лица, летний двор, молодой Лёха с гитарой...',
+          boxes1:   '📦 Старые коробки с вещами. Большинство пустые, но пахнут прошлым.',
+          boxes2:   '📦 Коробки забиты старыми журналами и пластинками.',
+          boxes3:   '📦 Тут что-то тяжёлое... вроде инструменты.',
+          poster1:  '🤘 Плакат рок-группы. Лёха явно фанат!',
+          poster2:  '🎸 Ещё один плакат. Автограф на нём!',
+          headph:   '🎧 Наушники. Если надеть — мир исчезнет.',
+          kettle:   '☕ Чайник ещё тёплый. Кто-то недавно пил чай.',
+          balc_view:'🌅 Вид с балкона: сад, деревья, закатное небо. Красота!',
+          lights:   '✨ Гирлянды украшают балкон. Вечером светятся особенно красиво.',
+        };
+        this.ui.notify(msgs[f.id] || `💭 ${f.label}... интересно.`);
+        if (f.id === 'photos' && this.quests.isActive('q_ind2')) this._onQuestAdvance('q_ind2');
+        if (f.id === 'photos' && this.quests.isActive('q_ind7')) this._onQuestAdvance('q_ind7');
+        break;
+      }
+
+      case 'eat':
+        if (this.player.food < 100) {
+          this.player.food = Math.min(100, this.player.food + 25);
+          this.ui.notify('🥣 Рыжик поел из своей миски! Вкусно!');
+        } else {
+          this.ui.notify('🥣 Рыжик сыт и доволен!');
+        }
+        break;
+
+      case 'stairs_up':
+        if (this.interior.floor === 1) {
+          this.interior.goFloor(2);
+          this.ui.notify('🪜 Рыжик поднимается на второй этаж...');
+          if (this.quests.isActive('q_ind4')) this._onQuestAdvance('q_ind4');
+        }
+        break;
+
+      case 'stairs_down':
+        if (this.interior.floor === 2) {
+          this.interior.goFloor(1);
+          this.ui.notify('🪜 Рыжик спускается вниз...');
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+
   /* ── NPC TALK ── */
   _talkToNPC(npc) {
     const period = this.time.period;
@@ -2544,6 +2798,12 @@ class Game {
       if (doneCount >= 12) { this.quests.unlock('q_party'); }
       if (doneCount >= 14) { this.quests.unlock('q_secret'); }
       if (doneCount >= 16) { this.quests.unlock('q_finale'); }
+      // Indoor quest cascades
+      if (doneCount >= 1) { this.quests.unlock('q_ind2'); this.quests.unlock('q_ind6'); }
+      if (doneCount >= 3) { this.quests.unlock('q_ind3'); this.quests.unlock('q_ind9'); }
+      if (doneCount >= 5) { this.quests.unlock('q_ind4'); this.quests.unlock('q_ind5'); }
+      if (doneCount >= 7) { this.quests.unlock('q_ind7'); this.quests.unlock('q_ind8'); }
+      if (doneCount >= 9) { this.quests.unlock('q_ind10'); }
     } else if (result === 'advance') {
       const q = QUESTS.find(x => x.id === qid);
       this.ui.notify(`📋 ${q.title}: ${this.quests.currentStep(qid)}`);
@@ -2589,16 +2849,35 @@ class Game {
 
   /* ── PROXIMITY CHECKS ── */
   _checkProximity() {
+    // Indoor proximity is handled in _update
+    if (this.interior && this.interior.active) return;
+
     let hint = null;
+
+    // House door hint (outdoor)
+    if (this.player.x > 240 && this.player.x < 360 && this.player.y > 220 && this.player.y < 270) {
+      hint = '[E] Войти в дом 🏠';
+      if (this.quests.isActive('q_ind1')) {
+        // Advance first step of q_ind1 on proximity
+      }
+    }
+
+    // Mobile enter button
+    if (this._mobileEnterBtn) {
+      const nearDoor = this.player.x > 240 && this.player.x < 360 && this.player.y > 220 && this.player.y < 270;
+      this._mobileEnterBtn.style.display = nearDoor ? 'block' : 'none';
+      this._mobileEnterBtn.textContent = '🏠';
+    }
+
     // Items
     const item = this.world.collectibles.find(c => !c.collected && Math.sqrt((c.x-this.player.x)**2+(c.y-this.player.y)**2) < 50);
-    if (item) {
+    if (item && !hint) {
       const idata = ITEMS[item.item];
       hint = `Поднять ${idata.icon[0]} ${idata.name}`;
     }
     // NPCs
     const npc = this.npcs.find(n => n.visible && n.distTo(this.player.x, this.player.y) < 70);
-    if (npc) hint = `Поговорить с ${npc.name}`;
+    if (npc && !hint) hint = `Поговорить с ${npc.name}`;
     // Пруд (берег)
     if (!hint && this.player.x > 600 && this.player.x < 688 && this.player.y > 445 && this.player.y < 615) {
       hint = '🎣 Порыбачить [E]';
@@ -2683,6 +2962,24 @@ class Game {
     const ctx = this.ctx;
     GFX.t = performance.now() / 1000; // update global time
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // ── Interior rendering ──
+    if (this.interior && this.interior.active) {
+      drawHouseScene(ctx, {
+        floor: this.interior.floor,
+        px: this.interior.px,
+        py: this.interior.py,
+        t: GFX.t,
+        period: this.time.period,
+        interior: this.interior,
+        npcs: this.npcs,
+        cw: this.canvas.width,
+        ch: this.canvas.height,
+      });
+      // drawHouseScene handles its own fade overlay
+      return;
+    }
+
     // World (includes sky, ground, structures, weather, lighting)
     this.world.draw(ctx, this.camera, this.time, this.weather);
     // NPCs (screen coords passed via cam offset)
@@ -2693,6 +2990,12 @@ class Game {
     ctx.translate(-this.camera.x, -this.camera.y);
     this.player.draw(ctx);
     ctx.restore();
+
+    // Fade overlay (when transitioning to/from interior)
+    if (this.interior && this.interior.fadeAlpha > 0) {
+      ctx.fillStyle = `rgba(0,0,0,${this.interior.fadeAlpha})`;
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
   }
 }
 
