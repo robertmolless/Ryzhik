@@ -400,6 +400,7 @@ const ITEMS = {
   plank:       { id:'plank',       name:'Доска',               icon:'🪵', desc:'Крепкая деревянная доска для Прохора.', rare:false },
   tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
   oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
+  warmScarf:   { id:'warmScarf',   name:'Тёплый шарф',         icon:'🧣', desc:'Уютный шарф. Нику он очень нужен.', rare:false },
 };
 // Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
@@ -450,6 +451,10 @@ const QUESTS = [
   { id:'q_danya2',    title:'Игрушка для Рыжика',     icon:'🐭', desc:'Даня мастерит игрушку из старого жетона.',            steps:['Найди старый жетон в доме','Отдай Дане'],                         reward:{xp:20,item:'toyMouse'},  npc:'danya',  unlock:false },
   { id:'q_prokhor',   title:'Старый забор',           icon:'🔨', desc:'Прохор просит инструменты из сарая.',                 steps:['Найди инструменты в сарае','Отдай Прохору'],                      reward:{xp:20},                  npc:'prokhor',unlock:true  },
   { id:'q_prokhor2',  title:'Тяжёлая доска',          icon:'🪵', desc:'Прохор просит доску для починки забора.',             steps:['Найди доску в сарае','Отдай Прохору'],                            reward:{xp:25,zone:'secret_path'},npc:'prokhor',unlock:false },
+  // Nick quests
+  { id:'q_nick1',  title:'Потерянная справка',     icon:'📄', desc:'Ник потерял справку в военкомате.',                   steps:['Найди справку у вентилятора','Отдай Нику'],                       reward:{xp:20},                  npc:'nick',   unlock:true  },
+  { id:'q_nick2',  title:'Очень важная печать',    icon:'🔏', desc:'Нику нужна печать с верхнего этажа.',                 steps:['Найди печать на втором этаже','Отдай Нику'],                      reward:{xp:25},                  npc:'nick',   unlock:false },
+  { id:'q_nick3',  title:'Побег к костру',         icon:'🔥', desc:'Ник хочет выбраться из военкомата к костру.',         steps:['Найди шарф','Найди кассету','Отдай Нику'],                        reward:{xp:40,event:'nick_free'},npc:'nick',   unlock:false },
 ];
 // Merge interior quests (INDOOR_QUESTS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
@@ -682,6 +687,32 @@ const NPC_QUEST_DEFS = {
       intro: 'Ещё нужна доска. В сарае или возле него должна быть. Принеси.',
       hint: 'Доска в сарае или рядом с ним. Поищи.',
       thanks: 'Хорошая доска. Теперь здесь станет лучше. Спасибо, кот.',
+    },
+  },
+  nick: {
+    q1: {
+      id: 'q_nick1',
+      title: 'Потерянная справка',
+      item: 'oldPhoto',
+      intro: 'Кажется, моя справка опять куда-то исчезла… Она должна быть где-то здесь, за шкафом или у вентилятора.',
+      hint: 'Справка где-то в военкомате. Поищи у вентилятора или за коробкой.',
+      thanks: 'Нашлась! Правда, теперь нужна печать… Конечно же.',
+    },
+    q2: {
+      id: 'q_nick2',
+      title: 'Очень важная печать',
+      item: 'oldBadge',
+      intro: 'Без этой печати меня опять никуда не отпустят. Говорят, видели её на втором этаже дома, в старых вещах.',
+      hint: 'Печать на втором этаже дома. Покопайся в старых коробках.',
+      thanks: 'Вот эта! Отлично. Осталось совсем немного — я почти свободен.',
+    },
+    q3: {
+      id: 'q_nick3',
+      title: 'Побег к костру',
+      item: null,
+      intro: 'Если честно… я просто хочу выбраться отсюда и наконец увидеть дом. Мне нужны: шарф и кассета — без них не чувствую себя собой.',
+      hint: 'Найди шарф и кассету — они разбросаны по двору.',
+      thanks: 'Всё есть. Я готов. Наконец-то.',
     },
   },
 };
@@ -993,6 +1024,34 @@ const NPC_STORIES = {
         { speaker: 'npc',    text: 'Люблю сидеть вечером возле костра.', emotion: 'happy' },
         { speaker: 'npc',    text: 'Когда всё вокруг становится тихим.', emotion: 'happy' },
         { speaker: 'npc',    text: 'В такие моменты дом будто снова оживает.', emotion: 'happy' },
+      ],
+    },
+  ],
+  nick: [
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Знаешь, я уже перестал понимать, какие бумаги здесь вообще нужны.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Каждый раз появляется ещё одна.', emotion: 'sad' },
+        { speaker: 'ryzhik', text: 'Мяу?..', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Кажется, этот стол скоро победит меня окончательно.', emotion: 'neutral' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc', text: 'Иногда ночью я просто сижу здесь и слушаю шум вентилятора.', emotion: 'nostalgic' },
+        { speaker: 'npc', text: 'И представляю, как вы сидите у костра возле дома.', emotion: 'nostalgic' },
+        { speaker: 'npc', text: 'Музыка, светлячки, запах дыма…', emotion: 'sad' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Больше всего сейчас хочу просто спокойный вечер.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Без очередей. Без бумаг. Без странных печатей.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мрр.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Просто сидеть у костра и слушать музыку.', emotion: 'happy' },
       ],
     },
   ],
@@ -1592,6 +1651,11 @@ class NPC {
     this.animTime += dt;
     this.bobY = Math.sin(this.animTime * 1.8) * 2;
     if (this.emotion) { this.emotionTime -= dt; if (this.emotionTime <= 0) this.emotion = null; }
+    // Nick stays in military office until story complete
+    if (this.id === 'nick' && (this.questStage || 0) < 4) {
+      this.wx = 80; this.wy = 1100;
+      return;
+    }
     // Multi-waypoint movement
     this.moveTimer += dt;
     const beh = (typeof NPC_BEHAVIORS !== 'undefined') ? NPC_BEHAVIORS[this.id] : null;
@@ -1767,6 +1831,8 @@ class World {
       { x:185, y:615, item:'compass',  id:'c_compass' },
       { x:200, y:380, item:'tools',    id:'c_tools' },
       { x:230, y:430, item:'plank',    id:'c_plank' },
+      // Nick quest items
+      { x:150, y:950, item:'warmScarf', id:'c_warmScarf' },
     ];
     this.collectibles = items.map(i => ({ ...i, collected: false }));
   }
@@ -1902,6 +1968,11 @@ class World {
     // ── Greenhouse ──
     drawGreenhouse(ctx, 1100+ox, 200+oy, t);
 
+    // ── Military Office (bottom-left) ──
+    if (typeof drawMilitaryOffice === 'function') {
+      drawMilitaryOffice(ctx, 30+ox, 1080+oy, t, time.period);
+    }
+
     // ── Fence ──
     drawFence(ctx, ox, 500+oy, this.width, t);
 
@@ -1985,6 +2056,12 @@ class World {
     ctx.fillRect(1100*sx, 200*sy, 200*sx, 200*sy);
     ctx.font = `${Math.max(6, mw*0.05)}px serif`;
     ctx.fillText('🌿', 1200*sx, 300*sy);
+
+    // Military office
+    ctx.fillStyle = '#888899';
+    ctx.fillRect(Math.round(30*sx), Math.round(1080*sy), Math.round(100*sx), Math.round(8*sy));
+    ctx.font = `${Math.max(6, mw*0.05)}px serif`;
+    ctx.fillText('🏢', Math.round(80*sx), Math.round(1090*sy));
 
     // NPC markers with quest icons
     npcs.forEach(n => {
@@ -3047,6 +3124,7 @@ class Game {
     this.achievements.ui = this.ui;
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
     this.world        = new World();
+    this.flags        = { nickStoryComplete: false };
     this.ambient      = new AmbientSystem();
     this.weather.set('sunny');
     this._startPlaying();
@@ -3099,6 +3177,7 @@ class Game {
       if (d.weather) this.weather.set(d.weather);
       if (d.interior && this.interior) this.interior.load(d.interior);
       if (d.barn     && this.barn)     this.barn.load(d.barn);
+      if (d.flags) this.flags = Object.assign({ nickStoryComplete: false }, d.flags);
       this._startPlaying();
       this.ui.notify('✅ Прогресс загружен!');
     } catch(e) {
@@ -3127,6 +3206,7 @@ class Game {
       weather:       this.weather.current,
       interior:      this.interior ? this.interior.save() : null,
       barn:          this.barn     ? this.barn.save()     : null,
+      flags:         this.flags || {},
     });
   }
 
@@ -3790,6 +3870,79 @@ class Game {
     if (!def) return;
     const qs = npc.questStage || 0;
 
+    // ── Nick special: 3-quest arc ──
+    if (npc.id === 'nick') {
+      if (qs === 0) {
+        this.dialogue.startWithChoices(npc, def.q1.intro, [
+          { text: '🐾 Помогу!', action: () => {
+            npc.questStage = 1;
+            npc.trust = Math.min(3, npc.trust + 1);
+            this.quests.unlock(def.q1.id);
+            this.ui.notify(`📋 Новый квест: ${def.q1.title}`);
+          }},
+          { text: '💬 Может, потом...', action: () => {
+            this.player.mood = Math.min(100, this.player.mood + 3);
+          }},
+        ]);
+        return;
+      }
+      if (qs === 1) {
+        const hasItem = this.inventory.has(def.q1.item);
+        if (hasItem) {
+          this.dialogue.start(npc, [def.q1.thanks], () => {
+            this.inventory.remove(def.q1.item);
+            npc.questStage = 2;
+            npc.trust = Math.min(3, npc.trust + 1);
+            this._giveQuestReward(def.q1, npc);
+            this.quests.unlock(def.q2.id);
+            setTimeout(() => this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`), 2000);
+          });
+        } else {
+          this.dialogue.start(npc, [def.q1.hint]);
+        }
+        return;
+      }
+      if (qs === 2) {
+        const hasItem = this.inventory.has(def.q2.item);
+        if (hasItem) {
+          this.dialogue.start(npc, [def.q2.thanks], () => {
+            this.inventory.remove(def.q2.item);
+            npc.questStage = 3;
+            npc.trust = Math.min(3, npc.trust + 1);
+            this._giveQuestReward(def.q2, npc);
+            this.quests.unlock(def.q3.id);
+            setTimeout(() => this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q3.title}`), 2000);
+          });
+        } else {
+          this.dialogue.start(npc, [def.q2.hint]);
+        }
+        return;
+      }
+      if (qs === 3) {
+        const q3 = def.q3;
+        const hasAll = this.inventory.has('warmScarf') && this.inventory.has('cassette');
+        if (hasAll) {
+          this.dialogue.start(npc, [q3.thanks], () => {
+            this.inventory.remove('warmScarf');
+            this.inventory.remove('cassette');
+            npc.questStage = 4;
+            npc.trust = 3;
+            this._giveQuestReward(q3, npc);
+            this._triggerNickCutscene();
+          });
+        } else {
+          const missing = [];
+          if (!this.inventory.has('warmScarf')) missing.push('шарф');
+          if (!this.inventory.has('cassette'))  missing.push('кассету');
+          this.dialogue.start(npc, [`Почти всё есть… не хватает: ${missing.join(', ')}. Поищи ещё!`]);
+        }
+        return;
+      }
+      // qs >= 4: quest complete
+      this.dialogue.start(npc, ['Наконец-то у костра… спасибо, Рыжик.']);
+      return;
+    }
+
     if (qs === 0) {
       this.dialogue.startWithChoices(npc, def.q1.intro, [
         { text: '🐾 Помогу!', action: () => {
@@ -4150,6 +4303,17 @@ class Game {
         hint = '🌿 Теплица (открыта)';
       }
     }
+    // Военкомат (bottom-left area)
+    if (!hint) {
+      const nick = this.npcs.find(n => n.id === 'nick');
+      const flags = this.flags || {};
+      if (!flags.nickStoryComplete && nick) {
+        const inOfficeArea = this.player.x > 10 && this.player.x < 160 && this.player.y > 1050 && this.player.y < 1180;
+        if (inOfficeArea && nick.distTo(this.player.x, this.player.y) < 120) {
+          hint = '[E] ☕ Поговорить с Ником';
+        }
+      }
+    }
     this.ui.setInteractHint(hint);
   }
 
@@ -4292,6 +4456,62 @@ class Game {
         this.audio.questDone();
       }, 4000);
     }, 4000);
+  }
+
+  _triggerNickCutscene() {
+    if (!this.flags) this.flags = {};
+    this.flags.nickStoryComplete = true;
+    const nick = this.npcs.find(n => n.id === 'nick');
+    if (nick) {
+      nick.wx = 340; nick.wy = 700;
+      nick.schedule = { morning:[340,700], day:[360,680], evening:[340,700], night:[330,710] };
+    }
+    // Fade to black
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:#000;opacity:0;z-index:999;transition:opacity 1s;pointer-events:none;';
+    document.body.appendChild(overlay);
+    setTimeout(() => { overlay.style.opacity = '1'; }, 50);
+    setTimeout(() => {
+      this.camera.x = 100; this.camera.y = 50;
+      this.time.hour = 20;
+      this.weather.set('starry');
+      setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.remove();
+          const lyokha  = this.npcs.find(n => n.id === 'lyokha');
+          const igor    = this.npcs.find(n => n.id === 'igor');
+          const liza    = this.npcs.find(n => n.id === 'liza');
+          const prokhor = this.npcs.find(n => n.id === 'prokhor');
+          const nickNPC = this.npcs.find(n => n.id === 'nick');
+          const lines = [
+            { speaker: 'lyokha',  text: 'Ну наконец-то ты добрался.' },
+            { speaker: 'nick',    text: 'Я думал, этот военкомат меня никогда не отпустит…' },
+            { speaker: 'igor',    text: 'Садись ближе к костру. Сегодня без бумажек.' },
+            { speaker: 'liza',    text: 'Я даже гирлянду специально включила!' },
+            { speaker: 'prokhor', text: 'Вот теперь двор снова полный.' },
+            { speaker: 'ryzhik',  text: 'Мяу!' },
+          ];
+          const npcsMap = { lyokha, igor, liza, prokhor, nick: nickNPC };
+          let li = 0;
+          const showLine = () => {
+            if (li >= lines.length) {
+              this.ui.notify('🔥 Ник наконец добрался до костра!');
+              this.player.mood = 100;
+              return;
+            }
+            const line = lines[li++];
+            const speakerNPC = line.speaker === 'ryzhik'
+              ? { name:'Рыжик', emoji:'🐱', color:'#f07030', id:'ryzhik' }
+              : (npcsMap[line.speaker] || nickNPC);
+            const dlgLine = { speaker: line.speaker === 'ryzhik' ? 'ryzhik' : 'npc', text: line.text, emotion: 'happy' };
+            this.dialogue.startStory(speakerNPC, [dlgLine], showLine);
+          };
+          showLine();
+          this.ui.showEvent('🔥', 'Ник наконец добрался до дома!');
+        }, 800);
+      }, 1500);
+    }, 1200);
   }
 
   /* ── MENU DRAW ── */
