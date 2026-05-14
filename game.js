@@ -1522,13 +1522,16 @@ class MobileControls {
   }
   _setupButtons() {
     const g = this.game;
-    const btn = id => document.getElementById(id);
-    btn('ab-action').addEventListener('click', () => { this.input.actionPressed = true; g.telegram.vibrate(20); });
-    btn('ab-meow').addEventListener('click',   () => { this.input.meowPressed   = true; g.telegram.vibrate(15); });
-    btn('ab-inv').addEventListener('click',    () => { g.ui.toggle('inventory-screen'); g.audio.uiClick(); });
-    btn('ab-map').addEventListener('click',    () => { g.ui.toggle('map-screen'); g.audio.uiClick(); });
-    btn('ab-quest').addEventListener('click',  () => { g.ui.toggle('quest-screen'); g.audio.uiClick(); });
-    btn('ab-pause').addEventListener('click',  () => { g.togglePause(); g.audio.uiClick(); });
+    const tap = (id, fn) => {
+      const el = document.getElementById(id);
+      el.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); });
+    };
+    tap('ab-action', () => { this.input.actionPressed = true; g.telegram.vibrate(20); });
+    tap('ab-meow',   () => { this.input.meowPressed   = true; g.telegram.vibrate(15); });
+    tap('ab-inv',    () => { g.ui.toggle('inventory-screen'); g.audio.uiClick(); });
+    tap('ab-map',    () => { g.ui.toggle('map-screen'); g.audio.uiClick(); });
+    tap('ab-quest',  () => { g.ui.toggle('quest-screen'); g.audio.uiClick(); });
+    tap('ab-pause',  () => { g.togglePause(); g.audio.uiClick(); });
   }
 }
 
@@ -4654,9 +4657,24 @@ NPC.prototype.draw = function(ctx, cam, period) {
 ;
 
 /* ──────────────────────────────────────────────
+   iOS SAFE-AREA DETECTION
+   ────────────────────────────────────────────── */
+function detectIOSSafeArea() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!isIOS) return;
+  document.body.classList.add('ios-safe');
+  // iPhone 13 / compact iOS: screen height ≤ 844px in portrait
+  const h = window.screen.height, w = window.screen.width;
+  const portraitH = Math.max(h, w);
+  if (portraitH <= 844) document.body.classList.add('compact-ios');
+}
+
+/* ──────────────────────────────────────────────
    BOOT
    ────────────────────────────────────────────── */
 window.addEventListener('load', () => {
+  detectIOSSafeArea();
   window.game = new Game();
 });
 
