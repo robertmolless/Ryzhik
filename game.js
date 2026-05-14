@@ -404,11 +404,11 @@ if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
 const QUESTS = [
   // Стартовые квесты
   { id:'q01', title:'Найти миску Рыжика', icon:'🥣', desc:'Рыжик потерял свою миску после зимы. Нужно найти её во дворе!', steps:['Осмотри двор','Найди миску у крыльца'], reward:{item:'bowl',xp:10}, npc:null, unlock:true },
-  { id:'q02', title:'Ключ от сарая', icon:'🗝️', desc:'В сарае что-то интересное, но он заперт. Найди ключ — ищи у колодца!', steps:['Найди ключ от сарая (у колодца)','Открой сарай с ключом'], reward:{xp:20,zone:'barn'}, npc:null, unlock:true },
+  { id:'q02', title:'Ключ от сарая', icon:'🗝️', desc:'В сарае что-то интересное, но он заперт. Ключ, наверное, в доме — поищи в кухонном шкафчике!', steps:['Найди ключ от сарая (в доме)','Открой сарай с ключом'], reward:{xp:20,zone:'barn'}, npc:null, unlock:true },
   { id:'q03', title:'Познакомиться с соседями', icon:'👥', desc:'Поговори с жителями двора и узнай, кто тут живёт.', steps:['Поговори с 3 персонажами'], reward:{xp:15}, npc:null, unlock:true },
 
   // Квесты персонажей
-  { id:'q_lyokha', title:'Старая кассета', icon:'📼', desc:'Лёха потерял любимую кассету где-то в сарае. Открой сарай и верни её Лёхе!', steps:['Поговори с Лёхой о кассете','Верни кассету Лёхе'], reward:{xp:20,trust:'lyokha'}, npc:'lyokha', unlock:true },
+  { id:'q_lyokha', title:'Старая кассета', icon:'📼', desc:'Лёха потерял любимую кассету в сарае. Войди в сарай, найди кассету и верни её Лёхе!', steps:['Поговори с Лёхой о кассете','Верни кассету Лёхе'], reward:{xp:20,trust:'lyokha'}, npc:'lyokha', unlock:true },
   { id:'q_igor', title:'Пропавший медиатор', icon:'🎸', desc:'Игорь потерял свой любимый медиатор где-то у пруда. Нужно найти!', steps:['Поговори с Игорем','Верни медиатор Игорю'], reward:{xp:18,trust:'igor'}, npc:'igor', unlock:true },
   { id:'q_nastya', title:'Фото со светлячками', icon:'📸', desc:'Настя мечтает сделать ночную фотографию со светлячками.', steps:['Поговори с Настей','Дождись ночи','Найди место со светлячками','Помоги сделать фото'], reward:{item:'photo',xp:22,trust:'nastya'}, npc:'nastya', unlock:false },
   { id:'q_liza', title:'Потерянные наклейки', icon:'⭐', desc:'Лиза потеряла наклейки по всему двору. Собери все 5!', steps:['Поговори с Лизой','Собери 5 наклеек по двору','Верни наклейки Лизе'], reward:{xp:18,trust:'liza'}, npc:'liza', unlock:false },
@@ -1009,8 +1009,7 @@ class World {
       { x:620, y:300, item:'apple',    id:'c02' },
       { x:640, y:280, item:'apple',    id:'c03' },
       { x:580, y:320, item:'seeds',    id:'c04' },
-      // barnKey — у колодца (доступно с начала, квест отправляет к колодцу)
-      { x:148, y:268, item:'barnKey',  id:'c05' },
+      // barnKey теперь в кухонном шкафчике внутри дома (не на улице)
       { x:380, y:460, item:'coin',     id:'c08' },
       // Рыбка — на западном берегу пруда (доступно)
       { x:635, y:512, item:'fish',     id:'c09' },
@@ -1023,8 +1022,7 @@ class World {
       { x:250, y:260, item:'button',   id:'c16' },
       { x:700, y:410, item:'pebble',   id:'c17' },
       { x:900, y:622, item:'bell',     id:'c18' },
-      // Кассета — у двери сарая (появится после открытия через авто-выдачу)
-      { x:184, y:458, item:'cassette', id:'c19' },
+      // Кассета теперь внутри сарая (BARN_FURNITURE), не на улице
       // Медиатор Игоря — на берегу пруда (доступно после снятия забора)
       { x:632, y:490, item:'pick',     id:'c20' },
       { x:660, y:340, item:'diary',    id:'c21' },
@@ -2016,6 +2014,7 @@ class Game {
     this.player       = new Player();
     this.world        = new World();
     this.interior     = new InteriorManager();
+    this.barn         = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
     this.inventory    = new Inventory();
     this.quests       = new QuestSystem();
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
@@ -2157,6 +2156,7 @@ class Game {
     this.weather      = new WeatherSystem(this.audio);
     this.npcs         = NPC_DATA.map(d => new NPC(d));
     this.interior     = new InteriorManager();
+    this.barn         = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
     this.upgrades     = new Set();
     this.achievements = new AchievementSystem(this.ui, this.audio, this.telegram);
     this.unlockedZones= ['yard','porch','garden','well','fence'];
@@ -2204,6 +2204,7 @@ class Game {
       }
       if (d.weather) this.weather.set(d.weather);
       if (d.interior && this.interior) this.interior.load(d.interior);
+      if (d.barn     && this.barn)     this.barn.load(d.barn);
       this._startPlaying();
       this.ui.notify('✅ Прогресс загружен!');
     } catch(e) {
@@ -2229,6 +2230,7 @@ class Game {
       npc_trust:     this.npcs.map(n => [n.id, n.trust]),
       weather:       this.weather.current,
       interior:      this.interior ? this.interior.save() : null,
+      barn:          this.barn     ? this.barn.save()     : null,
     });
   }
 
@@ -2300,24 +2302,18 @@ class Game {
       if (lastDay !== today) { localStorage.setItem('ryzhik_lastday',today); setTimeout(()=>this.ui.showDailyReward(this),2000); }
     }
 
-    // Interior system update (always runs, handles fading)
+    // Interior/barn system updates (always run, handle fading)
     if (this.interior) this.interior.update(dt);
+    if (this.barn)     this.barn.update(dt);
 
-    // ── INDOOR mode ──
+    // ── INDOOR (house) mode ──
     if (this.interior && this.interior.active) {
-      // Indoor movement via input
-      const dx = this.input.dx;
-      const dy = this.input.dy;
-      this.interior.move(dx, dy, dt);
+      this.interior.move(this.input.dx, this.input.dy, dt);
 
-      // Nearest furniture hint
+      // Nearest furniture hint (exit_door is in FURNITURE so it shows up naturally)
       const near = this.interior.nearestFurniture();
       const hint = document.getElementById('interact-hint');
-      // Exit hint if near left edge
-      if (this.interior.floor === 1 && this.interior.px < 100) {
-        if (hint) { hint.style.display = 'block'; hint.textContent = '[E] Выйти из дома 🌿'; }
-        const al = document.getElementById('action-label'); if (al) al.textContent = '[E] Выйти из дома 🌿';
-      } else if (near) {
+      if (near) {
         if (hint) { hint.style.display = 'block'; hint.textContent = `[E] ${near.label}`; }
         const al = document.getElementById('action-label'); if (al) al.textContent = `[E] ${near.label}`;
       } else {
@@ -2325,23 +2321,48 @@ class Game {
         const al = document.getElementById('action-label'); if (al) al.textContent = '';
       }
 
-      // Action key
       if (this.input.consumeAction()) this._handleInteraction();
       if (this.input.consumeMeow()) { this.player.playAction('meow'); this.audio.meow(); }
 
-      // UI updates (stats etc still update)
       this.ui.updateStats(this.player);
       this.ui.updateTime(this.time);
       this.ui.updateWeather(this.weather);
       this.ui.updateQuestTracker(this.quests);
 
-      // Mobile enter button show/hide
       if (this._mobileEnterBtn) {
-        const canExit = this.interior.floor === 1 && this.interior.px < 100;
         this._mobileEnterBtn.style.display = 'block';
-        this._mobileEnterBtn.textContent = canExit ? '🚪' : '🏠';
+        this._mobileEnterBtn.textContent = '🚪';
       }
-      return; // skip outdoor update
+      return;
+    }
+
+    // ── BARN mode ──
+    if (this.barn && this.barn.active) {
+      this.barn.move(this.input.dx, this.input.dy, dt);
+
+      const barnNear = this.barn.nearestFurniture();
+      const hintEl = document.getElementById('interact-hint');
+      if (barnNear) {
+        if (hintEl) { hintEl.style.display = 'block'; hintEl.textContent = `[E] ${barnNear.label}`; }
+        const al = document.getElementById('action-label'); if (al) al.textContent = `[E] ${barnNear.label}`;
+      } else {
+        if (hintEl) hintEl.style.display = 'none';
+        const al = document.getElementById('action-label'); if (al) al.textContent = '';
+      }
+
+      if (this.input.consumeAction()) this._handleInteraction();
+      if (this.input.consumeMeow()) { this.player.playAction('meow'); this.audio.meow(); }
+
+      this.ui.updateStats(this.player);
+      this.ui.updateTime(this.time);
+      this.ui.updateWeather(this.weather);
+      this.ui.updateQuestTracker(this.quests);
+
+      if (this._mobileEnterBtn) {
+        this._mobileEnterBtn.style.display = 'block';
+        this._mobileEnterBtn.textContent = '🚪';
+      }
+      return;
     }
 
     // Player (outdoor)
@@ -2419,26 +2440,41 @@ class Game {
   _handleInteraction() {
     if (this.dialogue.active) { this.dialogue.advance(); return; }
 
-    // ── INTERIOR: handle all interior interactions ──
-    if (this.interior && this.interior.active) {
-      // Exit house (near left wall on floor 1)
-      if (this.interior.floor === 1 && this.interior.px < 100) {
-        this.interior.startExit();
-        this.audio.uiClick();
-        this.ui.notify('🌿 Рыжик выходит на улицу...');
+    // ── BARN INTERIOR ──
+    if (this.barn && this.barn.active) {
+      const near = this.barn.nearestFurniture();
+      if (near) {
+        this._interactBarnFurniture(near);
         return;
       }
-      // Furniture interaction
+      // Fallback exit if near left edge and no door furniture in range
+      if (this.barn.px < 80) {
+        this.barn.startExit();
+        this.audio.uiClick();
+        this.ui.notify('🌿 Рыжик выходит из сарая...');
+      }
+      return;
+    }
+
+    // ── HOUSE INTERIOR ──
+    if (this.interior && this.interior.active) {
+      // Furniture interaction (exit_door furniture handles the exit)
       const near = this.interior.nearestFurniture();
       if (near) {
         this._interactFurniture(near);
+        return;
+      }
+      // Indoor NPC interaction
+      const indoorNpc = this._findNearestIndoorNPC();
+      if (indoorNpc) {
+        this._talkToNPC(indoorNpc);
         return;
       }
       return;
     }
 
     // ── DOOR OF HOUSE (enter) ──
-    if (this.interior && !this.interior.active) {
+    if (this.interior && !this.interior.active && !this.barn?.active) {
       if (this.player.x > 250 && this.player.x < 350 && this.player.y > 230 && this.player.y < 270) {
         this.interior.startEnter();
         this.audio.uiClick();
@@ -2487,31 +2523,24 @@ class Game {
       return;
     }
 
-    // Сарай — открыть ключом
+    // Сарай — открыть ключом, затем войти
     if (this.player.x > 30 && this.player.x < 260 && this.player.y > 330 && this.player.y < 490) {
       if (!this.unlockedZones.includes('barn')) {
         if (this.inventory.has('barnKey')) {
-          // Открываем сарай
-          if (this.quests.isActive('q02')) {
-            this._onQuestAdvance('q02');
-          }
-          if (!this.unlockedZones.includes('barn')) {
-            this.unlockedZones.push('barn');
-            this.ui.notify('🏚️ Сарай открыт ключом!');
-          }
-          // Авто-выдача кассеты Лёхи из сарая
-          const cassette = this.world.collectibles.find(c => c.id === 'c19' && !c.collected);
-          if (cassette) {
-            cassette.collected = true;
-            this.inventory.add('cassette');
-            this.collectedCount++;
-            this.ui.notify('📼 Нашёл кассету Лёхи в сарае! Верни её Лёхе.');
-          }
+          this.unlockedZones.push('barn');
+          if (this.quests.isActive('q02')) this._onQuestAdvance('q02');
+          this.ui.notify('🏚️ Сарай открыт ключом! Нажми снова, чтобы войти.');
           return;
         } else {
-          this.ui.notify('🔒 Сарай заперт. Найди ключ — ищи у колодца!');
+          this.ui.notify('🔒 Сарай заперт. Найди ключ — он в кухонном шкафчике в доме!');
           return;
         }
+      }
+      // Barn unlocked — enter barn interior
+      if (this.barn) {
+        this.barn.startEnter();
+        this.audio.uiClick();
+        this.ui.notify('🏚️ Рыжик заходит в сарай...');
       }
       return;
     }
@@ -2626,9 +2655,11 @@ class Game {
               interior.pickedItems.add(f.id);
               this.inventory.add(f.item);
               this.collectedCount++;
-              this.ui.notify(`🔑 В шкафчике нашёлся ${ITEMS[f.item] ? ITEMS[f.item].name : f.item}!`);
+              const idata = ITEMS[f.item];
+              this.ui.notify(`🔑 В кухонном шкафчике нашёлся ${idata ? idata.name : f.item}!`);
               this._checkQuestItem(f.item);
-              if (this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
+              // houseKey → advance chest quest (barnKey q02 is handled by _checkQuestItem)
+              if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
             } else {
               this.ui.notify('📦 Шкафчик открыт — внутри пусто.');
             }
@@ -2664,6 +2695,7 @@ class Game {
           this.ui.notify(`✨ Рыжик подобрал: ${iname}!`);
           this._checkQuestItem(f.item);
           if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+          if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
           if (this.collectedCount >= 10) this.achievements.unlock('ach08');
           if (this.collectedCount >= 15) this.achievements.unlock('ach16');
         } else {
@@ -2715,12 +2747,102 @@ class Game {
         }
         break;
 
+      case 'exit_house':
+        interior.startExit();
+        this.audio.uiClick();
+        this.ui.notify('🌿 Рыжик выходит из дома...');
+        break;
+
       default:
         break;
     }
   }
 
+  /* ── BARN FURNITURE INTERACTION ── */
+  _interactBarnFurniture(f) {
+    const barn = this.barn;
+    switch (f.action) {
+      case 'exit_barn':
+        barn.startExit();
+        this.audio.uiClick();
+        this.ui.notify('🌿 Рыжик выходит из сарая...');
+        break;
+
+      case 'pickup':
+        if (!barn.pickedItems.has(f.id) && f.item) {
+          barn.pickedItems.add(f.id);
+          this.inventory.add(f.item);
+          this.collectedCount++;
+          const iname = ITEMS[f.item] ? ITEMS[f.item].name : f.item;
+          this.ui.notify(`✨ Рыжик нашёл: ${iname}!`);
+          this.player.playAction('pickup');
+          this.audio.pickup();
+          this.telegram.vibrate(25);
+          this._checkQuestItem(f.item);
+          if (f.item === 'cassette' && this.quests.isActive('q_lyokha')) {
+            setTimeout(() => this.ui.notify('📼 Кассета Лёхи! Верни её ему.'), 1500);
+          }
+          if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+          if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        } else {
+          this.ui.notify('💭 Рыжик уже взял всё интересное здесь.');
+        }
+        break;
+
+      case 'sit':
+        this.ui.notify('😺 Рыжик запрыгивает на тюк сена! Тепло и колко...');
+        this.player.energy = Math.min(100, this.player.energy + 5);
+        this.player.playAction('purr');
+        break;
+
+      case 'examine': {
+        const barnMsgs = {
+          b_shelf1:    '🔧 Полка с инструментами. Молоток, гвозди, пила... всё покрыто пылью.',
+          b_shelf2:    '📦 Старые банки с краской. Пахнет скипидаром и давними работами.',
+          b_bike:      '🚲 Старый велосипед. Давно не ездил — ручки облезли, но колёса ещё целые!',
+          b_lantern:   '🔦 Старый керосиновый фонарь. Маслом ещё пахнет. Вечером светит тепло.',
+          b_workbench: '🪚 Верстак с инструментами. Здесь точно что-то чинили. Опилки на полу.',
+          b_boxes:     '📦 Коробки с запчастями. Пыль и время превратили их содержимое в загадку.',
+        };
+        this.ui.notify(barnMsgs[f.id] || `💭 ${f.label}... Интересно.`);
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
+
+  /* ── FIND NEAREST INDOOR NPC ── */
+  _findNearestIndoorNPC() {
+    if (typeof INDOOR_NPC_SCHEDULE === 'undefined') return null;
+    const period = this.time.period;
+    const floor  = this.interior.floor;
+    let best = null, bestD = 70;
+    for (const [npcId, sched] of Object.entries(INDOOR_NPC_SCHEDULE)) {
+      if (sched.floor !== floor) continue;
+      const pos = sched[period];
+      if (!pos) continue;
+      const npc = this.npcs.find(n => n.id === npcId);
+      if (!npc) continue;
+      const d = Math.sqrt((pos.x - this.interior.px) ** 2 + (pos.y - this.interior.py) ** 2);
+      if (d < bestD) { bestD = d; best = npc; }
+    }
+    return best;
+  }
+
   /* ── NPC TALK ── */
+  // Items required to advance quest at a given step index (0-based progress)
+  // Format: { questId: { stepIndex: { item, msg } } }
+  get QUEST_ITEM_REQUIREMENTS() {
+    return {
+      'q_lyokha':   { 1: { item:'cassette',  msg:'📼 Сначала найди кассету Лёхи в сарае!' } },
+      'q_igor':     { 1: { item:'pick',       msg:'🎸 Медиатор Игоря ещё там, у пруда...' } },
+      'q_nena':     { 1: { item:'diary',      msg:'📄 Поищи потерянную страницу Нэны.' } },
+      'q_kristina': { 1: { item:'flashPart',  msg:'🔦 Найди сначала деталь для фонарика.' } },
+    };
+  }
+
   _talkToNPC(npc) {
     const period = this.time.period;
     const lines  = npc.dialogues[period];
@@ -2736,10 +2858,21 @@ class Game {
     if (npc.quest && this.quests.isActive(npc.quest)) {
       const q = QUESTS.find(x => x.id === npc.quest);
       const step = this.quests.currentStep(npc.quest);
+      const currentProgress = this.quests.progress[npc.quest] || 0;
+      const questId = npc.quest;
       const choices = [
         { text: `💬 ${step ? 'О квесте: ' + step : 'Поговорить'}`, action: () => {
+          // Validate item requirement before advancing
+          const reqs = this.QUEST_ITEM_REQUIREMENTS[questId];
+          if (reqs && reqs[currentProgress]) {
+            const r = reqs[currentProgress];
+            if (!this.inventory.has(r.item)) {
+              this.ui.notify(r.msg);
+              return;
+            }
+          }
           npc.trust = Math.min(3, npc.trust + 1);
-          this._onQuestAdvance(npc.quest);
+          this._onQuestAdvance(questId);
           this.achievements.unlock('ach02');
         }},
         { text: '🐾 Просто погладить', action: () => {
@@ -2885,9 +3018,9 @@ class Game {
     // Сарай
     if (!hint && this.player.x > 30 && this.player.x < 260 && this.player.y > 330 && this.player.y < 490) {
       if (!this.unlockedZones.includes('barn')) {
-        hint = this.inventory.has('barnKey') ? '🏚️ Открыть сарай [E]' : '🔒 Сарай закрыт — ищи ключ у колодца';
+        hint = this.inventory.has('barnKey') ? '[E] 🏚️ Открыть сарай ключом' : '🔒 Сарай закрыт — ищи ключ в кухонном шкафчике';
       } else {
-        hint = '🏚️ Сарай (открыт)';
+        hint = '[E] Войти в сарай 🏚️';
       }
     }
     // Теплица (снаружи, у западной стены)
@@ -2980,6 +3113,22 @@ class Game {
       return;
     }
 
+    // ── Barn rendering ──
+    if (this.barn && this.barn.active) {
+      if (typeof drawBarnScene === 'function') {
+        drawBarnScene(ctx, {
+          px: this.barn.px,
+          py: this.barn.py,
+          t: GFX.t,
+          period: this.time.period,
+          barn: this.barn,
+          cw: this.canvas.width,
+          ch: this.canvas.height,
+        });
+      }
+      return;
+    }
+
     // World (includes sky, ground, structures, weather, lighting)
     this.world.draw(ctx, this.camera, this.time, this.weather);
     // NPCs (screen coords passed via cam offset)
@@ -2991,9 +3140,13 @@ class Game {
     this.player.draw(ctx);
     ctx.restore();
 
-    // Fade overlay (when transitioning to/from interior)
-    if (this.interior && this.interior.fadeAlpha > 0) {
-      ctx.fillStyle = `rgba(0,0,0,${this.interior.fadeAlpha})`;
+    // Fade overlay (transitioning to/from interior or barn)
+    const fadeA = Math.max(
+      this.interior ? this.interior.fadeAlpha : 0,
+      this.barn     ? this.barn.fadeAlpha     : 0
+    );
+    if (fadeA > 0) {
+      ctx.fillStyle = `rgba(0,0,0,${fadeA})`;
       ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
   }
