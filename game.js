@@ -3366,6 +3366,98 @@ class Game {
     if (allFriends) this.achievements.unlock('ach17');
   }
 
+  /* ── NPC QUEST API ── */
+  getNPCQuest(npcId) {
+    const npc = this.npcs.find(n => n.id === npcId);
+    const def = NPC_QUEST_DEFS[npcId];
+    if (!npc || !def) return null;
+    const qs = npc.questStage || 0;
+    return {
+      npcId, questStage: qs,
+      activeQuest: qs === 1 ? def.q1 : qs === 2 ? def.q2 : null,
+      isFriend: qs >= 3,
+      q1: def.q1, q2: def.q2,
+    };
+  }
+
+  startNPCQuest(npcId) {
+    const npc = this.npcs.find(n => n.id === npcId);
+    const def = NPC_QUEST_DEFS[npcId];
+    if (!npc || !def || npc.questStage !== 0) return false;
+    npc.questStage = 1;
+    npc.trust = Math.min(3, npc.trust + 1);
+    this.quests.unlock(def.q1.id);
+    this.ui.notify(`📋 Новый квест: ${def.q1.title}`);
+    return true;
+  }
+
+  canCompleteNPCQuest(npcId) {
+    const npc = this.npcs.find(n => n.id === npcId);
+    const def = NPC_QUEST_DEFS[npcId];
+    if (!npc || !def) return false;
+    const qs = npc.questStage || 0;
+    if (qs === 1) {
+      const q = def.q1;
+      const hasItem = q.item ? this.inventory.has(q.item) : true;
+      const enough = !q.itemCount || this.inventory.count(q.item) >= q.itemCount;
+      const rightPeriod = !q.period || q.period === this.time.period;
+      return hasItem && enough && rightPeriod;
+    }
+    if (qs === 2) {
+      const q = def.q2;
+      const hasItem = q.item ? this.inventory.has(q.item) : true;
+      const rightPeriod = !q.period || q.period === this.time.period;
+      return hasItem && rightPeriod;
+    }
+    return false;
+  }
+
+  completeNPCQuest(npcId) {
+    const npc = this.npcs.find(n => n.id === npcId);
+    const def = NPC_QUEST_DEFS[npcId];
+    if (!npc || !def || !this.canCompleteNPCQuest(npcId)) return false;
+    const qs = npc.questStage || 0;
+    if (qs === 1) {
+      const q = def.q1;
+      if (q.item) {
+        if (q.itemCount) { for (let i = 0; i < q.itemCount; i++) this.inventory.remove(q.item); }
+        else this.inventory.remove(q.item);
+      }
+      npc.questStage = 2;
+      npc.trust = Math.min(3, npc.trust + 1);
+      this._giveQuestReward(q, npc);
+      this.quests.unlock(def.q2.id);
+      setTimeout(() => this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`), 2000);
+      return true;
+    }
+    if (qs === 2) {
+      const q = def.q2;
+      if (q.item) this.inventory.remove(q.item);
+      npc.questStage = 3;
+      npc.trust = 3;
+      this._giveQuestReward(q, npc);
+      this._checkAllFriends();
+      return true;
+    }
+    return false;
+  }
+
+  getNPCDialogue(npcId) {
+    const npc = this.npcs.find(n => n.id === npcId);
+    const def = NPC_QUEST_DEFS[npcId];
+    const period = this.time.period;
+    if (!npc || !def) {
+      const lines = npc?.dialogues?.[period] || npc?.dialogues?.day || ['...'];
+      return lines[Math.floor(Math.random() * lines.length)];
+    }
+    const qs = npc.questStage || 0;
+    if (qs === 0) return def.q1.intro;
+    if (qs === 1) return this.canCompleteNPCQuest(npcId) ? def.q1.thanks : def.q1.hint;
+    if (qs === 2) return this.canCompleteNPCQuest(npcId) ? def.q2.thanks : def.q2.hint;
+    const lines = npc.dialogues?.[period] || npc.dialogues?.day || [];
+    return lines.length ? lines[Math.floor(Math.random() * lines.length)] : `${npc.name} рад тебя видеть! ❤️`;
+  }
+
   /* ── FINALE ── */
   _triggerFinale() {
     this.ui.showEvent('🔔','Звенит Солнечный колокольчик! Двор наполняется светлячками...');
