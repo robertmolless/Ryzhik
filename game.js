@@ -394,6 +394,12 @@ const ITEMS = {
   treasure: { id:'treasure', name:'Коробка сокровищ', icon:'📦', desc:'Коробка с удивительными штуками от Дани.', rare:true },
   toyMouse: { id:'toyMouse', name:'Игрушечная мышь',icon:'🐭', desc:'Мягкая игрушечная мышка. Отличная игрушка!', rare:false },
   feather:  { id:'feather',  name:'Перо',           icon:'🪶', desc:'Красивое перо, найденное во дворе.', rare:false },
+  guitarStrap: { id:'guitarStrap', name:'Гитарный ремень',    icon:'🎸', desc:'Кожаный ремень от гитары Лёхи. Нашёл!', rare:false },
+  batteries:   { id:'batteries',   name:'Батарейки',           icon:'🔋', desc:'Старые батарейки. Кристине пригодятся!', rare:false },
+  compass:     { id:'compass',     name:'Компас',              icon:'🧭', desc:'Старый компас Сони. Найден!', rare:false },
+  plank:       { id:'plank',       name:'Доска',               icon:'🪵', desc:'Крепкая деревянная доска для Прохора.', rare:false },
+  tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
+  oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
 };
 // Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
@@ -431,6 +437,19 @@ const QUESTS = [
   { id:'q_party', title:'Праздник во дворе', icon:'🎉', desc:'Пора устроить праздник! Укрась двор с Лизой и собери всех.', steps:['Помоги Лизе украсить двор','Позови всех','Устрой праздник'], reward:{xp:50,event:'party'}, npc:null, unlock:false },
   { id:'q_secret', title:'Тайна старой теплицы', icon:'🔮', desc:'Что скрывает заброшенная теплица? Разгадай тайну!', steps:['Войди в теплицу','Найди Солнечный колокольчик','Узнай историю дома'], reward:{item:'sunBell',xp:60}, npc:null, unlock:false },
   { id:'q_finale', title:'Финал: Вернуть уют дому', icon:'🏡', desc:'Рыжик почти всё сделал! Собери всех и верни дому уют.', steps:['Завершить основные квесты','Собрать всех у дома вечером','Позвонить в Солнечный колокольчик'], reward:{xp:100,event:'finale'}, npc:null, unlock:false },
+
+  // Вторые квесты персонажей
+  { id:'q_lyokha2',   title:'Вечерняя песня',       icon:'🎸', desc:'Лёха хочет сыграть вечером — найди гитарный ремень.', steps:['Найди гитарный ремень на втором этаже','Отдай ремень Лёхе'],       reward:{xp:25,event:'concert'},  npc:'lyokha', unlock:false },
+  { id:'q_igor2',     title:'Мяу-концерт',           icon:'🎵', desc:'Игорь зовёт на вечерний концерт!',                   steps:['Приди к Игорю вечером','Поддержи концерт мяуканьем'],             reward:{xp:25,trust:'igor'},     npc:'igor',   unlock:false },
+  { id:'q_nastya2',   title:'Старые фотографии',     icon:'📸', desc:'Настя ищет старую плёнку в доме.',                   steps:['Найди старую плёнку на чердаке','Отдай Насте'],                   reward:{xp:20,trust:'nastya'},   npc:'nastya', unlock:false },
+  { id:'q_liza2',     title:'Украшение уголка',       icon:'🐈', desc:'Лиза хочет украсить кошачий уголок фигуркой.',       steps:['Найди фигурку кота в доме','Отдай Лизе'],                         reward:{xp:22,upgrade:'corner'}, npc:'liza',   unlock:false },
+  { id:'q_mag2',      title:'Загадка теплицы',        icon:'🔮', desc:'Маг ищет записку о теплице.',                         steps:['Найди записку на чердаке','Отдай Магу'],                          reward:{xp:35,zone:'greenhouse'},npc:'mag',    unlock:false },
+  { id:'q_sonya2',    title:'Походный компас',        icon:'🧭', desc:'Соня потеряла компас.',                               steps:['Найди компас у забора','Отдай Соне'],                              reward:{xp:25,item:'trailMap'},  npc:'sonya',  unlock:false },
+  { id:'q_nena2',     title:'Карта дома',             icon:'🗺️', desc:'Нэна хочет карту дома.',                              steps:['Найди карту дома','Отдай Нэне'],                                   reward:{xp:25,item:'houseMap'},  npc:'nena',   unlock:false },
+  { id:'q_kristina2', title:'Починить лампу',         icon:'💡', desc:'Кристина чинит лампу в гостиной.',                    steps:['Найди батарейки','Отдай Кристине'],                               reward:{xp:25,trust:'kristina'}, npc:'kristina',unlock:false },
+  { id:'q_danya2',    title:'Игрушка для Рыжика',     icon:'🐭', desc:'Даня мастерит игрушку из старого жетона.',            steps:['Найди старый жетон в доме','Отдай Дане'],                         reward:{xp:20,item:'toyMouse'},  npc:'danya',  unlock:false },
+  { id:'q_prokhor',   title:'Старый забор',           icon:'🔨', desc:'Прохор просит инструменты из сарая.',                 steps:['Найди инструменты в сарае','Отдай Прохору'],                      reward:{xp:20},                  npc:'prokhor',unlock:true  },
+  { id:'q_prokhor2',  title:'Тяжёлая доска',          icon:'🪵', desc:'Прохор просит доску для починки забора.',             steps:['Найди доску в сарае','Отдай Прохору'],                            reward:{xp:25,zone:'secret_path'},npc:'prokhor',unlock:false },
 ];
 // Merge interior quests (INDOOR_QUESTS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
@@ -478,6 +497,196 @@ const UPGRADES = [
 ];
 
 /* ──────────────────────────────────────────────
+   NPC QUEST DEFINITIONS (two quests per NPC)
+   ────────────────────────────────────────────── */
+const NPC_QUEST_DEFS = {
+  lyokha: {
+    q1: {
+      id: 'q_lyokha',
+      title: 'Старая кассета',
+      item: 'cassette',
+      intro: 'Рыжик, кажется, моя старая кассета осталась в сарае. Можешь поискать? Сарай закрыт, но ключ где-то в доме...',
+      hint: 'Попробуй поискать в сарае. Войди туда — кассета должна быть там.',
+      thanks: 'Это она! Спасибо, Рыжик! Я так переживал!',
+    },
+    q2: {
+      id: 'q_lyokha2',
+      title: 'Вечерняя песня',
+      item: 'guitarStrap',
+      intro: 'Хочу сыграть вечером у крыльца, но потерял ремень от гитары. Кажется, он на втором этаже в моей комнате...',
+      hint: 'Поищи ремень на втором этаже, в моей комнате.',
+      thanks: 'Ремень! Теперь сыграю сегодня вечером. Спасибо, рыжий!',
+    },
+  },
+  igor: {
+    q1: {
+      id: 'q_igor',
+      title: 'Пропавший медиатор',
+      item: 'pick',
+      intro: 'Рыжик! Потерял медиатор... кажется, у пруда уронил во время репетиции. Помоги найти!',
+      hint: 'Медиатор должен быть у берега пруда. Поищи там!',
+      thanks: 'ДА! ЭТО МОЙ МЕДИАТОР! Ты лучший, Рыжик! 🤘',
+    },
+    q2: {
+      id: 'q_igor2',
+      title: 'Мяу-концерт',
+      item: null,
+      period: 'evening',
+      intro: 'Хочу устроить вечерний концерт! Ты будешь солировать? Приходи вечером — и мяукни три раза!',
+      hint: 'Концерт только вечером! Приходи вечером.',
+      thanks: 'Мяу-концерт состоялся! Лучший кот-вокалист! 🎸',
+    },
+  },
+  nastya: {
+    q1: {
+      id: 'q_nastya',
+      title: 'Фото со светлячками',
+      item: null,
+      period: 'evening',
+      intro: 'Рыжик! Хочу сфотографировать светлячков вечером. Приходи ко мне вечером на поляну!',
+      hint: 'Это фото получится только вечером! Приходи попозже.',
+      thanks: 'Невероятные снимки! Ты такой фотогеничный, Рыжик!',
+    },
+    q2: {
+      id: 'q_nastya2',
+      title: 'Старые фотографии',
+      item: 'filmRoll',
+      intro: 'Говорят, в доме спрятана старая плёнка. Поищи на чердаке, на втором этаже?',
+      hint: 'Старая плёнка должна быть на чердаке, на втором этаже дома.',
+      thanks: 'Старая плёнка! Проявлю и украшу гостиную этими снимками!',
+    },
+  },
+  liza: {
+    q1: {
+      id: 'q_liza',
+      title: 'Потерянные наклейки',
+      item: 'sticker',
+      itemCount: 5,
+      intro: 'Рыжик, я рассыпала наклейки по всему двору! Помоги собрать хотя бы 5?',
+      hint: 'Наклейки везде по двору! Ищи — найдёшь 5 штук.',
+      thanks: 'УРА! Все нашлись! Ты лучший кот на свете! 💕',
+    },
+    q2: {
+      id: 'q_liza2',
+      title: 'Украшение уголка',
+      item: 'catFig',
+      intro: 'Для кошачьего уголка нужна фигурка кота! Поищи в доме — там должна быть!',
+      hint: 'Фигурка кота должна быть где-то в доме. Поищи!',
+      thanks: 'Идеально! Уголок Рыжика теперь самый красивый! 🐈',
+    },
+  },
+  mag: {
+    q1: {
+      id: 'q_mag',
+      title: 'Колокольчик луны',
+      item: 'moonBell',
+      period: 'night',
+      intro: 'Рыжик... ты чувствуешь магию этого места? Найди лунный колокольчик... ночью... у колодца...',
+      hint: 'Колокольчик луны ищи ночью. И приходи ко мне только ночью — ритуал работает только тогда.',
+      thanks: 'Ты нашёл его... Тебе открылась часть великой тайны.',
+    },
+    q2: {
+      id: 'q_mag2',
+      title: 'Загадка теплицы',
+      item: 'atticNote',
+      intro: 'На чердаке есть записка... о теплице. Найди её, и тайна откроется тебе.',
+      hint: 'Записка о теплице спрятана на чердаке — второй этаж дома.',
+      thanks: 'Теперь ты знаешь правду. Путь к теплице открыт.',
+    },
+  },
+  sonya: {
+    q1: {
+      id: 'q_sonya',
+      title: 'Лесная тропа',
+      item: 'leaf',
+      intro: 'Рыжик! Иду по лесной тропе и вижу редкие листья. Принеси мне один?',
+      hint: 'Редкие листья лежат на лесной тропе и в саду. Поищи там!',
+      thanks: 'Нашёл! Красивый редкий лист. Теперь я знаю эту тропу!',
+    },
+    q2: {
+      id: 'q_sonya2',
+      title: 'Походный компас',
+      item: 'compass',
+      intro: 'Потеряла свой компас... кажется, у забора или в доме. Без него я как без рук!',
+      hint: 'Компас должен быть у старого забора или где-то во дворе.',
+      thanks: 'Компас! Теперь никогда не потеряюсь. Спасибо, рыжий!',
+    },
+  },
+  nena: {
+    q1: {
+      id: 'q_nena',
+      title: 'Странные записи',
+      item: 'diary',
+      intro: 'Рыжик, я потеряла страницу из блокнота. Такая странная запись... Помоги найти? Смотри в огороде или на тропе.',
+      hint: 'Страница блокнота должна быть в огороде или на тропе. Ищи!',
+      thanks: 'Это же мои записи! Спасибо, Рыжик! Так важно!',
+    },
+    q2: {
+      id: 'q_nena2',
+      title: 'Карта дома',
+      item: 'houseMap',
+      intro: 'В кладовке или на втором этаже есть карта дома. Найди её — я изучу все тайники!',
+      hint: 'Карта дома должна быть на втором этаже или в кладовке.',
+      thanks: 'Невероятно! Эта карта раскрывает все тайники дома! Спасибо!',
+    },
+  },
+  kristina: {
+    q1: {
+      id: 'q_kristina',
+      title: 'Сломанный фонарик',
+      item: 'flashPart',
+      intro: 'Рыжик, фонарик сломался. Не хватает одной детали. Поищи во дворе или в сарае.',
+      hint: 'Деталь для фонарика должна быть во дворе или в сарае.',
+      thanks: 'Это оно! Теперь починю за 5 минут. Ты молодец, Рыжик!',
+    },
+    q2: {
+      id: 'q_kristina2',
+      title: 'Починить лампу',
+      item: 'batteries',
+      intro: 'Лампа в гостиной не работает. Нужны батарейки. Поищи в доме на кухне.',
+      hint: 'Батарейки должны быть где-то в доме. Проверь ящики.',
+      thanks: 'Работает! В доме теперь будет тёплый свет! Красота!',
+    },
+  },
+  danya: {
+    q1: {
+      id: 'q_danya',
+      title: 'Коробка сокровищ',
+      item: 'button',
+      intro: 'Рыжик! Собираю коробку сокровищ! Нужна красивая пуговица. Видел в доме или во дворе?',
+      hint: 'Пуговица должна быть где-то в доме или во дворе. Ищи!',
+      thanks: 'Вот это пуговица! Коробка станет шедевром!',
+    },
+    q2: {
+      id: 'q_danya2',
+      title: 'Игрушка для Рыжика',
+      item: 'oldBadge',
+      intro: 'Хочу смастерить тебе игрушку! Нужен старый жетон или значок. Поищи в доме?',
+      hint: 'Старый жетон должен быть где-то в доме, в скрытом месте.',
+      thanks: 'Жетон! Сделаю тебе игрушечную мышь прямо сейчас! Держи!',
+    },
+  },
+  prokhor: {
+    q1: {
+      id: 'q_prokhor',
+      title: 'Старый забор',
+      item: 'tools',
+      intro: 'Хм. Кот. Мне инструменты нужны. В сарае должны быть. Принесёшь?',
+      hint: 'Инструменты в сарае. Войди в сарай и поищи.',
+      thanks: 'Молодец. Теперь займёмся работой.',
+    },
+    q2: {
+      id: 'q_prokhor2',
+      title: 'Тяжёлая доска',
+      item: 'plank',
+      intro: 'Ещё нужна доска. В сарае или возле него должна быть. Принеси.',
+      hint: 'Доска в сарае или рядом с ним. Поищи.',
+      thanks: 'Хорошая доска. Теперь здесь станет лучше. Спасибо, кот.',
+    },
+  },
+};
+
+/* ──────────────────────────────────────────────
    GAME DATA: NPC
    ────────────────────────────────────────────── */
 const NPC_DATA = [
@@ -492,7 +701,7 @@ const NPC_DATA = [
       evening:['Эй, Рыжик. Посиди рядом.','Закат красивый сегодня...','Сыграю что-нибудь тихое на гитаре.','Вечером всегда спокойнее. Люблю это.','Поставил старую пластинку. Слышишь?'],
       night:['Не спишь? Я тоже.','Звёзды сегодня яркие.','Потерял кассету... не видел?','Ночью этот двор выглядит иначе.','Рыжик, ты хороший кот. Правда.']
     },
-    quest:'q_lyokha', appearance:'👱 блондин, oversized кофта, спокойный взгляд',
+    quest:'q_lyokha', questStage:0, appearance:'👱 блондин, oversized кофта, спокойный взгляд',
     actions: ['Поговорить', 'Покормить Рыжика', 'Послушать гитару']
   },
   {
@@ -506,7 +715,7 @@ const NPC_DATA = [
       evening:['Сегодня мини-концерт на крыльце!','Потерял медиатор... вроде у пруда был.','Слышишь этот бит? Сверчки рокеры!','Играю для всех — и для тебя, Рыжик!','Рок — это не музыка, это состояние души.'],
       night:['Ночные прогулки — самое то!','Слышишь? Сверчки играют! Это рок!','Ночью вдохновение приходит само.','Пишу новую песню. Про кота и звёзды.','Ты, Рыжик, мой лучший слушатель!']
     },
-    quest:'q_igor', appearance:'🤘 чёрная куртка, цепочка, эмоциональный',
+    quest:'q_igor', questStage:0, appearance:'🤘 чёрная куртка, цепочка, эмоциональный',
     actions: ['Поговорить', 'Послушать концерт']
   },
   {
@@ -520,7 +729,7 @@ const NPC_DATA = [
       evening:['Вечерний свет идеален для фото...','Мечтаю поймать светлячков на камеру.','Закат в саду — просто сказка.','Сделала пятьсот фото сегодня, ха-ха.','Ты фотогеничный кот, Рыжик, серьёзно.'],
       night:null
     },
-    quest:'q_nastya', appearance:'🌸 фотограф, зелёные глаза, тёплая кофта',
+    quest:'q_nastya', questStage:0, appearance:'🌸 фотограф, зелёные глаза, тёплая кофта',
     actions: ['Позировать для фото', 'Поговорить']
   },
   {
@@ -534,7 +743,7 @@ const NPC_DATA = [
       evening:['Вечеринка на дворе! Ты идёшь?','Твой уголок надо наклейками обклеить!','Зажгли гирлянду — красиво, правда?','Рыжик, ты украшение этого двора!','Этот вечер просто идеальный!'],
       night:null
     },
-    quest:'q_liza', appearance:'💕 розовые волосы, хаотичная энергия',
+    quest:'q_liza', questStage:0, appearance:'💕 розовые волосы, хаотичная энергия',
     actions: ['Поговорить', 'Помочь украсить двор']
   },
   {
@@ -548,7 +757,7 @@ const NPC_DATA = [
       evening:['Рыжик... Ты чувствуешь магию этого места?','Теплица хранит тайну. Найди колокольчик.','Легенда гласит — здесь живёт дух дома...','Звёзды уже выходят... Слышишь?','Я вижу то, что другие не замечают.'],
       night:['В темноте видно то, что скрыто днём.','Колокольчик луны зовёт... Слышишь?','Ищи, Рыжик. Ты близко к разгадке.','Этот дом был полон жизни... когда-то.','Иногда я сам исчезаю. Не ищи — найду тебя сам.']
     },
-    quest:'q_mag', appearance:'🧙 загадочный, появляется ночью, знает тайны теплицы',
+    quest:'q_mag', questStage:0, appearance:'🧙 загадочный, появляется ночью, знает тайны теплицы',
     actions: ['Выслушать легенду', 'Спросить о теплице']
   },
   {
@@ -562,7 +771,7 @@ const NPC_DATA = [
       evening:['Вечерний лес — это особенная красота...','Закат сквозь деревья. Волшебно.','Скоро стемнеет — пора возвращаться.','Я всегда нахожу дорогу домой.','Слышишь? Лягушки у пруда запели.'],
       night:null
     },
-    quest:'q_sonya', appearance:'🎒 путешественница, спокойная, знает лес',
+    quest:'q_sonya', questStage:0, appearance:'🎒 путешественница, спокойная, знает лес',
     actions: ['Идти вместе', 'Поговорить']
   },
   {
@@ -576,7 +785,7 @@ const NPC_DATA = [
       evening:['Вечером тут происходит кое-что интересное...','Ты очень интересный кот, Рыжик.','Записала ещё одно странное наблюдение.','Вечерний двор хранит свои тайны.','Рыжик, ты помогаешь мне писать историю этого места!'],
       night:null
     },
-    quest:'q_nena', appearance:'📓 очки, блокнот, наблюдательная',
+    quest:'q_nena', questStage:0, appearance:'📓 очки, блокнот, наблюдательная',
     actions: ['Поговорить', 'Помочь с записями']
   },
   {
@@ -590,7 +799,7 @@ const NPC_DATA = [
       evening:['Закончила ремонт. Двор стал лучше!','Фонарик почти готов...','Всё починено. Можно отдохнуть.','Смотри, как блестит! Это я сделала.','Твой уголок тоже немного починила, кот.'],
       night:null
     },
-    quest:'q_kristina', appearance:'🔧 тёмная одежда, татуировки, чинит вещи',
+    quest:'q_kristina', questStage:0, appearance:'🔧 тёмная одежда, татуировки, чинит вещи',
     actions: ['Помочь с ремонтом', 'Поговорить']
   },
   {
@@ -604,7 +813,7 @@ const NPC_DATA = [
       evening:['Смастерил тебе игрушку! Лови!','Рыжик, ты лучший! Держи штуку.','Сегодня сделал три вещи из мусора!','Главное — не выбрасывать, а думать!','Ты, Рыжик, тоже артефакт. Редкий кот.'],
       night:null
     },
-    quest:'q_danya', appearance:'🕶️ красные очки, странные устройства, крафтит',
+    quest:'q_danya', questStage:0, appearance:'🕶️ красные очки, странные устройства, крафтит',
     actions: ['Поговорить', 'Получить игрушку']
   },
   {
@@ -618,7 +827,7 @@ const NPC_DATA = [
       evening:['Устал. Но забор почти готов.','Хороший был день, кот.','Работа сделана — могу отдохнуть.','Твой уголок тоже смотрится неплохо.','Завтра доделаю. Сейчас — тишина.'],
       night:null
     },
-    quest:null, appearance:'💪 большой, татуированные руки, строит и чинит',
+    quest:'q_prokhor', questStage:0, appearance:'💪 большой, татуированные руки, строит и чинит',
     actions: ['Поговорить', 'Наблюдать за работой']
   },
 ];
@@ -880,6 +1089,7 @@ class NPC {
     Object.assign(this, data);
     this.wx = data.x; this.wy = data.y;
     this.trust = 0; // 0-3
+    this.questStage = data.questStage || 0; // 0=new,1=q1 active,2=q2 active,3=friend
     this.visible = true;
     this.facing = 1;
     this.animTime = 0;
@@ -1051,6 +1261,10 @@ class World {
       { x:620, y:890, item:'yarn',     id:'c42' },
       { x:1100,y:850, item:'coin',     id:'c43' },
       { x:180, y:850, item:'seeds',    id:'c44' },
+      // Quest items for new quests
+      { x:185, y:615, item:'compass',  id:'c_compass' },
+      { x:200, y:380, item:'tools',    id:'c_tools' },
+      { x:230, y:430, item:'plank',    id:'c_plank' },
     ];
     this.collectibles = items.map(i => ({ ...i, collected: false }));
   }
@@ -2202,6 +2416,12 @@ class Game {
           if (npc) npc.trust = trust;
         });
       }
+      if (d.npc_stages) {
+        d.npc_stages.forEach(([id, stage]) => {
+          const npc = this.npcs.find(n => n.id === id);
+          if (npc) npc.questStage = stage;
+        });
+      }
       if (d.weather) this.weather.set(d.weather);
       if (d.interior && this.interior) this.interior.load(d.interior);
       if (d.barn     && this.barn)     this.barn.load(d.barn);
@@ -2228,6 +2448,7 @@ class Game {
       achievements:  [...this.achievements.unlocked],
       upgrades:      [...this.upgrades],
       npc_trust:     this.npcs.map(n => [n.id, n.trust]),
+      npc_stages:    this.npcs.map(n => [n.id, n.questStage || 0]),
       weather:       this.weather.current,
       interior:      this.interior ? this.interior.save() : null,
       barn:          this.barn     ? this.barn.save()     : null,
@@ -2845,58 +3066,137 @@ class Game {
 
   _talkToNPC(npc) {
     const period = this.time.period;
-    const lines  = npc.dialogues[period];
-    if (!lines || lines.length === 0) {
-      this.dialogue.start(npc, ['...', `${npc.name} молчит.`]);
+    const def = (typeof NPC_QUEST_DEFS !== 'undefined') ? NPC_QUEST_DEFS[npc.id] : null;
+
+    // No quest definition → standard random dialogue
+    if (!def) {
+      const lines = npc.dialogues[period] || npc.dialogues.day || [];
+      const line = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
+      npc.showEmotion('happy'); this.audio.uiClick();
+      this.dialogue.start(npc, [line], () => { npc.trust = Math.min(3, npc.trust + 1); });
       return;
     }
-    const line = lines[Math.floor(Math.random() * lines.length)];
-    npc.showEmotion('happy');
-    this.audio.uiClick();
 
-    // Quest-specific dialogue
-    if (npc.quest && this.quests.isActive(npc.quest)) {
-      const q = QUESTS.find(x => x.id === npc.quest);
-      const step = this.quests.currentStep(npc.quest);
-      const currentProgress = this.quests.progress[npc.quest] || 0;
-      const questId = npc.quest;
-      const choices = [
-        { text: `💬 ${step ? 'О квесте: ' + step : 'Поговорить'}`, action: () => {
-          // Validate item requirement before advancing
-          const reqs = this.QUEST_ITEM_REQUIREMENTS[questId];
-          if (reqs && reqs[currentProgress]) {
-            const r = reqs[currentProgress];
-            if (!this.inventory.has(r.item)) {
-              this.ui.notify(r.msg);
-              return;
-            }
-          }
+    npc.showEmotion('happy'); this.audio.uiClick();
+    const qs = npc.questStage || 0;
+
+    if (qs === 0) {
+      // First meeting — offer Q1
+      const intro = def.q1.intro;
+      this.dialogue.startWithChoices(npc, intro, [
+        { text: '🐾 Помогу!', action: () => {
+          npc.questStage = 1;
           npc.trust = Math.min(3, npc.trust + 1);
-          this._onQuestAdvance(questId);
+          this.quests.unlock(def.q1.id);
+          this.ui.notify(`📋 Новый квест: ${def.q1.title}`);
           this.achievements.unlock('ach02');
         }},
-        { text: '🐾 Просто погладить', action: () => {
-          this.player.mood = Math.min(100, this.player.mood + 5);
-          this.audio.purr();
-          this.ui.notify(`${npc.name} рад!`);
+        { text: '💬 Позже', action: () => {
+          this.player.mood = Math.min(100, this.player.mood + 3);
         }},
-      ];
-      this.dialogue.startWithChoices(npc, line, choices);
+      ]);
+
+    } else if (qs === 1) {
+      // Q1 active
+      const q1 = def.q1;
+      // Period-gated quest
+      if (q1.period && q1.period !== period) {
+        this.dialogue.start(npc, [q1.hint]);
+        return;
+      }
+      // Item-gated quest
+      const hasItem = q1.item ? this.inventory.has(q1.item) : true;
+      const enoughItems = !q1.itemCount || this.inventory.count(q1.item) >= q1.itemCount;
+      if (hasItem && enoughItems) {
+        // Complete Q1
+        this.dialogue.start(npc, [q1.thanks], () => {
+          if (q1.item) {
+            if (q1.itemCount) {
+              for (let i = 0; i < q1.itemCount; i++) this.inventory.remove(q1.item);
+            } else {
+              this.inventory.remove(q1.item);
+            }
+          }
+          npc.questStage = 2;
+          npc.trust = Math.min(3, npc.trust + 1);
+          this._giveQuestReward(def.q1, npc);
+          // Unlock Q2
+          this.quests.unlock(def.q2.id);
+          setTimeout(() => {
+            this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`);
+          }, 2000);
+        });
+      } else {
+        this.dialogue.start(npc, [q1.hint]);
+      }
+
+    } else if (qs === 2) {
+      // Q2 active
+      const q2 = def.q2;
+      // Period-gated
+      if (q2.period && q2.period !== period) {
+        this.dialogue.start(npc, [q2.hint]);
+        return;
+      }
+      const hasItem = q2.item ? this.inventory.has(q2.item) : true;
+      if (hasItem) {
+        // Complete Q2
+        this.dialogue.start(npc, [q2.thanks], () => {
+          if (q2.item) this.inventory.remove(q2.item);
+          npc.questStage = 3;
+          npc.trust = 3;
+          this._giveQuestReward(def.q2, npc);
+          this.achievements.unlock('ach02');
+          this._checkAllFriends();
+        });
+      } else {
+        // Show Q2 intro + hint
+        this.dialogue.start(npc, [q2.intro, q2.hint]);
+      }
+
     } else {
-      // Regular dialogue
-      const extra = npc.trust >= 2 ? [`${npc.name} смотрит на тебя тепло.`] : [];
-      this.dialogue.start(npc, [line, ...extra], () => {
-        npc.trust = Math.min(3, npc.trust + 1);
-        if (npc.trust >= 2) this._checkAllFriends();
+      // Stage 3 — friend
+      const lines = npc.dialogues[period] || npc.dialogues.day || [];
+      const line = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
+      this.dialogue.start(npc, [line, `${npc.name} рад видеть тебя! ❤️`], () => {
+        this.player.mood = Math.min(100, this.player.mood + 10);
+        npc.trust = 3;
       });
     }
-    this.achievements.unlock('ach02');
-    // Check "meet 3 characters" quest
+
+    // Always check meet-3-chars quest
     if (this.quests.isActive('q03')) {
-      const metCount = this.npcs.filter(n => n.trust >= 1).length;
-      if (metCount >= 3) {
-        this._onQuestAdvance('q03');
+      const metCount = this.npcs.filter(n => n.questStage >= 1).length;
+      if (metCount >= 3) this._onQuestAdvance('q03');
+    }
+  }
+
+  /* ── GIVE QUEST REWARD ── */
+  _giveQuestReward(questDef, npc) {
+    const q = QUESTS.find(x => x.id === questDef.id);
+    const reward = q ? q.reward : {};
+    if (reward.xp)   { this.player.glory += reward.xp; this.ui.notify(`⭐ +${reward.xp} Слава`); }
+    if (reward.item) { this.inventory.add(reward.item); this.ui.notify(`🎁 Получено: ${ITEMS[reward.item]?.name || reward.item}`); }
+    if (reward.zone) { if (!this.unlockedZones.includes(reward.zone)) { this.unlockedZones.push(reward.zone); this.ui.notify(`🗺️ Открыта новая зона!`); } }
+    if (reward.trust && npc) npc.trust = Math.min(3, npc.trust + 2);
+    if (reward.event === 'concert') this.ui.showEvent('🎵', 'Вечерний концерт начинается!');
+    if (reward.event === 'finale') this._triggerFinale();
+    if (reward.upgrade) {
+      this.upgrades.add(reward.upgrade);
+      this.ui.notify('✨ Улучшение получено!');
+    }
+    if (q) {
+      // Mark quest complete in the quest system
+      if (this.quests.isActive(q.id)) {
+        let safeLimit = 10;
+        while (this.quests.isActive(q.id) && safeLimit-- > 0) {
+          const r = this.quests.advanceStep(q.id);
+          if (r === 'complete') break;
+        }
       }
+      this.ui.notify(`✅ Квест выполнен: ${q.title}!`);
+      this.audio.questDone();
+      this.telegram.vibrateSuccess();
     }
   }
 
@@ -3160,7 +3460,7 @@ NPC.prototype.draw = function(ctx, cam, period) {
   const sx = this.wx + cam.x, sy = this.wy + cam.y;
   const cw = ctx.canvas.width, ch = ctx.canvas.height;
   if (sx < -80 || sx > cw+80 || sy < -80 || sy > ch+80) return;
-  
+
   if (this.human) {
     drawHumanNPC(ctx, {
       id: this.id, x: sx, y: sy, t: GFX.t,
@@ -3175,6 +3475,14 @@ NPC.prototype.draw = function(ctx, cam, period) {
     GFX.roundRect(ctx, sx - bw/2, sy - 52, bw, 16, 4); ctx.fill();
     ctx.fillStyle = this.color||'#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
     ctx.fillText(this.name, sx, sy - 40);
+    // Quest stage icon
+    if (typeof NPC_QUEST_DEFS !== 'undefined' && NPC_QUEST_DEFS[this.id]) {
+      const qs = this.questStage || 0;
+      const qIcons = ['❗','🔍','🔍','❤️'];
+      const qIcon = qIcons[Math.min(qs, 3)];
+      ctx.font = '14px serif'; ctx.textAlign = 'center';
+      ctx.fillText(qIcon, sx, sy - 58);
+    }
     ctx.restore();
   } else {
     // Animal NPC — draw with emoji + glow
@@ -3200,6 +3508,14 @@ NPC.prototype.draw = function(ctx, cam, period) {
       const tColors=['','#aaa','#44cc88','#ffd844'];
       ctx.font='9px serif'; ctx.fillStyle = tColors[this.trust]||'#fff';
       for(let i=0;i<this.trust;i++) ctx.fillText('♥',-6+i*6,-54);
+    }
+    // Quest stage icon
+    if (typeof NPC_QUEST_DEFS !== 'undefined' && NPC_QUEST_DEFS[this.id]) {
+      const qs = this.questStage || 0;
+      const qIcons = ['❗','🔍','🔍','❤️'];
+      const qIcon = qIcons[Math.min(qs, 3)];
+      ctx.font = '14px serif'; ctx.textAlign = 'center';
+      ctx.fillText(qIcon, 0, -68);
     }
     ctx.restore();
   }

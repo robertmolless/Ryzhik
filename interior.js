@@ -97,6 +97,18 @@ const FURNITURE = [
 
   // ─── STAIRS floor2→floor1 ───
   { id:'stairs2', floor:2, x:50,  y:180, w:70,  h:100,type:'stairs',  label:'Вниз ↓',          action:'stairs_down' },
+
+  // ─── QUEST PICKUP ITEMS ───
+  // Floor 2: Lyokha's room — guitar strap
+  { id:'guitar_strap',  floor:2, x:270, y:300, w:40,  h:20, type:'strap',   label:'Гитарный ремень', action:'pickup', item:'guitarStrap' },
+  // Floor 2: Attic area — old photo
+  { id:'old_photo',     floor:2, x:660, y:300, w:40,  h:35, type:'paper',   label:'Старое фото',      action:'pickup', item:'oldPhoto' },
+  // Floor 2: Attic — house map
+  { id:'house_map_pick',floor:2, x:520, y:320, w:45,  h:35, type:'paper',   label:'Карта дома',       action:'pickup', item:'houseMap' },
+  // Floor 1: Kitchen — batteries
+  { id:'batteries_box', floor:1, x:700, y:230, w:35,  h:30, type:'tin',     label:'Батарейки',        action:'pickup', item:'batteries' },
+  // Floor 1: Storage — cat figure
+  { id:'cat_fig_item',  floor:1, x:380, y:310, w:30,  h:30, type:'catfig',  label:'Фигурка кота',     action:'pickup', item:'catFig' },
 ];
 
 /* ──────────────────────────────────────────────
@@ -570,6 +582,8 @@ function _drawFurnitureItem(ctx, f, camX, t, interior, period) {
     case 'rug':       _drawRug(ctx, f, t); break;
     case 'door':      _drawInteriorDoor(ctx, f, t, interior.pickedItems); break;
     case 'tin':       _drawTin(ctx, f, t, interior.pickedItems.has(f.id)); break;
+    case 'strap':     _drawStrap(ctx, f, t, interior.pickedItems.has(f.id)); break;
+    case 'catfig':    _drawCatFig(ctx, f, t, interior.pickedItems.has(f.id)); break;
     default: break;
   }
   // Interaction highlight ring
@@ -1231,6 +1245,35 @@ function _drawFilm(ctx, f, t, picked) {
   }
   ctx.strokeStyle = 'rgba(255,180,50,0.5)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(w / 2, h / 2, Math.max(w, h) * 0.55, 0, Math.PI * 2); ctx.stroke();
+}
+
+function _drawStrap(ctx, f, t, picked) {
+  if (picked) return;
+  const w = f.w, h = f.h;
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(2, Math.floor(h * 0.35), w - 4, Math.floor(h * 0.3));
+  ctx.strokeStyle = '#5a2d0c'; ctx.lineWidth = 1;
+  ctx.strokeRect(2, Math.floor(h * 0.35), w - 4, Math.floor(h * 0.3));
+  ctx.font = '10px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('🎸', w / 2, h * 0.2);
+  // Sparkle
+  const sp = Math.sin(t * 2.5) * 0.5 + 0.5;
+  ctx.fillStyle = `rgba(255,220,80,${sp * 0.7})`;
+  ctx.font = '8px serif';
+  ctx.fillText('✨', w * 0.85, h * 0.15);
+}
+
+function _drawCatFig(ctx, f, t, picked) {
+  if (picked) return;
+  const w = f.w, h = f.h;
+  ctx.font = '20px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🐈', w / 2, h / 2);
+  // Sparkle
+  const sp = Math.sin(t * 2) * 0.3 + 0.7;
+  ctx.fillStyle = `rgba(255,200,80,${sp * 0.5})`;
+  ctx.font = '8px serif';
+  ctx.fillText('✨', w * 0.8, h * 0.1);
 }
 
 function _drawStairs(ctx, f, t) {
