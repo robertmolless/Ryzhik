@@ -687,6 +687,62 @@ const NPC_QUEST_DEFS = {
 };
 
 /* ──────────────────────────────────────────────
+   GAME DATA: NPC PERSONAL STORIES
+   ────────────────────────────────────────────── */
+const NPC_STORIES = {
+  lyokha: [
+    { minTrust: 0, text: 'Я попал сюда случайно — ехал автостопом, вышел на развилке и увидел этот дом. Что-то удержало меня. Решил остаться на лето.' },
+    { minTrust: 1, text: 'Я начал учиться играть на гитаре лет в двенадцать. Пальцы болели так, что не мог держать кружку. Но не бросил — и теперь рад.' },
+    { minTrust: 2, text: 'Слушай... я пишу одну песню. Медленно, но пишу. Она про рыжего кота, который бродит по двору. Про тебя, Рыжик. 🎵' },
+  ],
+  igor: [
+    { minTrust: 0, text: 'Моя первая группа — мы назывались «Стальной Кулак». Репетировали в гараже у Колька, и однажды разбили три окна шваброй. Сосед был в ярости.' },
+    { minTrust: 1, text: 'Моя любимая группа — «Кино». Я ехал на концерт в другой город один, без денег почти. Стоял у сцены и ревел. Не стыжусь.' },
+    { minTrust: 2, text: 'Знаешь, рок — это не поза и не одежда. Это когда ты не боишься быть собой, даже если все смотрят косо. Я это понял не сразу. 🤘' },
+  ],
+  nastya: [
+    { minTrust: 0, text: 'Первый фотоаппарат я купила сама. Копила полгода — откладывала деньги с подработки. Когда наконец нажала на кнопку первый раз, чуть не заплакала от счастья.' },
+    { minTrust: 1, text: 'Лучшая моя фотография — закат над полем. Встала в пять утра, шла полчаса пешком. Один кадр получился идеальным. До сих пор смотрю на него и верю в мир.' },
+    { minTrust: 2, text: 'Я хочу сделать фотокнигу об этом дворе. О людях здесь, о растениях... и конечно о тебе, Рыжик. Ты главный герой. 📸' },
+  ],
+  liza: [
+    { minTrust: 0, text: 'У меня уже больше пятисот наклеек! Со всего мира — из киосков, с выставок, подаренные. Каждая что-то значит. Это моя жизнь в картинках.' },
+    { minTrust: 1, text: 'В детстве ко мне каждый день приходил дворовой кот — рыжий, кстати! Я оставляла ему еду у подъезда. Мы так подружились. Он исчез однажды, и я долго грустила.' },
+    { minTrust: 2, text: 'Рыжик, ты самый лучший кот в мире, это факт. Я уже придумала, что нарисую твой портрет — в рамочке, с короной. Ты заслуживаешь. 💕' },
+  ],
+  mag: [
+    { minTrust: 0, text: 'Этот двор... я чувствую его магию с детства. Здесь особая энергетика — земля хранит что-то старое. Не все это ощущают, но ты, Рыжик, точно чувствуешь.' },
+    { minTrust: 1, text: 'Каждое полнолуние я прихожу к колодцу и провожу лунный ритуал. Зажигаю свечу, читаю слова. Звучит странно — но после этого сплю лучше всего в мире.' },
+    { minTrust: 2, text: 'Открою тебе тайну. В этом доме когда-то жил настоящий маг — не фокусник, а знающий человек. Теплица — его наследие. Там растёт то, чего нет больше нигде. 🔮' },
+  ],
+  sonya: [
+    { minTrust: 0, text: 'Однажды я ушла в горы одна. Три дня без связи. На второй день нашла горное озеро — такое тихое, будто стекло. Легла на берегу и смотрела в небо.' },
+    { minTrust: 1, text: 'У меня есть любимая лесная тропинка — я нашла её случайно. Там всегда тихо и пахнет смолой. Иду туда, когда нужно подумать. Помогает лучше любого совета.' },
+    { minTrust: 2, text: 'Я хочу обойти всю Россию пешком. Записывать людей, места, истории. Сделать из этого книгу. Это моя мечта. Ты первый, кому я говорю это вслух. 🌿' },
+  ],
+  nena: [
+    { minTrust: 0, text: 'Я веду дневник уже семь лет. Записываю всё необычное — разговоры, находки, совпадения. Потом читаю и понимаю: жизнь намного интереснее, чем кажется.' },
+    { minTrust: 1, text: 'Однажды ночью я видела огни в теплице. Три раза мигнули и пропали. Я пошла проверить — никого. Записала в дневник. До сих пор не знаю что это было.' },
+    { minTrust: 2, text: 'Хочешь знать? У меня есть целая страница о тебе, Рыжик. Наблюдения — когда ты появляешься, куда ходишь, что любишь. Ты очень интересный субъект. 📓' },
+  ],
+  kristina: [
+    { minTrust: 0, text: 'Первый велосипед я починила в восемь лет. Нашла в подвале сломанный, разобрала, собрала. Соседи смотрели и не верили. Я и сама не верила, что получится.' },
+    { minTrust: 1, text: 'Моя мечта — построить домик на дереве. Вот здесь, в саду, на большом дубе. Уже нарисовала план. Осталось найти подходящие доски.' },
+    { minTrust: 2, text: 'Я кое-что сделала для кошачьего уголка — не скажу что, это сюрприз. Скоро увидишь. Надеюсь, тебе понравится, Рыжик. 🔧' },
+  ],
+  danya: [
+    { minTrust: 0, text: 'У меня есть коробка сокровищ. Там: монетка из другой страны, перо совы, кусочек метеорита (может быть), старая фотография незнакомца. Самые важные вещи.' },
+    { minTrust: 1, text: 'Я придумал целый мир — он называется Зверолесье. Там все животные умеют говорить. Главный герой — рыжий кот, который решает загадки. Случайно, да.' },
+    { minTrust: 2, text: 'Держи. Я нарисовал тебя — вот, смотри. Рыжик Первый, в короне, на троне. Это твой официальный портрет. Можешь повесить где-нибудь. 🧸' },
+  ],
+  prokhor: [
+    { minTrust: 0, text: 'Строю заборы уже лет десять. Хорошая работа. Забор стоит — значит порядок. Не думать особо не надо, просто делай.' },
+    { minTrust: 1, text: 'Дед учил меня плотницкому делу. Молча — просто показывал и смотрел. Я сначала злился. Потом понял: руки сами запомнили. Теперь благодарен.' },
+    { minTrust: 2, text: 'Ты... хороший кот, Рыжик. Я обычно кошек не люблю — они сами по себе. Но ты другой. Ты первый кот, которому я... ну, доверяю. Не говори никому. 🔨' },
+  ],
+};
+
+/* ──────────────────────────────────────────────
    GAME DATA: NPC
    ────────────────────────────────────────────── */
 const NPC_DATA = [
@@ -2154,7 +2210,8 @@ class UIManager {
   }
   updateTime(time) {
     const ti = document.getElementById('time-icon'); if (ti) ti.textContent = time.icon;
-    const tl = document.getElementById('time-label'); if (tl) tl.textContent = time.periodRu;
+    const h = time.hour; const hStr = `${h}:00`;
+    const tl = document.getElementById('time-label'); if (tl) tl.textContent = `${time.periodRu} ${hStr}`;
     const dl = document.getElementById('day-label'); if (dl) dl.textContent = ` · День ${time.day}`;
   }
   updateWeather(weather) {
@@ -2659,6 +2716,12 @@ class Game {
           if (npc) npc.questStage = stage;
         });
       }
+      if (d.npc_stories) {
+        d.npc_stories.forEach(([id, idx]) => {
+          const npc = this.npcs.find(n => n.id === id);
+          if (npc) npc.storyIndex = idx || 0;
+        });
+      }
       if (d.weather) this.weather.set(d.weather);
       if (d.interior && this.interior) this.interior.load(d.interior);
       if (d.barn     && this.barn)     this.barn.load(d.barn);
@@ -2686,6 +2749,7 @@ class Game {
       upgrades:      [...this.upgrades],
       npc_trust:     this.npcs.map(n => [n.id, n.trust]),
       npc_stages:    this.npcs.map(n => [n.id, n.questStage || 0]),
+      npc_stories:   this.npcs.map(n => [n.id, n.storyIndex || 0]),
       weather:       this.weather.current,
       interior:      this.interior ? this.interior.save() : null,
       barn:          this.barn     ? this.barn.save()     : null,
@@ -3075,10 +3139,7 @@ class Game {
         break;
 
       case 'sleep':
-        this.ui.notify('😴 Рыжик свернулся клубочком на кровати! Так мягко...');
-        this.player.energy = Math.min(100, this.player.energy + 30);
-        this.player.mood   = Math.min(100, this.player.mood + 15);
-        this.player.playAction('purr');
+        this._showSleepMenu();
         break;
 
       case 'watch':
@@ -3305,25 +3366,58 @@ class Game {
   }
 
   _talkToNPC(npc) {
-    const period = this.time.period;
-    const def = (typeof NPC_QUEST_DEFS !== 'undefined') ? NPC_QUEST_DEFS[npc.id] : null;
+    npc.showEmotion('happy');
+    this.audio.uiClick();
 
-    // No quest definition → standard random dialogue
-    if (!def) {
-      const lines = npc.dialogues[period] || npc.dialogues.day || [];
-      const line = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
-      npc.showEmotion('happy'); this.audio.uiClick();
-      this.dialogue.start(npc, [line], () => { npc.trust = Math.min(3, npc.trust + 1); });
-      return;
+    const def = (typeof NPC_QUEST_DEFS !== 'undefined') ? NPC_QUEST_DEFS[npc.id] : null;
+    const qs  = npc.questStage || 0;
+    const period = this.time.period;
+
+    // Greeting line for menu header
+    const greetLines = npc.dialogues?.[period] || npc.dialogues?.day || [];
+    const greeting = greetLines.length
+      ? greetLines[Math.floor(Math.random() * greetLines.length)]
+      : `${npc.name} смотрит на тебя.`;
+
+    // Build choices
+    const choices = [];
+
+    // 📜 Quest option — only when quest is ongoing
+    if (def && qs < 3) {
+      choices.push({ text: '📜 Задание', action: () => this._handleQuestDialogue(npc) });
     }
 
-    npc.showEmotion('happy'); this.audio.uiClick();
+    // 💬 Chat / stories option — always
+    choices.push({ text: '💬 Поговорить', action: () => this._handleCasualChat(npc) });
+
+    // 🎁 Give item — only if player has items
+    if (this.inventory.items.length > 0) {
+      choices.push({ text: '🎁 Отдать предмет', action: () => this._handleGiveItem(npc) });
+    }
+
+    // 👋 Bye
+    choices.push({ text: '👋 Пока', action: () => {
+      this.player.mood = Math.min(100, this.player.mood + 2);
+    }});
+
+    this.dialogue.startWithChoices(npc, greeting, choices);
+
+    // Meet-3-chars quest check
+    if (this.quests.isActive('q03')) {
+      const metCount = this.npcs.filter(n => n.questStage >= 1).length;
+      if (metCount >= 3) this._onQuestAdvance('q03');
+    }
+  }
+
+  /* ── QUEST DIALOGUE HANDLER ── */
+  _handleQuestDialogue(npc) {
+    const period = this.time.period;
+    const def = NPC_QUEST_DEFS[npc.id];
+    if (!def) return;
     const qs = npc.questStage || 0;
 
     if (qs === 0) {
-      // First meeting — offer Q1
-      const intro = def.q1.intro;
-      this.dialogue.startWithChoices(npc, intro, [
+      this.dialogue.startWithChoices(npc, def.q1.intro, [
         { text: '🐾 Помогу!', action: () => {
           npc.questStage = 1;
           npc.trust = Math.min(3, npc.trust + 1);
@@ -3331,56 +3425,43 @@ class Game {
           this.ui.notify(`📋 Новый квест: ${def.q1.title}`);
           this.achievements.unlock('ach02');
         }},
-        { text: '💬 Позже', action: () => {
+        { text: '💬 Может, потом...', action: () => {
           this.player.mood = Math.min(100, this.player.mood + 3);
         }},
       ]);
 
     } else if (qs === 1) {
-      // Q1 active
       const q1 = def.q1;
-      // Period-gated quest
       if (q1.period && q1.period !== period) {
         this.dialogue.start(npc, [q1.hint]);
         return;
       }
-      // Item-gated quest
       const hasItem = q1.item ? this.inventory.has(q1.item) : true;
       const enoughItems = !q1.itemCount || this.inventory.count(q1.item) >= q1.itemCount;
       if (hasItem && enoughItems) {
-        // Complete Q1
         this.dialogue.start(npc, [q1.thanks], () => {
           if (q1.item) {
-            if (q1.itemCount) {
-              for (let i = 0; i < q1.itemCount; i++) this.inventory.remove(q1.item);
-            } else {
-              this.inventory.remove(q1.item);
-            }
+            if (q1.itemCount) { for (let i = 0; i < q1.itemCount; i++) this.inventory.remove(q1.item); }
+            else this.inventory.remove(q1.item);
           }
           npc.questStage = 2;
           npc.trust = Math.min(3, npc.trust + 1);
           this._giveQuestReward(def.q1, npc);
-          // Unlock Q2
           this.quests.unlock(def.q2.id);
-          setTimeout(() => {
-            this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`);
-          }, 2000);
+          setTimeout(() => this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`), 2000);
         });
       } else {
         this.dialogue.start(npc, [q1.hint]);
       }
 
     } else if (qs === 2) {
-      // Q2 active
       const q2 = def.q2;
-      // Period-gated
       if (q2.period && q2.period !== period) {
         this.dialogue.start(npc, [q2.hint]);
         return;
       }
       const hasItem = q2.item ? this.inventory.has(q2.item) : true;
       if (hasItem) {
-        // Complete Q2
         this.dialogue.start(npc, [q2.thanks], () => {
           if (q2.item) this.inventory.remove(q2.item);
           npc.questStage = 3;
@@ -3390,24 +3471,149 @@ class Game {
           this._checkAllFriends();
         });
       } else {
-        // Show Q2 intro + hint
         this.dialogue.start(npc, [q2.intro, q2.hint]);
       }
+    }
+  }
 
+  /* ── CASUAL CHAT + STORIES ── */
+  _handleCasualChat(npc) {
+    const period = this.time.period;
+    const lines = npc.dialogues?.[period] || npc.dialogues?.day || [];
+    const line = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
+
+    // Check if there's an unlocked story to tell
+    if (!npc.storyIndex) npc.storyIndex = 0;
+    const stories = (typeof NPC_STORIES !== 'undefined') ? (NPC_STORIES[npc.id] || []) : [];
+    const nextStory = stories[npc.storyIndex];
+    const canTellStory = nextStory && npc.trust >= nextStory.minTrust;
+
+    if (canTellStory) {
+      this.dialogue.startWithChoices(npc, line, [
+        { text: '📖 Расскажи о себе', action: () => {
+          this.dialogue.start(npc, [nextStory.text], () => {
+            npc.storyIndex++;
+            npc.trust = Math.min(3, npc.trust + 1);
+            this.player.mood = Math.min(100, this.player.mood + 8);
+            this.ui.notify(`💬 ${npc.name} рассказал тебе кое-что важное`);
+          });
+        }},
+        { text: '😺 Просто мяукнул', action: () => {
+          this.player.mood = Math.min(100, this.player.mood + 3);
+        }},
+      ]);
     } else {
-      // Stage 3 — friend
-      const lines = npc.dialogues[period] || npc.dialogues.day || [];
-      const line = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
-      this.dialogue.start(npc, [line, `${npc.name} рад видеть тебя! ❤️`], () => {
-        this.player.mood = Math.min(100, this.player.mood + 10);
-        npc.trust = 3;
+      // Stage 3 friend gets bonus mood + heart
+      const extra = (npc.questStage || 0) >= 3 ? ` ❤️` : '';
+      this.dialogue.start(npc, [line + extra], () => {
+        this.player.mood = Math.min(100, this.player.mood + 5);
       });
     }
+  }
 
-    // Always check meet-3-chars quest
-    if (this.quests.isActive('q03')) {
-      const metCount = this.npcs.filter(n => n.questStage >= 1).length;
-      if (metCount >= 3) this._onQuestAdvance('q03');
+  /* ── GIVE ITEM TO NPC ── */
+  _handleGiveItem(npc) {
+    const def = NPC_QUEST_DEFS[npc.id];
+    const qs  = npc.questStage || 0;
+
+    // Find what quest item this NPC needs right now
+    let neededItem = null;
+    if (def && qs === 1) neededItem = def.q1.item;
+    if (def && qs === 2) neededItem = def.q2.item;
+
+    // Build item list — prefer the needed quest item first
+    const items = this.inventory.items.filter(i => i.qty > 0);
+    if (!items.length) {
+      this.ui.notify('🎒 Инвентарь пуст!');
+      return;
+    }
+
+    const choices = items.slice(0, 3).map(i => {
+      const idata = ITEMS[i.id];
+      const label = idata ? `${idata.icon?.[0] || '?'} ${idata.name}` : i.id;
+      const isNeeded = i.id === neededItem;
+      return {
+        text: isNeeded ? `${label} ✨` : label,
+        action: () => this._doGiveItem(npc, i.id, neededItem),
+      };
+    });
+    choices.push({ text: '🔙 Назад', action: () => {} });
+
+    this.dialogue.startWithChoices(npc, 'Что отдать?', choices);
+  }
+
+  _doGiveItem(npc, itemId, neededItem) {
+    if (itemId === neededItem) {
+      // Hand over the quest item → run quest dialogue to complete it
+      this._handleQuestDialogue(npc);
+    } else {
+      // NPC doesn't need this — politely decline
+      const idata = ITEMS[itemId];
+      const name = idata ? idata.name : itemId;
+      this.dialogue.start(npc, [`Спасибо, но ${name} мне сейчас не нужен...`]);
+    }
+  }
+
+  /* ── SLEEP MENU ── */
+  _showSleepMenu() {
+    const period = this.time.period;
+    // Don't show options for a time already past current period
+    const hour = this.time.hour;
+    const opts = [
+      { text: '☀️ Спать до утра (6:00)',   h: 6  },
+      { text: '🌤 Спать до полудня (12:00)', h: 12 },
+      { text: '🌇 Спать до вечера (18:00)', h: 18 },
+      { text: '🌙 Спать до ночи (22:00)',   h: 22 },
+    ];
+    // Filter out times that are ≤ current hour (within the same day would be going back)
+    const available = opts.filter(o => o.h !== hour);
+    const choices = available.map(o => ({
+      text: o.text,
+      action: () => this._sleepUntil(o.h),
+    }));
+    choices.push({ text: '❌ Отмена', action: () => {} });
+
+    // Use a fake NPC-less dialogue — create a simple proxy
+    const sleepNPC = { name: '🛏️ Кровать', emoji: '😴', color: '#8888ff', trust: 0 };
+    this.dialogue.startWithChoices(sleepNPC, 'Свернуться клубочком и поспать?', choices);
+  }
+
+  _sleepUntil(targetHour) {
+    const current = this.time.hour;
+    let hoursSlept;
+    if (targetHour > current) {
+      hoursSlept = targetHour - current;
+    } else {
+      // Next day
+      hoursSlept = (24 - current) + targetHour;
+      this.time.day++;
+    }
+    this.time.hour = targetHour;
+    this.time.minuteAccum = 0;
+
+    // Restore stats based on time slept
+    const restFactor = Math.min(1, hoursSlept / 8);
+    this.player.energy = Math.min(100, this.player.energy + Math.round(50 * restFactor));
+    this.player.mood   = Math.min(100, this.player.mood   + Math.round(20 * restFactor));
+    this.player.food   = Math.max(0,   this.player.food   - Math.round(10 * restFactor));
+
+    this.player.playAction('purr');
+    this.ui.notify(`😴 Рыжик поспал ${hoursSlept} ч. Сейчас ${this.time.periodRu} ${targetHour}:00`);
+
+    // Reposition NPCs for new time period
+    const newPeriod = this.time.period;
+    this.npcs.forEach(npc => {
+      const sched = npc.schedule?.[newPeriod];
+      if (sched && Array.isArray(sched) && sched.length >= 2) {
+        npc.x = sched[0]; npc.y = sched[1];
+      } else if (sched && typeof sched === 'object' && sched.x !== undefined) {
+        npc.x = sched.x; npc.y = sched.y;
+      }
+    });
+
+    // Weather may change at night
+    if (newPeriod === 'night') {
+      this.weather.set(this.weather.random('night'));
     }
   }
 
