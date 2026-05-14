@@ -1274,25 +1274,6 @@ function drawLightingOverlay(ctx, cw, ch, period, t, cam, weatherType) {
     });
   }
 
-  // God rays / sun shafts (morning & day)
-  if (period === 'morning' || period === 'day') {
-    const rayAlpha = period === 'morning' ? 0.055 : 0.032;
-    const rayCount = 5;
-    const rayBase  = period === 'morning' ? cw * 0.25 : cw * 0.7;
-    ctx.save();
-    for (let ri = 0; ri < rayCount; ri++) {
-      const rw  = 60 + ri * 30;
-      const rox = (ri - rayCount/2) * 55 + Math.sin(t * 0.12 + ri) * 18;
-      ctx.fillStyle = `rgba(255,240,180,${rayAlpha * (1 - ri * 0.1)})`;
-      ctx.beginPath();
-      ctx.moveTo(rayBase + rox - 15, 0);
-      ctx.lineTo(rayBase + rox + 15, 0);
-      ctx.lineTo(rayBase + rox + rw + 80, ch);
-      ctx.lineTo(rayBase + rox + rw - 80, ch);
-      ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-  }
 
   // Dust particles (day/morning)
   if (period === 'day' || period === 'morning') {
