@@ -202,28 +202,48 @@ html, body {
 @keyframes notifIn  { from { opacity:0; transform:scale(0.75); } to { opacity:1; transform:scale(1); } }
 @keyframes notifOut { to   { opacity:0; transform:translateY(-8px); } }
 
+/* ===== INTERACTION PROMPT LAYER ===== */
+#interactionPromptLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
 #interact-hint {
   position: absolute;
-  bottom: calc(148px + var(--safe-b));
-  left: 50%; transform: translateX(-50%);
-  background: rgba(30,18,6,0.88);
+  /* Base: above two rows of buttons (128px) + ctrl-lift + safe-b + 27px breathing room */
+  bottom: calc(var(--ctrl-lift) + var(--safe-b) + 155px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18,10,2,0.93);
   color: var(--c-orange);
-  font-weight: 700; font-size: 12px;
-  padding: 6px 18px 6px 14px;
-  border-radius: 22px;
-  border: 1.5px solid rgba(244,135,58,0.55);
-  box-shadow: 0 2px 14px rgba(0,0,0,0.5), 0 0 8px rgba(244,135,58,0.18);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 20px;
+  border-radius: 24px;
+  border: 1.5px solid rgba(244,135,58,0.6);
+  box-shadow: 0 3px 20px rgba(0,0,0,0.6), 0 0 12px rgba(244,135,58,0.22);
   pointer-events: none;
   display: none;
-  white-space: nowrap;
-  max-width: calc(100vw - 48px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  animation: hintSlideUp 0.22s ease, hintPulse 2s ease-in-out 0.22s infinite;
-  backdrop-filter: blur(6px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.4;
+  /* Wide enough for 2 lines, narrow enough to stay between joystick & buttons */
+  max-width: min(300px, calc(100vw - 60px));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: hintSlideUp 0.22s ease, hintPulse 2.5s ease-in-out 0.22s infinite;
 }
-@keyframes hintSlideUp { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
-@keyframes hintPulse { 0%,100%{box-shadow:0 2px 14px rgba(0,0,0,0.5),0 0 8px rgba(244,135,58,0.18)} 50%{box-shadow:0 2px 14px rgba(0,0,0,0.5),0 0 16px rgba(244,135,58,0.32)} }
+
+@keyframes hintSlideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes hintPulse {
+  0%, 100% { box-shadow: 0 3px 20px rgba(0,0,0,0.6), 0 0 10px rgba(244,135,58,0.18); }
+  50%       { box-shadow: 0 3px 20px rgba(0,0,0,0.6), 0 0 22px rgba(244,135,58,0.4); }
+}
 
 #kb-hint {
   position: absolute; bottom: 6px;
@@ -311,15 +331,7 @@ html, body {
 .act-pause { width: 46px; height: 46px; font-size: 18px; }
 
 #action-label {
-  font-size: 10px; color: var(--c-orange); font-weight: 600;
-  text-align: center; text-shadow: 0 1px 6px rgba(0,0,0,0.9);
-  min-height: 14px;
-  pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 72px;
-  letter-spacing: 0.02em;
+  display: none; /* floating #interact-hint shows the hint above controls */
 }
 
 /* ===== DIALOGUE ===== */
@@ -659,7 +671,7 @@ html, body {
 @media (hover: hover) and (pointer: fine) {
   #mobile-ui { display: none !important; }
   #kb-hint   { display: block; }
-  #interact-hint { bottom: 40px; }
+  #interact-hint { bottom: 40px; max-width: 440px; white-space: nowrap; }
   #dialogue-box  { bottom: 16px; }
   .menu-btn:hover { filter: brightness(1.1); }
   .act-btn:hover  { background: rgba(255,255,255,0.12); }
@@ -678,6 +690,7 @@ html, body {
   .act-action    { width: 58px; height: 58px; }
   .act-meow      { width: 50px; height: 50px; }
   #dialogue-box  { max-height: 35vh; }
+  #interact-hint { bottom: calc(4px + var(--safe-b) + 120px); font-size: 11px; padding: 6px 14px; }
 }
 
 /* Very small phones */
@@ -700,6 +713,13 @@ body.compact-ios #mobile-ui {
 body.ios-safe .act-btn::before,
 body.compact-ios .act-btn::before {
   inset: -10px;
+}
+/* Raise interact-hint to match the extra button lift on iOS */
+body.ios-safe #interact-hint {
+  bottom: calc(var(--ctrl-lift) + var(--safe-b) + 165px);
+}
+body.compact-ios #interact-hint {
+  bottom: calc(var(--ctrl-lift) + var(--safe-b) + 173px);
 }
 
 /* Scrollbars */

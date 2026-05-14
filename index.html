@@ -53,7 +53,6 @@
       <div id="qt-step"></div>
     </div>
     <div id="notif-container"></div>
-    <div id="interact-hint"></div>
     <div id="mobile-ui">
       <div id="joystick-zone">
         <div id="joystick-base"><div id="joystick-knob"></div></div>
@@ -73,6 +72,11 @@
       </div>
     </div>
     <div id="kb-hint">WASD — движение · E — действие · Space — мяу · I/Q/M — меню · Esc — пауза</div>
+  </div>
+
+  <!-- INTERACTION PROMPT LAYER — z-index 40: above controls (#hud=10), below dialogues (z-index 50) -->
+  <div id="interactionPromptLayer">
+    <div id="interact-hint"></div>
   </div>
 
   <!-- ДИАЛОГ -->
