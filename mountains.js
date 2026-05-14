@@ -75,12 +75,13 @@ const MOUNTAIN_OBJECTS = [
 class MountainsManager {
   constructor() {
     this.active      = false;
-    this.px          = 180;
-    this.py          = 262;
+    this.px          = 90;
+    this.py          = 295;
     this.fadeAlpha   = 0;
     this.fading      = false;
     this.fadeDir     = 0;
     this.pendingAction = null;
+    this.isMoving      = false;
     this.pickedItems   = new Set();
     this.unlockedFlag  = false;  // true после 3-го квеста Сони
     this._t            = 0;      // внутренний таймер анимации
@@ -107,7 +108,7 @@ class MountainsManager {
       this.fadeAlpha = 1;
       if (this.pendingAction) {
         const a = this.pendingAction; this.pendingAction = null;
-        if (a.type === 'enter') { this.active = true;  this.px = 180; this.py = 262; }
+        if (a.type === 'enter') { this.active = true;  this.px = 90; this.py = 295; }
         else if (a.type === 'exit') { this.active = false; }
       }
       this.fadeDir = -1;
@@ -118,6 +119,7 @@ class MountainsManager {
   }
 
   move(dx, dy, dt) {
+    this.isMoving = (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01);
     const speed = 115;
     let nx = this.px + dx * speed * dt;
     let ny = this.py + dy * speed * dt;
@@ -166,8 +168,8 @@ class MountainsManager {
   load(s) {
     if (!s) return;
     this.active      = s.active      || false;
-    this.px          = s.px          || 180;
-    this.py          = s.py          || 262;
+    this.px          = s.px          || 90;
+    this.py          = s.py          || 295;
     this.pickedItems = new Set(s.pickedItems || []);
     this.unlockedFlag = s.unlockedFlag || false;
   }
@@ -232,7 +234,7 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   }
   // 15 — Игрок (Рыжик)
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py, t, moving: false, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py, t, moving: mtn.isMoving, food: 80, mood: 88 });
   }
   // 16 — Ветровые частицы
   _mtn_wind(ctx, t, ROOM_W, ch, period);
