@@ -237,7 +237,7 @@ const NPC_STYLES = {
   liza:     { hair:'#ff80c0', shirt:'#e870c0', pants:'#6040c0', skin:'#f5c0b0', hairStyle:'wavy',   acc:'stars' },
   mag:      { hair:'#1a1a2a', shirt:'#2a1a4a', pants:'#1a1030', skin:'#c0a890', hairStyle:'long',   acc:'hat' },
   sonya:    { hair:'#c8a060', shirt:'#4a7040', pants:'#3a5060', skin:'#e8c0a0', hairStyle:'pony',   acc:'backpack' },
-  nena:     { hair:'#2a1a10', shirt:'#70b0a0', pants:'#508a74', skin:'#e0b898', hairStyle:'long',   acc:'glasses' },
+  nena:     { hair:'#1a1010', shirt:'#70b0a0', pants:'#508a74', skin:'#e0b898', hairStyle:'curly_bob', acc:'glasses' },
   kristina: { hair:'#3a2a1a', shirt:'#7a3060', pants:'#4a2050', skin:'#e8c0b0', hairStyle:'medium', acc:'tattoo' },
   danya:    { hair:'#3a3a3a', shirt:'#4a70c0', pants:'#2a3a50', skin:'#f0c8a8', hairStyle:'hat',    acc:'glasses2' },
   prokhor:  { hair:'#2a2010', shirt:'#5a4030', pants:'#3a2a20', skin:'#c8a080', hairStyle:'bald',   acc:'mustache' },
@@ -460,6 +460,23 @@ function _drawHair(ctx, color, style, t) {
         const a = (i/8)*Math.PI*2;
         ctx.beginPath(); ctx.arc(Math.cos(a)*11, -8+Math.sin(a)*10, 4, 0, Math.PI*2); ctx.fill();
       }
+      break;
+    case 'curly_bob':
+      // Poofy cap
+      ctx.beginPath(); ctx.ellipse(0, -9, 13, 11, 0, 0, Math.PI * 2); ctx.fill();
+      // Curly crown blobs along the top arc (π → 2π = left over top to right)
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI + (i / 5) * Math.PI;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * 12, -9 + Math.sin(a) * 10, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Side curtains — frame the face, reach just past chin level
+      ctx.beginPath(); ctx.ellipse(-14, 2, 5, 10, 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(14, 2, 5, 10, -0.2, 0, Math.PI * 2); ctx.fill();
+      // Curly bottom ends at jaw
+      ctx.beginPath(); ctx.arc(-13, 12, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(13, 12, 4.5, 0, Math.PI * 2); ctx.fill();
       break;
     case 'pony':
       ctx.beginPath(); ctx.ellipse(0, -8, 11, 9, 0, 0, Math.PI * 2); ctx.fill();
@@ -1614,8 +1631,8 @@ function drawPortrait(ctx, id, mood = 'neutral') {
   hg.addColorStop(0, _lighten(style.skin, 20)); hg.addColorStop(1, style.skin);
   ctx.fillStyle = hg; ctx.beginPath(); ctx.ellipse(cx, cy, 28, 32, 0, 0, Math.PI*2); ctx.fill();
 
-  // Hair
-  ctx.save(); ctx.translate(cx, cy); _drawHair(ctx, style.hair, style.hairStyle, 0); ctx.restore();
+  // Hair — scale up: sprite hair coords use ~12px head radius, portrait uses ~28px
+  ctx.save(); ctx.translate(cx, cy); ctx.scale(2.2, 2.2); _drawHair(ctx, style.hair, style.hairStyle, 0); ctx.restore();
 
   // Eyes
   const eyeMoods = { happy: 0.7, neutral: 1, sad: 0.8, surprised: 1.3 };
