@@ -730,3 +730,18 @@ html, body {
   font-size: 8px;
   opacity: 0.6;
 }
+
+/* Dialogue choices: highlight the first option (quest) and last (bye) */
+.dlg-choice:first-child { border-color: rgba(244,135,58,0.5); }
+.dlg-choice:last-child  { opacity: 0.7; }
+.dlg-choice:hover, .dlg-choice:focus { background: rgba(244,135,58,0.14); outline: none; }
+
+/* Dialogue box: allow more choices without overflow */
+#dlg-choices { max-height: 44vh; overflow-y: auto; }
+#dlg-text    { max-height: 60px; }
+
+/* Time label now shows hour — tighten spacing slightly */
+#time-label { font-size: clamp(10px, 2.8vw, 13px); }
+
+/* Sleep menu choice — slightly taller for legibility */
+.dlg-choice { padding: 7px 12px; font-size: 13px; transition: background 0.15s; }
