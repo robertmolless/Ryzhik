@@ -325,7 +325,7 @@ html, body {
 /* ===== DIALOGUE ===== */
 #dialogue-box {
   position: absolute;
-  bottom: calc(8px + var(--safe-b));
+  bottom: calc(var(--ctrl-lift) + var(--safe-b) + 148px);
   left: 8px; right: 8px;
   background: var(--c-panel);
   border: 2px solid var(--c-border);
@@ -660,6 +660,7 @@ html, body {
   #mobile-ui { display: none !important; }
   #kb-hint   { display: block; }
   #interact-hint { bottom: 40px; }
+  #dialogue-box  { bottom: 16px; }
   .menu-btn:hover { filter: brightness(1.1); }
   .act-btn:hover  { background: rgba(255,255,255,0.12); }
   .dlg-choice:hover { background: rgba(244,135,58,0.15); }

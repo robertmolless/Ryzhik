@@ -400,7 +400,8 @@ const ITEMS = {
   plank:       { id:'plank',       name:'Доска',               icon:'🪵', desc:'Крепкая деревянная доска для Прохора.', rare:false },
   tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
   oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
-  warmScarf:   { id:'warmScarf',   name:'Тёплый шарф',         icon:'🧣', desc:'Уютный шарф. Нику он очень нужен.', rare:false },
+  warmScarf:        { id:'warmScarf',        name:'Тёплый шарф',          icon:'🧣', desc:'Уютный шарф. Нику он очень нужен.', rare:false },
+  nickCertificate:  { id:'nickCertificate',  name:'Потерянная справка',   icon:'📄', desc:'Мятая справка Ника, которую сдуло вентилятором.', rare:false },
 };
 // Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
@@ -693,7 +694,7 @@ const NPC_QUEST_DEFS = {
     q1: {
       id: 'q_nick1',
       title: 'Потерянная справка',
-      item: 'oldPhoto',
+      item: 'nickCertificate',
       intro: 'Кажется, моя справка опять куда-то исчезла… Она должна быть где-то здесь, за шкафом или у вентилятора.',
       hint: 'Справка где-то в военкомате. Поищи у вентилятора или за коробкой.',
       thanks: 'Нашлась! Правда, теперь нужна печать… Конечно же.',
@@ -3356,9 +3357,13 @@ class Game {
       const al = document.getElementById('action-label');
       const milNear = this.militaryOffice.nearestFurniture();
       const nearNick = this.militaryOffice.nearNick();
+      const nearCert = this.militaryOffice.nearCertificate();
       let milHint = null;
       if (milNear) milHint = `[E] ${milNear.label}`;
+      // Nick hint overrides furniture hint
       if (nearNick && !this.flags.nickStoryComplete) milHint = '[E] ☕ Поговорить с Ником';
+      // Certificate hint overrides everything
+      if (nearCert) milHint = '[E] 📄 Поднять потерянную справку';
       if (hintEl) { if (milHint) { hintEl.style.display = 'block'; hintEl.textContent = milHint; } else { hintEl.style.display = 'none'; } }
       if (al) al.textContent = milHint || '';
 
@@ -3463,6 +3468,25 @@ class Game {
 
     // ── MILITARY OFFICE INTERIOR ──
     if (this.militaryOffice && this.militaryOffice.active) {
+      // Certificate pickup takes priority
+      if (this.militaryOffice.nearCertificate()) {
+        this.militaryOffice.certPickedUp = true;
+        this.inventory.add('nickCertificate');
+        this.audio.pickup();
+        this.telegram.vibrate(25);
+        this.ui.notify('📄 Подобрал: Потерянная справка Ника!');
+        this._checkQuestItem('nickCertificate');
+        return;
+      }
+      // Talk to Nick (wide zone — player can stand in front of desk)
+      if (this.militaryOffice.nearNick()) {
+        const nick = this.npcs.find(n => n.id === 'nick');
+        if (nick && !this.flags.nickStoryComplete) {
+          this._talkToNPC(nick);
+          return;
+        }
+      }
+      // Furniture interactions
       const near = this.militaryOffice.nearestFurniture();
       if (near) {
         if (near.action === 'exit_mil') {
@@ -3471,23 +3495,14 @@ class Game {
           this.ui.notify('🚪 Рыжик выходит из военкомата...');
           return;
         }
-        // examine actions
         const examineTexts = {
           mo_desk:   '📄 На столе горы бумаг. Всё в строгом беспорядке.',
           mo_boxes:  '📦 Коробки набиты документами с 90-х годов.',
-          mo_fan:    '🌀 Вентилятор гудит и равномерно гоняет воздух.',
+          mo_fan:    '🌀 Вентилятор гудит. Кажется, он сдул несколько бумаг.',
           mo_papers: '📄 Бумаги со стола. Кто-то давно не убирался.',
         };
         if (near.action === 'examine') {
           this.ui.notify(examineTexts[near.id] || '🔍 Ничего особенного.');
-          return;
-        }
-      }
-      // Talk to Nick
-      if (this.militaryOffice.nearNick()) {
-        const nick = this.npcs.find(n => n.id === 'nick');
-        if (nick && !this.flags.nickStoryComplete) {
-          this._talkToNPC(nick);
           return;
         }
       }

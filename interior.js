@@ -1856,6 +1856,7 @@ class MilitaryOfficeManager {
     this.fading = false;
     this.fadeDir = 0;
     this.pendingAction = null;
+    this.certPickedUp = false;
   }
   startEnter() {
     if (this.fading) return;
@@ -1917,16 +1918,21 @@ class MilitaryOfficeManager {
     return best;
   }
   nearNick() {
-    return Math.sqrt((this.px - 370) ** 2 + (this.py - 200) ** 2) < 70;
+    // Nick is at x:370, y:200 behind desk — player approaches from y>220
+    return Math.sqrt((this.px - 370) ** 2 + (this.py - 200) ** 2) < 150;
+  }
+  nearCertificate() {
+    return !this.certPickedUp && Math.sqrt((this.px - 420) ** 2 + (this.py - 260) ** 2) < 70;
   }
   save() {
-    return { active: this.active, px: this.px, py: this.py };
+    return { active: this.active, px: this.px, py: this.py, certPickedUp: this.certPickedUp };
   }
   load(s) {
     if (!s) return;
     this.active = s.active || false;
     this.px = s.px || 100;
     this.py = s.py || 280;
+    this.certPickedUp = s.certPickedUp || false;
   }
 }
 
@@ -2076,6 +2082,43 @@ function drawMilitaryOfficeScene(ctx, opts) {
   ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.font = '7px system-ui'; ctx.textAlign = 'center';
   ctx.fillText('ОБЪЯВЛЕНИЯ', 360, 150);
 
+  // ── Certificate item (near fan/boxes, x:420, y:260) ──
+  if (!mil.certPickedUp) {
+    const certX = 420, certY = 260;
+    const pulse = Math.sin(t * 2.5) * 0.3 + 0.7;
+    // Glow halo
+    const grd = ctx.createRadialGradient(certX, certY, 2, certX, certY, 28);
+    grd.addColorStop(0, `rgba(255,220,80,${0.45 * pulse})`);
+    grd.addColorStop(1, 'rgba(255,220,80,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(certX - 30, certY - 30, 60, 60);
+    // Paper sprite
+    ctx.save();
+    ctx.translate(certX, certY);
+    ctx.rotate(Math.sin(t * 0.6) * 0.08 - 0.18);
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = '#f5f0d8';
+    ctx.fillRect(-12, -16, 26, 32);
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1;
+    ctx.strokeRect(-12, -16, 26, 32);
+    ctx.strokeStyle = 'rgba(0,0,80,0.25)'; ctx.lineWidth = 0.8;
+    for (let li = 0; li < 4; li++) {
+      ctx.beginPath(); ctx.moveTo(-7, -8 + li * 7); ctx.lineTo(9, -8 + li * 7); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    // Floating pickup hint
+    const distToCert = Math.sqrt((px - certX) ** 2 + (py - certY) ** 2);
+    if (distToCert < 70) {
+      ctx.save();
+      ctx.globalAlpha = 0.6 + Math.sin(t * 3) * 0.3;
+      ctx.font = '13px serif'; ctx.textAlign = 'center';
+      ctx.fillText('📄', certX, certY - 22 + Math.sin(t * 2) * 3);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
+
   // ── Nick NPC (always at x:370, y:200 when office is active) ──
   if (nickNPC) {
     drawHumanNPC(ctx, {
@@ -2093,21 +2136,17 @@ function drawMilitaryOfficeScene(ctx, opts) {
     ctx.fillStyle = '#ffcc88'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
     ctx.fillText('Ник', NICK_X, NICK_Y - 40);
     ctx.restore();
-
-    // Talk bubble if player is near Nick
+    // Talk bubble if player is close enough (matches nearNick 150px radius)
     const distToNick = Math.sqrt((px - NICK_X) ** 2 + (py - NICK_Y) ** 2);
-    if (distToNick < 70) {
+    if (distToNick < 150) {
       ctx.font = '18px serif'; ctx.textAlign = 'center';
-      ctx.fillText('💬', NICK_X, NICK_Y - 62);
+      ctx.fillText('💬', NICK_X, NICK_Y - 66 + Math.sin(t * 1.8) * 3);
     }
   }
 
-  // ── Player cat ──
+  // ── Player (proper cat sprite, same as outdoor) ──
   ctx.save();
-  ctx.translate(px, py);
-  GFX.shadow(ctx, 0, 18, 14, 5, 0.15);
-  ctx.font = '30px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('🐱', 0, -8);
+  drawCat(ctx, { x: px, y: py, facing: 1, t: t, moving: false, food: 80, mood: 80 });
   ctx.restore();
 
   // ── Lighting overlay (period tint) ──
