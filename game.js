@@ -687,58 +687,314 @@ const NPC_QUEST_DEFS = {
 };
 
 /* ──────────────────────────────────────────────
-   GAME DATA: NPC PERSONAL STORIES
+   NPC STORIES (verbatim dialogue lines)
+   Each line: { speaker: 'npc'|'ryzhik', text, emotion }
+   Emotions: 'neutral'|'happy'|'sad'|'curious'|'surprised'|'nostalgic'
    ────────────────────────────────────────────── */
 const NPC_STORIES = {
   lyokha: [
-    { minTrust: 0, text: 'Я попал сюда случайно — ехал автостопом, вышел на развилке и увидел этот дом. Что-то удержало меня. Решил остаться на лето.' },
-    { minTrust: 1, text: 'Я начал учиться играть на гитаре лет в двенадцать. Пальцы болели так, что не мог держать кружку. Но не бросил — и теперь рад.' },
-    { minTrust: 2, text: 'Слушай... я пишу одну песню. Медленно, но пишу. Она про рыжего кота, который бродит по двору. Про тебя, Рыжик. 🎵' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Помнишь, как мы впервые встретились?.. Хотя ты тогда был совсем маленьким.', emotion: 'nostalgic' },
+        { speaker: 'ryzhik', text: 'Мяу?..', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Шёл сильный дождь. Я сидел на крыльце, слушал как вода стучит по крыше…', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'И вдруг смотрю — возле ступенек сидит мокрый рыжий комок.', emotion: 'nostalgic' },
+        { speaker: 'ryzhik', text: 'Мрр...', emotion: 'sad' },
+        { speaker: 'npc',    text: 'Ты тогда дрожал так, будто весь мир был холодным.', emotion: 'sad' },
+        { speaker: 'npc',    text: 'Я вынес тебе старую миску и немного еды.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'А утром ты уже спал возле двери дома.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мур-мур.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'С тех пор мне кажется, будто этот дом выбрал тебя сам.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Раньше летом здесь почти каждый вечер собирались люди.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Мы сидели прямо на крыльце до глубокой ночи.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Игорь вечно играл слишком громко…', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Лиза таскала гирлянды и какие-то странные наклейки.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мяу!', emotion: 'happy' },
+        { speaker: 'npc',    text: 'А ты бегал между всеми и выпрашивал еду.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Иногда возле забора появлялись светлячки.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Музыка, тёплый воздух, костёр…', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Кажется, тогда этот двор был по-настоящему живым.', emotion: 'sad' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Знаешь… мне всегда нравилось смотреть на закат возле дома.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Особенно летом.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Когда солнце медленно уходит за деревья…', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'И становится тихо-тихо.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мррр...', emotion: 'happy' },
+        { speaker: 'npc',    text: 'В такие моменты кажется, будто время ненадолго останавливается.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Только ветер, запах травы и скрип старого крыльца.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Наверное, поэтому я до сих пор люблю это место.', emotion: 'happy' },
+      ],
+    },
   ],
   igor: [
-    { minTrust: 0, text: 'Моя первая группа — мы назывались «Стальной Кулак». Репетировали в гараже у Колька, и однажды разбили три окна шваброй. Сосед был в ярости.' },
-    { minTrust: 1, text: 'Моя любимая группа — «Кино». Я ехал на концерт в другой город один, без денег почти. Стоял у сцены и ревел. Не стыжусь.' },
-    { minTrust: 2, text: 'Знаешь, рок — это не поза и не одежда. Это когда ты не боишься быть собой, даже если все смотрят косо. Я это понял не сразу. 🤘' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Однажды я устроил ночной концерт прямо во дворе.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Ну… как концерт. Просто слишком громко включил усилитель.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мяу?!', emotion: 'surprised' },
+        { speaker: 'npc',    text: 'Через пять минут вышел Прохор.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Очень злой Прохор.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Я думал, он меня убьёт.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мрр...', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Но знаешь, что самое смешное?', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Через полчаса он уже сидел у костра и слушал музыку вместе с нами.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'У меня был любимый медиатор.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Чёрный, с маленькой трещиной сбоку.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Я таскал его вообще везде.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'А потом сидел ночью возле пруда…', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'И уронил его прямо в траву.', emotion: 'sad' },
+        { speaker: 'ryzhik', text: 'Мяу…', emotion: 'sad' },
+        { speaker: 'npc',    text: 'Полночи искал.', emotion: 'sad' },
+        { speaker: 'npc',    text: 'Без шансов.', emotion: 'sad' },
+        { speaker: 'npc',    text: 'Наверное, он до сих пор где-то там.', emotion: 'nostalgic' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Люблю гулять ночью под дождём.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мрр?..', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Серьёзно. Особенно когда людей почти нет.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Музыка в наушниках, мокрый воздух, фонари…', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'И всё вокруг будто становится другим.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Тише.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Иногда мне кажется, что ночью этот дом выглядит намного живее.', emotion: 'happy' },
+      ],
+    },
   ],
   nastya: [
-    { minTrust: 0, text: 'Первый фотоаппарат я купила сама. Копила полгода — откладывала деньги с подработки. Когда наконец нажала на кнопку первый раз, чуть не заплакала от счастья.' },
-    { minTrust: 1, text: 'Лучшая моя фотография — закат над полем. Встала в пять утра, шла полчаса пешком. Один кадр получился идеальным. До сих пор смотрю на него и верю в мир.' },
-    { minTrust: 2, text: 'Я хочу сделать фотокнигу об этом дворе. О людях здесь, о растениях... и конечно о тебе, Рыжик. Ты главный герой. 📸' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Я начала фотографировать светлячков совершенно случайно.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Однажды вечером увидела, как они летают возле травы.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'И всё вокруг выглядело как сон.', emotion: 'nostalgic' },
+        { speaker: 'ryzhik', text: 'Мур?..', emotion: 'curious' },
+        { speaker: 'npc',    text: 'С тех пор каждое лето пытаюсь поймать этот момент снова.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Как-то раз я сидела ночью возле пруда почти до утра.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Было так тихо, что слышно было только сверчков.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'И воду.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мрр...', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Иногда тишина успокаивает лучше любых слов.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Мне нравится запах старого дома.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Дерево, пыль, тёплый воздух…', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Кажется, будто стены помнят всё, что здесь происходило.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мяу.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Наверное, поэтому здесь так уютно.', emotion: 'happy' },
+      ],
+    },
   ],
   liza: [
-    { minTrust: 0, text: 'У меня уже больше пятисот наклеек! Со всего мира — из киосков, с выставок, подаренные. Каждая что-то значит. Это моя жизнь в картинках.' },
-    { minTrust: 1, text: 'В детстве ко мне каждый день приходил дворовой кот — рыжий, кстати! Я оставляла ему еду у подъезда. Мы так подружились. Он исчез однажды, и я долго грустила.' },
-    { minTrust: 2, text: 'Рыжик, ты самый лучший кот в мире, это факт. Я уже придумала, что нарисую твой портрет — в рамочке, с короной. Ты заслуживаешь. 💕' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Я просто обожаю украшать вещи.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Коробки, стены, тетрадки… вообще всё.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Иногда кажется, что мир слишком серый.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'И ему нужно чуть больше цвета.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мяу!', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Первую коробку для тебя я сделала вообще из старой упаковки.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Но ты почему-то сразу её полюбил.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мррр.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Серьёзно, у тебя талант находить самые удобные коробки.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Хочу однажды устроить здесь маленький фестиваль.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Гирлянды, музыка, еда, костёр…', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Чтобы двор снова стал шумным и живым.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мяу!', emotion: 'happy' },
+      ],
+    },
   ],
   mag: [
-    { minTrust: 0, text: 'Этот двор... я чувствую его магию с детства. Здесь особая энергетика — земля хранит что-то старое. Не все это ощущают, но ты, Рыжик, точно чувствуешь.' },
-    { minTrust: 1, text: 'Каждое полнолуние я прихожу к колодцу и провожу лунный ритуал. Зажигаю свечу, читаю слова. Звучит странно — но после этого сплю лучше всего в мире.' },
-    { minTrust: 2, text: 'Открою тебе тайну. В этом доме когда-то жил настоящий маг — не фокусник, а знающий человек. Теплица — его наследие. Там растёт то, чего нет больше нигде. 🔮' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Старая теплица появилась здесь очень давно…', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Гораздо раньше, чем кажется.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Говорят, внутри когда-то хранился Солнечный колокольчик.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мрр?..', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Предмет, который приносил дому тепло.', emotion: 'neutral' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Ночью возле колодца иногда слышны странные звуки.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Будто кто-то тихо звонит в колокольчик.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: '...', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Но когда подходишь ближе — звук исчезает.', emotion: 'neutral' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Старый хозяин дома очень любил это место.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Он верил, что дом живёт, пока в нём есть свет, музыка и смех.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Наверное… поэтому Рыжик здесь появился не случайно.', emotion: 'happy' },
+      ],
+    },
   ],
   sonya: [
-    { minTrust: 0, text: 'Однажды я ушла в горы одна. Три дня без связи. На второй день нашла горное озеро — такое тихое, будто стекло. Легла на берегу и смотрела в небо.' },
-    { minTrust: 1, text: 'У меня есть любимая лесная тропинка — я нашла её случайно. Там всегда тихо и пахнет смолой. Иду туда, когда нужно подумать. Помогает лучше любого совета.' },
-    { minTrust: 2, text: 'Я хочу обойти всю Россию пешком. Записывать людей, места, истории. Сделать из этого книгу. Это моя мечта. Ты первый, кому я говорю это вслух. 🌿' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Однажды в горах я попала в очень сильный туман.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Настолько густой, что не было видно даже дороги.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мяу?..', emotion: 'curious' },
+        { speaker: 'npc',    text: 'Тогда я поняла, насколько важна тишина и спокойствие.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Лесную тропу возле дома я нашла случайно.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Просто шла между деревьями и вдруг увидела проход.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'С тех пор люблю гулять там вечером.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Иногда ночью я просто смотрю на звёзды.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Без музыки. Без разговоров.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Только тишина и ветер.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мррр...', emotion: 'happy' },
+      ],
+    },
   ],
   nena: [
-    { minTrust: 0, text: 'Я веду дневник уже семь лет. Записываю всё необычное — разговоры, находки, совпадения. Потом читаю и понимаю: жизнь намного интереснее, чем кажется.' },
-    { minTrust: 1, text: 'Однажды ночью я видела огни в теплице. Три раза мигнули и пропали. Я пошла проверить — никого. Записала в дневник. До сих пор не знаю что это было.' },
-    { minTrust: 2, text: 'Хочешь знать? У меня есть целая страница о тебе, Рыжик. Наблюдения — когда ты появляешься, куда ходишь, что любишь. Ты очень интересный субъект. 📓' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Я начала записывать странные события ради интереса.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Но потом заметила, что здесь действительно происходит что-то необычное.', emotion: 'curious' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'На чердаке я нашла старые записи.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Некоторые страницы были почти пустыми.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Но на них будто оставались следы старых слов.', emotion: 'curious' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Знаешь… мне кажется, Рыжик не совсем обычный кот.', emotion: 'curious' },
+        { speaker: 'ryzhik', text: 'Мяу?!', emotion: 'surprised' },
+        { speaker: 'npc',    text: 'Слишком уж часто ты оказываешься рядом с важными вещами.', emotion: 'neutral' },
+      ],
+    },
   ],
   kristina: [
-    { minTrust: 0, text: 'Первый велосипед я починила в восемь лет. Нашла в подвале сломанный, разобрала, собрала. Соседи смотрели и не верили. Я и сама не верила, что получится.' },
-    { minTrust: 1, text: 'Моя мечта — построить домик на дереве. Вот здесь, в саду, на большом дубе. Уже нарисовала план. Осталось найти подходящие доски.' },
-    { minTrust: 2, text: 'Я кое-что сделала для кошачьего уголка — не скажу что, это сюрприз. Скоро увидишь. Надеюсь, тебе понравится, Рыжик. 🔧' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Я с детства любила чинить старые вещи.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Мне всегда нравилось возвращать что-то к жизни.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Старые лампы и фонари — это отдельная магия.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Особенно вечером.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мрр...', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Многие думают, что я слишком холодная.', emotion: 'sad' },
+        { speaker: 'npc',    text: 'Но мне просто нравится тишина.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'И уютные спокойные вечера.', emotion: 'happy' },
+      ],
+    },
   ],
   danya: [
-    { minTrust: 0, text: 'У меня есть коробка сокровищ. Там: монетка из другой страны, перо совы, кусочек метеорита (может быть), старая фотография незнакомца. Самые важные вещи.' },
-    { minTrust: 1, text: 'Я придумал целый мир — он называется Зверолесье. Там все животные умеют говорить. Главный герой — рыжий кот, который решает загадки. Случайно, да.' },
-    { minTrust: 2, text: 'Держи. Я нарисовал тебя — вот, смотри. Рыжик Первый, в короне, на троне. Это твой официальный портрет. Можешь повесить где-нибудь. 🧸' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Я постоянно нахожу какие-то странные штуки.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'А потом пытаюсь сделать из них что-то полезное.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Однажды я потерял половину своих вещей за один день.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мяу?!', emotion: 'surprised' },
+        { speaker: 'npc',    text: 'Даже очки. Хотя они были на голове.', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Старые коробки — это настоящие сокровищницы.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Никогда не знаешь, что найдёшь внутри.', emotion: 'happy' },
+      ],
+    },
   ],
   prokhor: [
-    { minTrust: 0, text: 'Строю заборы уже лет десять. Хорошая работа. Забор стоит — значит порядок. Не думать особо не надо, просто делай.' },
-    { minTrust: 1, text: 'Дед учил меня плотницкому делу. Молча — просто показывал и смотрел. Я сначала злился. Потом понял: руки сами запомнили. Теперь благодарен.' },
-    { minTrust: 2, text: 'Ты... хороший кот, Рыжик. Я обычно кошек не люблю — они сами по себе. Но ты другой. Ты первый кот, которому я... ну, доверяю. Не говори никому. 🔨' },
+    {
+      minTrust: 0,
+      lines: [
+        { speaker: 'npc',    text: 'Этот забор почти развалился после зимы.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Кто-то же должен был его чинить.', emotion: 'neutral' },
+      ],
+    },
+    {
+      minTrust: 1,
+      lines: [
+        { speaker: 'npc',    text: 'Барон сначала терпеть меня не мог.', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'А потом привык.', emotion: 'neutral' },
+        { speaker: 'ryzhik', text: 'Мрр.', emotion: 'neutral' },
+      ],
+    },
+    {
+      minTrust: 2,
+      lines: [
+        { speaker: 'npc',    text: 'Люблю сидеть вечером возле костра.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Когда всё вокруг становится тихим.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'В такие моменты дом будто снова оживает.', emotion: 'happy' },
+      ],
+    },
   ],
 };
 
@@ -1958,85 +2214,192 @@ class DialogueSystem {
     this.telegram = telegram;
     this.active   = false;
     this.npc      = null;
-    this.lines    = [];
+    this.lines    = [];      // array of strings OR {speaker,text,emotion}
     this.lineIdx  = 0;
     this.choices  = null;
     this.onEnd    = null;
+    this._typing  = false;
+    this._typeTimer = null;
+    this._fullText  = '';
+    this._textEl    = null;
+    this._hintEl    = null;
   }
+
+  /* ── PUBLIC: plain string lines (backward compat) ── */
   start(npc, lines, onEnd = null) {
     this.npc    = npc;
-    this.lines  = lines;
+    this.lines  = lines.map(l => typeof l === 'string' ? { speaker: 'npc', text: l, emotion: 'neutral' } : l);
     this.lineIdx= 0;
     this.active = true;
     this.onEnd  = onEnd;
     this.choices= null;
-    this._render();
+    this._show();
+    this._renderLine();
     this.audio.uiClick();
     this.telegram.vibrate(15);
   }
+
+  /* ── PUBLIC: choices after text ── */
   startWithChoices(npc, text, choices) {
     this.npc    = npc;
-    this.lines  = [text];
+    this.lines  = [{ speaker: 'npc', text, emotion: 'neutral' }];
     this.lineIdx= 0;
     this.active = true;
     this.choices= choices;
-    this._render();
+    this.onEnd  = null;
+    this._show();
+    this._renderLine();
   }
+
+  /* ── PUBLIC: multi-speaker story ── */
+  startStory(npc, lines, onEnd = null) {
+    this.start(npc, lines, onEnd);
+  }
+
+  /* ── ADVANCE (tap / E key) ── */
   advance() {
     if (!this.active) return;
-    if (this.choices && this.lineIdx >= this.lines.length - 1) return; // choices shown
+    // If typing — skip to full text
+    if (this._typing) {
+      this._skipTyping();
+      return;
+    }
+    // If choices shown — don't auto-advance
+    if (this.choices && this.lineIdx >= this.lines.length - 1) return;
     this.lineIdx++;
     if (this.lineIdx >= this.lines.length) {
       this.close();
       return;
     }
-    this._render();
+    this._renderLine();
     this.audio.uiClick();
   }
-  _render() {
-    const box  = document.getElementById('dialogue-box');
-    const port = document.getElementById('dlg-portrait');
-    const name = document.getElementById('dlg-name');
-    const text = document.getElementById('dlg-text');
-    const chEl = document.getElementById('dlg-choices');
-    const hint = document.getElementById('dlg-tap-hint');
-    const trust= document.getElementById('dlg-trust');
 
-    box.style.display = 'flex';
-    if (this.npc) {
-      name.textContent = this.npc.name;
-      name.style.color = this.npc.color || '#f4873a';
-      trust.textContent = this.npc.trustLabel;
-      // Canvas portrait
-      let portCanvas = port.querySelector('canvas');
-      if (!portCanvas) {
-        portCanvas = document.createElement('canvas');
-        portCanvas.width = 80; portCanvas.height = 80;
-        portCanvas.style.cssText = 'width:68px;height:68px;border-radius:50%;';
-        port.innerHTML = '';
-        port.appendChild(portCanvas);
-      }
-      const pCtx = portCanvas.getContext('2d');
-      pCtx.clearRect(0, 0, 80, 80);
-      // BG circle
-      const bgg = pCtx.createRadialGradient(40,40,5,40,40,40);
-      const nc = this.npc.color || '#f4873a';
-      bgg.addColorStop(0, nc + '33'); bgg.addColorStop(1, nc + '11');
-      pCtx.fillStyle = bgg; pCtx.beginPath(); pCtx.arc(40,40,40,0,Math.PI*2); pCtx.fill();
-      const npcId = this.npc.id === 'ryzhik' ? 'ryzhik' : (this.npc.human ? this.npc.id : null);
-      if (npcId) {
-        drawPortrait(pCtx, npcId, 'neutral');
-      } else {
-        // Animal — emoji on colored bg
-        pCtx.font = '38px serif'; pCtx.textAlign='center'; pCtx.textBaseline='middle';
-        pCtx.fillText(this.npc.emoji, 40, 42);
-      }
-      port.style.borderColor = this.npc.color || '#f4873a';
-    }
-    text.textContent = this.lines[this.lineIdx] || '';
+  close() {
+    this._stopTyping();
+    this.active = false;
+    document.getElementById('dialogue-box').style.display = 'none';
+    if (this.onEnd) { const fn = this.onEnd; this.onEnd = null; fn(); }
+  }
+
+  /* ── PRIVATE ── */
+  _show() {
+    document.getElementById('dialogue-box').style.display = 'flex';
+  }
+
+  _renderLine() {
+    const line = this.lines[this.lineIdx];
+    if (!line) return;
+    const isRyzhik = line.speaker === 'ryzhik';
+    const emotion  = line.emotion || 'neutral';
+
+    const box   = document.getElementById('dialogue-box');
+    const port  = document.getElementById('dlg-portrait');
+    const nameEl= document.getElementById('dlg-name');
+    const trust = document.getElementById('dlg-trust');
+    const chEl  = document.getElementById('dlg-choices');
+    const hint  = document.getElementById('dlg-tap-hint');
+    this._textEl = document.getElementById('dlg-text');
+    this._hintEl = hint;
+
     chEl.innerHTML = '';
-    if (this.choices && this.lineIdx >= this.lines.length - 1) {
+
+    // Portrait + name
+    if (isRyzhik) {
+      nameEl.textContent = 'Рыжик';
+      nameEl.style.color = '#f07030';
+      trust.textContent  = '';
+      this._drawPortrait(port, 'ryzhik', emotion, '#f07030');
+      port.style.borderColor = '#f07030';
+      box.classList.add('dlg-ryzhik-speaking');
+    } else {
+      const npc = this.npc;
+      nameEl.textContent = npc ? npc.name : '';
+      nameEl.style.color = npc ? (npc.color || '#f4873a') : '#f4873a';
+      trust.textContent  = npc ? (npc.trustLabel || '') : '';
+      this._drawPortrait(port, npc ? npc.id : null, emotion, npc ? npc.color : '#f4873a');
+      port.style.borderColor = npc ? (npc.color || '#f4873a') : '#f4873a';
+      box.classList.remove('dlg-ryzhik-speaking');
+    }
+
+    // Show choices or tap hint
+    const isLast = this.lineIdx >= this.lines.length - 1;
+    if (this.choices && isLast) {
       hint.style.display = 'none';
+      // Type text first, then show choices after typing
+      this._typeText(line.text, () => {
+        this.choices.forEach(ch => {
+          const btn = document.createElement('button');
+          btn.className = 'dlg-choice';
+          btn.textContent = ch.text;
+          btn.onclick = () => { this.audio.uiClick(); this.close(); if (ch.action) ch.action(); };
+          chEl.appendChild(btn);
+        });
+      });
+    } else {
+      hint.style.display = 'block';
+      hint.textContent = isRyzhik ? '😺 Нажми чтобы продолжить' : 'Тапни или нажми ⚡ для продолжения';
+      this._typeText(line.text, null);
+    }
+  }
+
+  _drawPortrait(portEl, npcId, emotion, color) {
+    let canvas = portEl.querySelector('canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.width = 80; canvas.height = 80;
+      canvas.style.cssText = 'width:68px;height:68px;border-radius:50%;';
+      portEl.innerHTML = '';
+      portEl.appendChild(canvas);
+    }
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 80, 80);
+    const nc = color || '#f4873a';
+    const bgg = ctx.createRadialGradient(40,40,5,40,40,40);
+    bgg.addColorStop(0, nc + '44'); bgg.addColorStop(1, nc + '11');
+    ctx.fillStyle = bgg; ctx.beginPath(); ctx.arc(40,40,40,0,Math.PI*2); ctx.fill();
+    if (npcId && typeof drawPortrait === 'function') {
+      // Map our emotion labels to drawPortrait moods
+      const moodMap = { neutral:'neutral', happy:'happy', sad:'sad', curious:'neutral', surprised:'surprised', nostalgic:'sad' };
+      drawPortrait(ctx, npcId, moodMap[emotion] || 'neutral');
+    } else if (this.npc && this.npc.emoji) {
+      ctx.font = '38px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(this.npc.emoji, 40, 42);
+    }
+  }
+
+  _typeText(text, onDone) {
+    this._stopTyping();
+    this._fullText = text;
+    this._typing   = true;
+    this._textEl.textContent = '';
+    // Add blinking cursor span
+    this._textEl.innerHTML = '<span class="dlg-cursor">▊</span>';
+    let i = 0;
+    const cursor = this._textEl.querySelector('.dlg-cursor');
+    this._typeTimer = setInterval(() => {
+      i++;
+      this._textEl.textContent = text.slice(0, i);
+      if (cursor && i < text.length) {
+        this._textEl.appendChild(cursor);
+      }
+      if (i >= text.length) {
+        this._stopTyping();
+        this._typing = false;
+        if (cursor && cursor.parentNode) cursor.parentNode.removeChild(cursor);
+        if (onDone) onDone();
+      }
+    }, 28);
+  }
+
+  _skipTyping() {
+    this._stopTyping();
+    this._typing = false;
+    if (this._textEl) this._textEl.textContent = this._fullText;
+    // If we were waiting to show choices, show them now
+    if (this.choices && this.lineIdx >= this.lines.length - 1) {
+      const chEl = document.getElementById('dlg-choices');
+      chEl.innerHTML = '';
       this.choices.forEach(ch => {
         const btn = document.createElement('button');
         btn.className = 'dlg-choice';
@@ -2044,14 +2407,11 @@ class DialogueSystem {
         btn.onclick = () => { this.audio.uiClick(); this.close(); if (ch.action) ch.action(); };
         chEl.appendChild(btn);
       });
-    } else {
-      hint.style.display = 'block';
     }
   }
-  close() {
-    this.active = false;
-    document.getElementById('dialogue-box').style.display = 'none';
-    if (this.onEnd) this.onEnd();
+
+  _stopTyping() {
+    if (this._typeTimer) { clearInterval(this._typeTimer); this._typeTimer = null; }
   }
 }
 
@@ -3479,23 +3839,23 @@ class Game {
   /* ── CASUAL CHAT + STORIES ── */
   _handleCasualChat(npc) {
     const period = this.time.period;
-    const lines = npc.dialogues?.[period] || npc.dialogues?.day || [];
-    const line = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
+    const lines  = npc.dialogues?.[period] || npc.dialogues?.day || [];
+    const line   = lines.length ? lines[Math.floor(Math.random() * lines.length)] : '...';
 
-    // Check if there's an unlocked story to tell
     if (!npc.storyIndex) npc.storyIndex = 0;
     const stories = (typeof NPC_STORIES !== 'undefined') ? (NPC_STORIES[npc.id] || []) : [];
-    const nextStory = stories[npc.storyIndex];
-    const canTellStory = nextStory && npc.trust >= nextStory.minTrust;
+    const idx     = npc.storyIndex;
+    const story   = stories[idx];
+    const canTell = story && npc.trust >= story.minTrust;
 
-    if (canTellStory) {
+    if (canTell) {
       this.dialogue.startWithChoices(npc, line, [
-        { text: '📖 Расскажи о себе', action: () => {
-          this.dialogue.start(npc, [nextStory.text], () => {
+        { text: '📖 Расскажи', action: () => {
+          this.dialogue.startStory(npc, story.lines, () => {
             npc.storyIndex++;
             npc.trust = Math.min(3, npc.trust + 1);
             this.player.mood = Math.min(100, this.player.mood + 8);
-            this.ui.notify(`💬 ${npc.name} рассказал тебе кое-что важное`);
+            this.ui.notify(`💬 ${npc.name} рассказал кое-что важное`);
           });
         }},
         { text: '😺 Просто мяукнул', action: () => {
@@ -3503,8 +3863,7 @@ class Game {
         }},
       ]);
     } else {
-      // Stage 3 friend gets bonus mood + heart
-      const extra = (npc.questStage || 0) >= 3 ? ` ❤️` : '';
+      const extra = (npc.questStage || 0) >= 3 ? ' ❤️' : '';
       this.dialogue.start(npc, [line + extra], () => {
         this.player.mood = Math.min(100, this.player.mood + 5);
       });
