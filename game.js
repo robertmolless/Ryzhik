@@ -401,6 +401,7 @@ const ITEMS = {
   tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
   oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
   nickCertificate:  { id:'nickCertificate',  name:'Потерянная справка',   icon:'📄', desc:'Мятая справка Ника, которую сдуло вентилятором.', rare:false },
+  sonyaCompass:     { id:'sonyaCompass',     name:'Старый компас Сони',   icon:'🧭', desc:'Немного потёртый компас Сони. Стрелка всё ещё тянется к северу.', rare:false },
   nickMug:          { id:'nickMug',          name:'Кружка Ника',          icon:'☕', desc:'Любимая кружка Ника. Без кофе — никуда.', rare:false },
   nickScarf:        { id:'nickScarf',        name:'Шарф Ника',            icon:'🧣', desc:'Тёплый шарф. Без него в дорогу не выйдет.', rare:false },
   nickBackpack:     { id:'nickBackpack',     name:'Рюкзак Ника',          icon:'🎒', desc:'Потрёпанный рюкзак Ника. Всё своё ношу с собой.', rare:false },
@@ -452,6 +453,7 @@ const QUESTS = [
   { id:'q_liza2',     title:'Украшение уголка',       icon:'🐈', desc:'Лиза хочет украсить кошачий уголок фигуркой.',       steps:['Найди фигурку кота в доме','Отдай Лизе'],                         reward:{xp:22,upgrade:'corner'}, npc:'liza',   unlock:false },
   { id:'q_mag2',      title:'Загадка теплицы',        icon:'🔮', desc:'Маг ищет записку о теплице.',                         steps:['Найди записку на чердаке','Отдай Магу'],                          reward:{xp:35,zone:'greenhouse'},npc:'mag',    unlock:false },
   { id:'q_sonya2',    title:'Походный компас',        icon:'🧭', desc:'Соня потеряла компас.',                               steps:['Найди компас у забора','Отдай Соне'],                              reward:{xp:25,item:'trailMap'},  npc:'sonya',  unlock:false },
+  { id:'q_sonya3',    title:'Потерянный компас',      icon:'🧭', desc:'Соня потеряла свой старый компас возле лесной тропы.',steps:['Найди старый компас у лесной тропы','Верни компас Соне'],           reward:{xp:30,trust:'sonya'},    npc:'sonya',  unlock:false },
   { id:'q_nena2',     title:'Карта дома',             icon:'🗺️', desc:'Нэна хочет карту дома.',                              steps:['Найди карту дома','Отдай Нэне'],                                   reward:{xp:25,item:'houseMap'},  npc:'nena',   unlock:false },
   { id:'q_kristina2', title:'Починить лампу',         icon:'💡', desc:'Кристина чинит лампу в гостиной.',                    steps:['Найди батарейки','Отдай Кристине'],                               reward:{xp:25,trust:'kristina'}, npc:'kristina',unlock:false },
   { id:'q_danya2',    title:'Игрушка для Рыжика',     icon:'🐭', desc:'Даня мастерит игрушку из старого жетона.',            steps:['Найди старый жетон в доме','Отдай Дане'],                         reward:{xp:20,item:'toyMouse'},  npc:'danya',  unlock:false },
@@ -624,6 +626,14 @@ const NPC_QUEST_DEFS = {
       intro: 'Потеряла свой компас... кажется, у забора или в доме. Без него я как без рук!',
       hint: 'Компас должен быть у старого забора или где-то во дворе.',
       thanks: 'Компас! Теперь никогда не потеряюсь. Спасибо, рыжий!',
+    },
+    q3: {
+      id: 'q_sonya3',
+      title: 'Потерянный компас',
+      item: 'sonyaCompass',
+      intro: 'Кажется, я потеряла свой старый компас возле лесной тропы. Без него я чувствую себя странно…',
+      hint: 'Старый компас лежит у большого камня на лесной тропе, в правой части двора. Поищи там.',
+      thanks: 'Нашёл! Спасибо, Рыжик. Знаешь… наверное, теперь я могу тебе кое-что показать.',
     },
   },
   nena: {
@@ -1249,6 +1259,7 @@ const ZONES = [
   { id:'fence',       name:'Забор',               color:'#5c4a32', x:0,    y:500,  w:500,  h:100,  icon:'🪵', unlocked:true  },
   { id:'pond',        name:'Пруд',                color:'#2244aa', x:600,  y:400,  w:300,  h:250,  icon:'🏊', unlocked:false },
   { id:'forest_path', name:'Лесная тропинка',     color:'#1a4a0a', x:900,  y:0,    w:250,  h:600,  icon:'🌲', unlocked:false },
+  { id:'mountains',   name:'Горная тропа',        color:'#556688', x:730,  y:-430, w:200,  h:180,  icon:'⛰️', unlocked:false },
   { id:'clearing',    name:'Поляна',              color:'#3a7a1a', x:900,  y:-200, w:300,  h:300,  icon:'🌼', unlocked:false },
   { id:'greenhouse',  name:'Заброшенная теплица', color:'#2a5a2a', x:1100, y:200,  w:250,  h:250,  icon:'🌿', unlocked:false },
   { id:'attic',       name:'Чердак',              color:'#554433', x:200,  y:-300, w:200,  h:150,  icon:'🪜', unlocked:false },
@@ -1852,6 +1863,7 @@ class World {
       { x:180, y:850, item:'seeds',    id:'c44' },
       // Quest items for new quests
       { x:185, y:615, item:'compass',  id:'c_compass' },
+      { x:1090, y:262, item:'sonyaCompass', id:'c_sonya_compass' },
       { x:200, y:380, item:'tools',    id:'c_tools' },
       { x:230, y:430, item:'plank',    id:'c_plank' },
     ];
@@ -3520,6 +3532,17 @@ class Game {
     if (mmCanvas) {
       const mmCtx = mmCanvas.getContext('2d');
       this.world.drawMinimap(mmCtx, this.camera.x, this.camera.y, this.player.x, this.player.y, this.npcs, ZONES);
+      if (this.mountains) {
+        const mmSx = mmCanvas.width / this.world.width;
+        const mmSy = mmCanvas.height / this.world.height;
+        mmCtx.save();
+        mmCtx.globalAlpha = this.mountains.unlockedFlag ? 1.0 : 0.35;
+        mmCtx.font = `${Math.max(6, Math.floor(mmCanvas.width * 0.065))}px serif`;
+        mmCtx.textAlign = 'center';
+        mmCtx.fillText('⛰️', 1320 * mmSx, 100 * mmSy);
+        mmCtx.globalAlpha = 1;
+        mmCtx.restore();
+      }
     }
   }
 
@@ -3734,13 +3757,17 @@ class Game {
       }
     }
 
-    // Горная тропа — вход
-    if (this.mountains && !this.mountains.active && this.mountains.unlockedFlag) {
-      const atMtnEntry = this.player.x > 1235 && this.player.x < 1315 && this.player.y > 155 && this.player.y < 235;
+    // Горная тропа — вход (верхний правый угол)
+    if (this.mountains && !this.mountains.active) {
+      const atMtnEntry = this.player.x > 1265 && this.player.x < 1385 && this.player.y > 45 && this.player.y < 175;
       if (atMtnEntry) {
-        this.mountains.startEnter();
-        this.audio.uiClick();
-        this.ui.notify('⛰️ Рыжик идёт по горной тропе...');
+        if (this.mountains.unlockedFlag) {
+          this.mountains.startEnter();
+          this.audio.uiClick();
+          this.ui.notify('⛰️ Рыжик идёт по горной тропе...');
+        } else {
+          this.ui.notify('⛰️ Тропа завалена ветками. Поговори с Соней — она знает путь.');
+        }
         return;
       }
     }
@@ -4089,8 +4116,9 @@ class Game {
     // Build choices
     const choices = [];
 
-    // 📜 Quest option — only when quest is ongoing
-    if (def && qs < 3) {
+    // 📜 Quest option — show while quest chain is ongoing
+    const questStageLimit = (def && def.q3) ? 4 : 3;
+    if (def && qs < questStageLimit) {
       choices.push({ text: '📜 Задание', action: () => this._handleQuestDialogue(npc) });
     }
 
@@ -4250,17 +4278,45 @@ class Game {
         this.dialogue.start(npc, [q2.thanks], () => {
           if (q2.item) this.inventory.remove(q2.item);
           npc.questStage = 3;
-          npc.trust = 3;
+          npc.trust = Math.min(3, npc.trust + 1);
           this._giveQuestReward(def.q2, npc);
           this.achievements.unlock('ach02');
           this._checkAllFriends();
-          // Sonya-specific: unlock mountain chapter after q2
-          if (npc.id === 'sonya') {
+          // If NPC has q3, unlock it; otherwise unlock mountains for Sonya
+          if (def.q3) {
+            this.quests.unlock(def.q3.id);
+            setTimeout(() => this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q3.title}`), 2000);
+          } else if (npc.id === 'sonya') {
             setTimeout(() => this._unlockMountains(npc), 1200);
           }
         });
       } else {
         this.dialogue.start(npc, [q2.intro, q2.hint]);
+      }
+
+    } else if (qs === 3) {
+      if (!def.q3) { this.dialogue.start(npc, ['Спасибо за всё! ❤️']); return; }
+      const q3 = def.q3;
+      if (q3.period && q3.period !== period) {
+        this.dialogue.start(npc, [q3.hint]);
+        return;
+      }
+      const hasItem3 = q3.item ? this.inventory.has(q3.item) : true;
+      if (hasItem3) {
+        this.dialogue.start(npc, [q3.thanks], () => {
+          if (q3.item) this.inventory.remove(q3.item);
+          npc.questStage = 4;
+          npc.trust = Math.min(3, npc.trust + 1);
+          this._giveQuestReward(def.q3, npc);
+          this.achievements.unlock('ach02');
+          this._checkAllFriends();
+          // Sonya-specific: unlock mountains after q3
+          if (npc.id === 'sonya') {
+            setTimeout(() => this._unlockMountains(npc), 1200);
+          }
+        });
+      } else {
+        this.dialogue.start(npc, [q3.intro, q3.hint]);
       }
     }
   }
@@ -4570,11 +4626,13 @@ class Game {
       const atMilDoor = this.player.x > 55 && this.player.x < 110 && this.player.y > 1130 && this.player.y < 1195;
       if (atMilDoor) hint = '[E] 📋 Войти в военкомат';
     }
-    // Горная тропа — вход (снаружи)
+    // Горная тропа — вход (снаружи, верхний правый угол)
     if (!hint && this.mountains && !this.mountains.active) {
-      const atMtnEntry = this.player.x > 1235 && this.player.x < 1315 && this.player.y > 155 && this.player.y < 235;
+      const atMtnEntry = this.player.x > 1265 && this.player.x < 1385 && this.player.y > 45 && this.player.y < 175;
       if (atMtnEntry) {
-        hint = this.mountains.unlockedFlag ? '[E] ⛰️ Войти на горную тропу' : '⛰️ Тропа в горы (недоступна)';
+        hint = this.mountains.unlockedFlag
+          ? '[E] ⛰️ Войти на горную тропу'
+          : '⛰️ Тропа завалена ветками. Возможно, Соня знает путь.';
       }
     }
     this.ui.setInteractHint(hint);
@@ -4721,23 +4779,155 @@ class Game {
     }, 4000);
   }
 
+  _drawMountainEntrance(ctx, cam) {
+    const EX = 1325, EY = 110; // world-space center of the mountain entrance
+    const unlocked = this.mountains && this.mountains.unlockedFlag;
+    const t = (typeof GFX !== 'undefined' && GFX.t) ? GFX.t : 0;
+
+    ctx.save();
+    ctx.translate(-cam.x, -cam.y);
+
+    // ── Distant mountain silhouettes ──
+    const peaks = [
+      { bx: EX - 62, bw: 88, bh: 105 },
+      { bx: EX - 18, bw: 110, bh: 132 },
+      { bx: EX + 52, bw: 84, bh: 98 },
+    ];
+    ctx.fillStyle = 'rgba(140,155,175,0.55)';
+    peaks.forEach(p => {
+      ctx.beginPath();
+      ctx.moveTo(p.bx, EY + 35);
+      ctx.lineTo(p.bx + p.bw * 0.5, EY + 35 - p.bh);
+      ctx.lineTo(p.bx + p.bw, EY + 35);
+      ctx.closePath(); ctx.fill();
+    });
+    // Snow caps
+    ctx.fillStyle = 'rgba(240,244,255,0.75)';
+    peaks.forEach(p => {
+      const tx = p.bx + p.bw * 0.5, ty = EY + 35 - p.bh;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx - 13, ty + 28);
+      ctx.lineTo(tx + 13, ty + 28);
+      ctx.closePath(); ctx.fill();
+    });
+
+    // ── Pine trees flanking entrance ──
+    [[EX-70,EY+12,58],[EX+58,EY+8,64],[EX-50,EY+22,44],[EX+42,EY+25,40]].forEach(([px,py,ph]) => {
+      ctx.fillStyle = '#1c4a22';
+      ctx.beginPath(); ctx.moveTo(px,py-ph); ctx.lineTo(px-ph*0.36,py); ctx.lineTo(px+ph*0.36,py); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#0e2c12';
+      ctx.beginPath(); ctx.moveTo(px,py-ph); ctx.lineTo(px-ph*0.22,py-ph*0.42); ctx.lineTo(px+ph*0.22,py-ph*0.42); ctx.closePath(); ctx.fill();
+      // Trunk
+      ctx.fillStyle = '#3a2010';
+      ctx.fillRect(px-3, py, 6, 8);
+    });
+
+    // ── Rocky path ──
+    const pg = ctx.createLinearGradient(EX, EY+35, EX, EY+85);
+    pg.addColorStop(0, '#8a7862'); pg.addColorStop(1, '#bba880');
+    ctx.fillStyle = pg;
+    ctx.beginPath();
+    ctx.moveTo(EX-24, EY+35); ctx.lineTo(EX+24, EY+35);
+    ctx.lineTo(EX+32, EY+85); ctx.lineTo(EX-32, EY+85);
+    ctx.closePath(); ctx.fill();
+    // Path pebbles
+    ctx.fillStyle = '#998870';
+    [[EX-8,EY+55,4,3],[EX+10,EY+65,5,3],[EX-4,EY+78,3,2]].forEach(([rx,ry,rw,rh]) => {
+      ctx.beginPath(); ctx.ellipse(rx, ry, rw, rh, 0, 0, Math.PI*2); ctx.fill();
+    });
+
+    // ── Rocks at entrance ──
+    [[EX-42,EY+48,18,11],[EX+36,EY+52,15,9],[EX-26,EY+72,11,7],[EX+28,EY+70,9,6]].forEach(([rx,ry,rw,rh]) => {
+      const rg = ctx.createRadialGradient(rx-2, ry-2, 1, rx, ry, rw);
+      rg.addColorStop(0, '#909090'); rg.addColorStop(1, '#555');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.ellipse(rx, ry, rw, rh, 0, 0, Math.PI*2); ctx.fill();
+    });
+
+    if (!unlocked) {
+      // ── Branch blocker ──
+      ctx.save();
+      for (let i = 0; i < 6; i++) {
+        const by = EY + 36 + i * 8;
+        const ang = (i % 2 === 0 ? 1 : -1) * 0.28;
+        ctx.save(); ctx.translate(EX, by); ctx.rotate(ang);
+        ctx.strokeStyle = '#5a3a10'; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(-28, 0); ctx.lineTo(28, 0); ctx.stroke();
+        ctx.strokeStyle = '#3d2508'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(-18,-7); ctx.moveTo(12,0); ctx.lineTo(18,6); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore();
+      // Closed tag
+      ctx.fillStyle = 'rgba(60,15,5,0.82)';
+      ctx.beginPath(); GFX.roundRect(ctx, EX-28, EY+10, 56, 18, 5); ctx.fill();
+      ctx.fillStyle = '#ffaa55'; ctx.font = 'bold 8px system-ui'; ctx.textAlign = 'center';
+      ctx.fillText('🚫 закрыто', EX, EY+22);
+    } else {
+      // ── Open path warm glow ──
+      const og = ctx.createRadialGradient(EX, EY+55, 0, EX, EY+55, 32);
+      og.addColorStop(0, 'rgba(255,210,100,0.18)'); og.addColorStop(1, 'rgba(255,210,100,0)');
+      ctx.fillStyle = og; ctx.fillRect(EX-34, EY+35, 68, 54);
+    }
+
+    // ── Fog wisps ──
+    for (let i = 0; i < 4; i++) {
+      const fx = EX - 35 + i * 24 + Math.sin(t * 0.35 + i * 1.2) * 7;
+      const fy = EY + 28 + Math.cos(t * 0.28 + i * 0.9) * 4;
+      const fa = 0.07 + Math.sin(t * 0.45 + i) * 0.03;
+      const fg = ctx.createRadialGradient(fx, fy, 0, fx, fy, 20);
+      fg.addColorStop(0, `rgba(210,220,255,${fa})`); fg.addColorStop(1, 'rgba(210,220,255,0)');
+      ctx.fillStyle = fg; ctx.fillRect(fx-22, fy-16, 44, 32);
+    }
+
+    // ── Sign "К холмам" ──
+    const sx = EX + 55, sy = EY + 52;
+    ctx.fillStyle = '#5a3a10'; ctx.fillRect(sx-2, sy-30, 3, 32);
+    ctx.fillStyle = '#c89030';
+    ctx.beginPath(); GFX.roundRect(ctx, sx, sy-38, 56, 16, 3); ctx.fill();
+    ctx.fillStyle = '#1a0a00'; ctx.font = 'bold 7px system-ui'; ctx.textAlign = 'left';
+    ctx.fillText('⛰️ К холмам →', sx+4, sy-28);
+
+    // ── Floating label ──
+    ctx.fillStyle = unlocked ? 'rgba(20,10,0,0.82)' : 'rgba(40,40,60,0.75)';
+    ctx.globalAlpha = unlocked ? 0.95 : 0.65;
+    ctx.beginPath(); GFX.roundRect(ctx, EX-48, EY-50, 96, 18, 5); ctx.fill();
+    ctx.fillStyle = unlocked ? '#ffcc88' : '#aaaacc'; ctx.font = 'bold 8px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText(unlocked ? '⛰️ Горная тропа' : '⛰️ Горная тропа 🔒', EX, EY-38);
+    ctx.globalAlpha = 1;
+
+    // ── Animated flying leaves (when unlocked) ──
+    if (unlocked) {
+      const leafEmojis = ['🍃','🌿'];
+      for (let i = 0; i < 3; i++) {
+        const lx = EX - 50 + ((t * 18 + i * 40) % 120);
+        const ly = EY - 20 + Math.sin(t * 0.9 + i * 1.4) * 18;
+        ctx.save(); ctx.globalAlpha = 0.55; ctx.font = '9px serif'; ctx.textAlign = 'center';
+        ctx.fillText(leafEmojis[i % 2], lx, ly); ctx.globalAlpha = 1; ctx.restore();
+      }
+    }
+
+    ctx.restore();
+  }
+
   _unlockMountains(sonya) {
     if (!this.mountains) return;
     if (this.mountains.unlockedFlag) return;
     const lines = [
-      { speaker: 'npc',    text: 'Рыжик… кажется, теперь ты готов увидеть одно место.', emotion: 'happy' },
+      { speaker: 'npc',    text: 'Знаешь… наверное, теперь я могу показать тебе одно место.', emotion: 'happy' },
       { speaker: 'ryzhik', text: 'Мяу?..', emotion: 'curious' },
       { speaker: 'npc',    text: 'За лесом начинается старая тропа к холмам.', emotion: 'neutral' },
       { speaker: 'npc',    text: 'Я редко туда кого-то вожу.', emotion: 'nostalgic' },
-      { speaker: 'npc',    text: 'Там тихо. И оттуда видно весь дом.', emotion: 'happy' },
-      { speaker: 'npc',    text: 'Пойдём. Я покажу дорогу.', emotion: 'happy' },
+      { speaker: 'npc',    text: 'Но тебе, кажется, можно доверять.', emotion: 'happy' },
     ];
     this.dialogue.startStory(sonya, lines, () => {
       this.mountains.unlockedFlag = true;
       this.quests.unlock('q_sonya_mtn1');
+      if (!this.unlockedZones.includes('mountains')) this.unlockedZones.push('mountains');
       setTimeout(() => {
         this.ui.notify('⛰️ Открыта новая глава: «Тропа в горы»');
-        setTimeout(() => this.ui.notify('⛰️ Открыта новая локация: Горная тропа'), 2500);
+        setTimeout(() => this.ui.notify('⛰️ Открыт проход в горы'), 2500);
       }, 500);
     });
   }
@@ -4951,6 +5141,8 @@ class Game {
 
     // World (includes sky, ground, structures, weather, lighting)
     this.world.draw(ctx, this.camera, this.time, this.weather, this.ambient);
+    // Mountain entrance overlay (upper-right of outdoor world)
+    if (this.mountains) this._drawMountainEntrance(ctx, this.camera);
     // NPCs (screen coords passed via cam offset)
     const camOffset = { x: -this.camera.x, y: -this.camera.y };
     this.npcs.forEach(npc => npc.draw(ctx, camOffset, this.time.period));
