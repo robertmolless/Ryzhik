@@ -703,8 +703,8 @@ const NPC_QUEST_DEFS = {
       id: 'q_nick2',
       title: 'Очень важная печать',
       item: 'oldBadge',
-      intro: 'Без этой печати меня опять никуда не отпустят. Говорят, видели её на втором этаже дома, в старых вещах.',
-      hint: 'Печать на втором этаже дома. Покопайся в старых коробках.',
+      intro: 'Без этой печати меня опять никуда не отпустят. Говорят, видели её в кладовке дома, в старых вещах.',
+      hint: 'Печать в кладовке дома (первый этаж, справа). Покопайся в старых коробках.',
       thanks: 'Вот эта! Отлично. Осталось совсем немного — я почти свободен.',
     },
     q3: {
@@ -2974,9 +2974,10 @@ class Game {
     this.input        = new Input();
     this.player       = new Player();
     this.world        = new World();
-    this.interior     = new InteriorManager();
-    this.barn         = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
-    this.inventory    = new Inventory();
+    this.interior       = new InteriorManager();
+    this.barn           = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
+    this.militaryOffice = (typeof MilitaryOfficeManager !== 'undefined') ? new MilitaryOfficeManager() : null;
+    this.inventory      = new Inventory();
     this.quests       = new QuestSystem();
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
     this.achievements = null; // init after ui
@@ -3728,14 +3729,24 @@ class Game {
         } else if (f.id === 'cabinet') {
           if (!interior.cabinetOpen) {
             interior.cabinetOpen = true;
-            if (f.item && !interior.pickedItems.has(f.id)) {
+            if (f.item === 'barnKey') {
+              // Always give barnKey if barn not yet unlocked and player doesn't have it
+              if (!this.unlockedZones.includes('barn') && !this.inventory.has('barnKey')) {
+                interior.pickedItems.add(f.id);
+                this.inventory.add('barnKey');
+                this.collectedCount++;
+                this.ui.notify('🔑 В кухонном шкафчике нашёлся ключ от сарая!');
+                this._checkQuestItem('barnKey');
+              } else {
+                this.ui.notify('📦 Шкафчик открыт — ключ уже был взят.');
+              }
+            } else if (f.item && !interior.pickedItems.has(f.id)) {
               interior.pickedItems.add(f.id);
               this.inventory.add(f.item);
               this.collectedCount++;
               const idata = ITEMS[f.item];
               this.ui.notify(`🔑 В кухонном шкафчике нашёлся ${idata ? idata.name : f.item}!`);
               this._checkQuestItem(f.item);
-              // houseKey → advance chest quest (barnKey q02 is handled by _checkQuestItem)
               if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
             } else {
               this.ui.notify('📦 Шкафчик открыт — внутри пусто.');
