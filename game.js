@@ -1656,7 +1656,7 @@ class NPC {
     if (this.emotion) { this.emotionTime -= dt; if (this.emotionTime <= 0) this.emotion = null; }
     // Nick stays in military office until story complete
     if (this.id === 'nick' && (this.questStage || 0) < 4) {
-      this.wx = 80; this.wy = 1100;
+      this.visible = false;  // Nick is inside military office, not on outdoor map
       return;
     }
     // Multi-waypoint movement
@@ -3118,6 +3118,7 @@ class Game {
     this.npcs         = NPC_DATA.map(d => new NPC(d));
     this.interior     = new InteriorManager();
     this.barn         = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
+    this.militaryOffice = (typeof MilitaryOfficeManager !== 'undefined') ? new MilitaryOfficeManager() : null;
     this.upgrades     = new Set();
     this.achievements = new AchievementSystem(this.ui, this.audio, this.telegram);
     this.unlockedZones= ['yard','porch','garden','well','fence'];
@@ -3180,6 +3181,7 @@ class Game {
       if (d.weather) this.weather.set(d.weather);
       if (d.interior && this.interior) this.interior.load(d.interior);
       if (d.barn     && this.barn)     this.barn.load(d.barn);
+      if (d.militaryOffice && this.militaryOffice) this.militaryOffice.load(d.militaryOffice);
       if (d.flags) this.flags = Object.assign({ nickStoryComplete: false }, d.flags);
       this._startPlaying();
       this.ui.notify('✅ Прогресс загружен!');
@@ -3209,6 +3211,7 @@ class Game {
       weather:       this.weather.current,
       interior:      this.interior ? this.interior.save() : null,
       barn:          this.barn     ? this.barn.save()     : null,
+      militaryOffice: this.militaryOffice ? this.militaryOffice.save() : null,
       flags:         this.flags || {},
     });
   }
@@ -3284,6 +3287,7 @@ class Game {
     // Interior/barn system updates (always run, handle fading)
     if (this.interior) this.interior.update(dt);
     if (this.barn)     this.barn.update(dt);
+    if (this.militaryOffice) this.militaryOffice.update(dt);
 
     // ── INDOOR (house) mode ──
     if (this.interior && this.interior.active) {
@@ -3344,6 +3348,35 @@ class Game {
       return;
     }
 
+    // ── MILITARY OFFICE mode ──
+    if (this.militaryOffice && this.militaryOffice.active) {
+      this.militaryOffice.move(this.input.dx, this.input.dy, dt);
+
+      const hintEl = document.getElementById('interact-hint');
+      const al = document.getElementById('action-label');
+      const milNear = this.militaryOffice.nearestFurniture();
+      const nearNick = this.militaryOffice.nearNick();
+      let milHint = null;
+      if (milNear) milHint = `[E] ${milNear.label}`;
+      if (nearNick && !this.flags.nickStoryComplete) milHint = '[E] ☕ Поговорить с Ником';
+      if (hintEl) { if (milHint) { hintEl.style.display = 'block'; hintEl.textContent = milHint; } else { hintEl.style.display = 'none'; } }
+      if (al) al.textContent = milHint || '';
+
+      if (this.input.consumeAction()) this._handleInteraction();
+      if (this.input.consumeMeow()) { this.player.playAction('meow'); this.audio.meow(); }
+
+      this.ui.updateStats(this.player);
+      this.ui.updateTime(this.time);
+      this.ui.updateWeather(this.weather);
+      this.ui.updateQuestTracker(this.quests);
+
+      if (this._mobileEnterBtn) {
+        this._mobileEnterBtn.style.display = 'block';
+        this._mobileEnterBtn.textContent = '🚪';
+      }
+      return;
+    }
+
     // Player (outdoor)
     this.player.update(dt, this.input, this.world);
 
@@ -3361,6 +3394,12 @@ class Game {
 
     // NPCs
     this.npcs.forEach(npc => npc.update(dt, this.time.period));
+
+    // Nick hidden on outdoor map while story not complete
+    const nickNPC = this.npcs.find(n => n.id === 'nick');
+    if (nickNPC && !(this.flags && this.flags.nickStoryComplete)) {
+      nickNPC.visible = false;
+    }
 
     // Events timer
     this.eventTimer -= dt;
@@ -3421,6 +3460,39 @@ class Game {
   /* ── INTERACTION ── */
   _handleInteraction() {
     if (this.dialogue.active) { this.dialogue.advance(); return; }
+
+    // ── MILITARY OFFICE INTERIOR ──
+    if (this.militaryOffice && this.militaryOffice.active) {
+      const near = this.militaryOffice.nearestFurniture();
+      if (near) {
+        if (near.action === 'exit_mil') {
+          this.militaryOffice.startExit();
+          this.audio.uiClick();
+          this.ui.notify('🚪 Рыжик выходит из военкомата...');
+          return;
+        }
+        // examine actions
+        const examineTexts = {
+          mo_desk:   '📄 На столе горы бумаг. Всё в строгом беспорядке.',
+          mo_boxes:  '📦 Коробки набиты документами с 90-х годов.',
+          mo_fan:    '🌀 Вентилятор гудит и равномерно гоняет воздух.',
+          mo_papers: '📄 Бумаги со стола. Кто-то давно не убирался.',
+        };
+        if (near.action === 'examine') {
+          this.ui.notify(examineTexts[near.id] || '🔍 Ничего особенного.');
+          return;
+        }
+      }
+      // Talk to Nick
+      if (this.militaryOffice.nearNick()) {
+        const nick = this.npcs.find(n => n.id === 'nick');
+        if (nick && !this.flags.nickStoryComplete) {
+          this._talkToNPC(nick);
+          return;
+        }
+      }
+      return;
+    }
 
     // ── BARN INTERIOR ──
     if (this.barn && this.barn.active) {
@@ -3503,6 +3575,17 @@ class Game {
       }
       this.miniGame.start('fishing', this);
       return;
+    }
+
+    // Военкомат — вход в interior
+    if (this.militaryOffice && !this.militaryOffice.active) {
+      const atMilDoor = this.player.x > 55 && this.player.x < 110 && this.player.y > 1130 && this.player.y < 1195;
+      if (atMilDoor) {
+        this.militaryOffice.startEnter();
+        this.audio.uiClick();
+        this.ui.notify('📋 Рыжик заходит в военкомат...');
+        return;
+      }
     }
 
     // Сарай — открыть ключом, затем войти
@@ -4306,16 +4389,10 @@ class Game {
         hint = '🌿 Теплица (открыта)';
       }
     }
-    // Военкомат (bottom-left area)
-    if (!hint) {
-      const nick = this.npcs.find(n => n.id === 'nick');
-      const flags = this.flags || {};
-      if (!flags.nickStoryComplete && nick) {
-        const inOfficeArea = this.player.x > 10 && this.player.x < 160 && this.player.y > 1050 && this.player.y < 1180;
-        if (inOfficeArea && nick.distTo(this.player.x, this.player.y) < 120) {
-          hint = '[E] ☕ Поговорить с Ником';
-        }
-      }
+    // Военкомат — вход (снаружи)
+    if (!hint && this.militaryOffice && !this.militaryOffice.active) {
+      const atMilDoor = this.player.x > 55 && this.player.x < 110 && this.player.y > 1130 && this.player.y < 1195;
+      if (atMilDoor) hint = '[E] 📋 Войти в военкомат';
     }
     this.ui.setInteractHint(hint);
   }
@@ -4463,6 +4540,10 @@ class Game {
 
   _triggerNickCutscene() {
     if (!this.flags) this.flags = {};
+    // Exit military office before cutscene
+    if (this.militaryOffice && this.militaryOffice.active) {
+      this.militaryOffice.startExit();
+    }
     this.flags.nickStoryComplete = true;
     const nick = this.npcs.find(n => n.id === 'nick');
     if (nick) {
@@ -4563,6 +4644,24 @@ class Game {
       return;
     }
 
+    // ── Military office rendering ──
+    if (this.militaryOffice && this.militaryOffice.active) {
+      if (typeof drawMilitaryOfficeScene === 'function') {
+        const nickNPC = this.npcs.find(n => n.id === 'nick');
+        drawMilitaryOfficeScene(ctx, {
+          px: this.militaryOffice.px,
+          py: this.militaryOffice.py,
+          t: GFX.t,
+          period: this.time.period,
+          mil: this.militaryOffice,
+          nickNPC: nickNPC,
+          cw: this.canvas.width,
+          ch: this.canvas.height,
+        });
+      }
+      return;
+    }
+
     // World (includes sky, ground, structures, weather, lighting)
     this.world.draw(ctx, this.camera, this.time, this.weather, this.ambient);
     // NPCs (screen coords passed via cam offset)
@@ -4576,8 +4675,9 @@ class Game {
 
     // Fade overlay (transitioning to/from interior or barn)
     const fadeA = Math.max(
-      this.interior ? this.interior.fadeAlpha : 0,
-      this.barn     ? this.barn.fadeAlpha     : 0
+      this.interior       ? this.interior.fadeAlpha       : 0,
+      this.barn           ? this.barn.fadeAlpha           : 0,
+      this.militaryOffice ? this.militaryOffice.fadeAlpha : 0
     );
     if (fadeA > 0) {
       ctx.fillStyle = `rgba(0,0,0,${fadeA})`;
