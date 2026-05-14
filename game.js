@@ -400,7 +400,8 @@ const ITEMS = {
   plank:       { id:'plank',       name:'Доска',               icon:'🪵', desc:'Крепкая деревянная доска для Прохора.', rare:false },
   tools:       { id:'tools',       name:'Инструменты',         icon:'🔨', desc:'Набор инструментов. Прохор ждёт!', rare:false },
   oldPhoto:    { id:'oldPhoto',    name:'Старая фотография',   icon:'📸', desc:'Пожелтевшее фото. Настя ищет такое!', rare:false },
-  warmScarf:   { id:'warmScarf',   name:'Тёплый шарф',         icon:'🧣', desc:'Уютный шарф. Нику он очень нужен.', rare:false },
+  warmScarf:        { id:'warmScarf',        name:'Тёплый шарф',          icon:'🧣', desc:'Уютный шарф. Нику он очень нужен.', rare:false },
+  nickCertificate:  { id:'nickCertificate',  name:'Потерянная справка',   icon:'📄', desc:'Мятая справка Ника, которую сдуло вентилятором.', rare:false },
 };
 // Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
@@ -693,7 +694,7 @@ const NPC_QUEST_DEFS = {
     q1: {
       id: 'q_nick1',
       title: 'Потерянная справка',
-      item: 'oldPhoto',
+      item: 'nickCertificate',
       intro: 'Кажется, моя справка опять куда-то исчезла… Она должна быть где-то здесь, за шкафом или у вентилятора.',
       hint: 'Справка где-то в военкомате. Поищи у вентилятора или за коробкой.',
       thanks: 'Нашлась! Правда, теперь нужна печать… Конечно же.',
@@ -702,8 +703,8 @@ const NPC_QUEST_DEFS = {
       id: 'q_nick2',
       title: 'Очень важная печать',
       item: 'oldBadge',
-      intro: 'Без этой печати меня опять никуда не отпустят. Говорят, видели её на втором этаже дома, в старых вещах.',
-      hint: 'Печать на втором этаже дома. Покопайся в старых коробках.',
+      intro: 'Без этой печати меня опять никуда не отпустят. Говорят, видели её в кладовке дома, в старых вещах.',
+      hint: 'Печать в кладовке дома (первый этаж, справа). Покопайся в старых коробках.',
       thanks: 'Вот эта! Отлично. Осталось совсем немного — я почти свободен.',
     },
     q3: {
@@ -2973,9 +2974,10 @@ class Game {
     this.input        = new Input();
     this.player       = new Player();
     this.world        = new World();
-    this.interior     = new InteriorManager();
-    this.barn         = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
-    this.inventory    = new Inventory();
+    this.interior       = new InteriorManager();
+    this.barn           = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
+    this.militaryOffice = (typeof MilitaryOfficeManager !== 'undefined') ? new MilitaryOfficeManager() : null;
+    this.inventory      = new Inventory();
     this.quests       = new QuestSystem();
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
     this.achievements = null; // init after ui
@@ -3356,9 +3358,13 @@ class Game {
       const al = document.getElementById('action-label');
       const milNear = this.militaryOffice.nearestFurniture();
       const nearNick = this.militaryOffice.nearNick();
+      const nearCert = this.militaryOffice.nearCertificate();
       let milHint = null;
       if (milNear) milHint = `[E] ${milNear.label}`;
+      // Nick hint overrides furniture hint
       if (nearNick && !this.flags.nickStoryComplete) milHint = '[E] ☕ Поговорить с Ником';
+      // Certificate hint overrides everything
+      if (nearCert) milHint = '[E] 📄 Поднять потерянную справку';
       if (hintEl) { if (milHint) { hintEl.style.display = 'block'; hintEl.textContent = milHint; } else { hintEl.style.display = 'none'; } }
       if (al) al.textContent = milHint || '';
 
@@ -3463,6 +3469,25 @@ class Game {
 
     // ── MILITARY OFFICE INTERIOR ──
     if (this.militaryOffice && this.militaryOffice.active) {
+      // Certificate pickup takes priority
+      if (this.militaryOffice.nearCertificate()) {
+        this.militaryOffice.certPickedUp = true;
+        this.inventory.add('nickCertificate');
+        this.audio.pickup();
+        this.telegram.vibrate(25);
+        this.ui.notify('📄 Подобрал: Потерянная справка Ника!');
+        this._checkQuestItem('nickCertificate');
+        return;
+      }
+      // Talk to Nick (wide zone — player can stand in front of desk)
+      if (this.militaryOffice.nearNick()) {
+        const nick = this.npcs.find(n => n.id === 'nick');
+        if (nick && !this.flags.nickStoryComplete) {
+          this._talkToNPC(nick);
+          return;
+        }
+      }
+      // Furniture interactions
       const near = this.militaryOffice.nearestFurniture();
       if (near) {
         if (near.action === 'exit_mil') {
@@ -3471,23 +3496,14 @@ class Game {
           this.ui.notify('🚪 Рыжик выходит из военкомата...');
           return;
         }
-        // examine actions
         const examineTexts = {
           mo_desk:   '📄 На столе горы бумаг. Всё в строгом беспорядке.',
           mo_boxes:  '📦 Коробки набиты документами с 90-х годов.',
-          mo_fan:    '🌀 Вентилятор гудит и равномерно гоняет воздух.',
+          mo_fan:    '🌀 Вентилятор гудит. Кажется, он сдул несколько бумаг.',
           mo_papers: '📄 Бумаги со стола. Кто-то давно не убирался.',
         };
         if (near.action === 'examine') {
           this.ui.notify(examineTexts[near.id] || '🔍 Ничего особенного.');
-          return;
-        }
-      }
-      // Talk to Nick
-      if (this.militaryOffice.nearNick()) {
-        const nick = this.npcs.find(n => n.id === 'nick');
-        if (nick && !this.flags.nickStoryComplete) {
-          this._talkToNPC(nick);
           return;
         }
       }
@@ -3713,14 +3729,24 @@ class Game {
         } else if (f.id === 'cabinet') {
           if (!interior.cabinetOpen) {
             interior.cabinetOpen = true;
-            if (f.item && !interior.pickedItems.has(f.id)) {
+            if (f.item === 'barnKey') {
+              // Always give barnKey if barn not yet unlocked and player doesn't have it
+              if (!this.unlockedZones.includes('barn') && !this.inventory.has('barnKey')) {
+                interior.pickedItems.add(f.id);
+                this.inventory.add('barnKey');
+                this.collectedCount++;
+                this.ui.notify('🔑 В кухонном шкафчике нашёлся ключ от сарая!');
+                this._checkQuestItem('barnKey');
+              } else {
+                this.ui.notify('📦 Шкафчик открыт — ключ уже был взят.');
+              }
+            } else if (f.item && !interior.pickedItems.has(f.id)) {
               interior.pickedItems.add(f.id);
               this.inventory.add(f.item);
               this.collectedCount++;
               const idata = ITEMS[f.item];
               this.ui.notify(`🔑 В кухонном шкафчике нашёлся ${idata ? idata.name : f.item}!`);
               this._checkQuestItem(f.item);
-              // houseKey → advance chest quest (barnKey q02 is handled by _checkQuestItem)
               if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
             } else {
               this.ui.notify('📦 Шкафчик открыт — внутри пусто.');
