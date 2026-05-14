@@ -40,7 +40,7 @@ const INDOOR_QUESTS = [
    ────────────────────────────────────────────── */
 const FURNITURE = [
   // ─── FLOOR 1: Living Room (left half, x: 80–450) ───
-  { id:'sofa',    floor:1, x:160, y:280, w:120, h:50, type:'sofa',    label:'Диван',           action:'sit' },
+  { id:'sofa',    floor:1, x:160, y:280, w:120, h:50, type:'sofa',    label:'Диван',           action:'sleep' },
   { id:'armchair',floor:1, x:320, y:270, w:60,  h:50, type:'armchair',label:'Кресло',          action:'sit' },
   { id:'tv',      floor:1, x:80,  y:185, w:90,  h:60, type:'tv',      label:'Телевизор',       action:'watch' },
   { id:'rug',     floor:1, x:150, y:300, w:160, h:80, type:'rug',     label:'Ковёр',           action:null },
@@ -109,6 +109,8 @@ const FURNITURE = [
   { id:'batteries_box', floor:1, x:700, y:230, w:35,  h:30, type:'tin',     label:'Батарейки',        action:'pickup', item:'batteries' },
   // Floor 1: Storage — cat figure
   { id:'cat_fig_item',  floor:1, x:380, y:310, w:30,  h:30, type:'catfig',  label:'Фигурка кота',     action:'pickup', item:'catFig' },
+  // Floor 1: Cat corner — Ryzhik's nap spot (near the rug)
+  { id:'cat_corner',    floor:1, x:195, y:330, w:50,  h:35, type:'catbed',  label:'Лежанка Рыжика 😴', action:'sleep' },
 ];
 
 /* ──────────────────────────────────────────────
