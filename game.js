@@ -405,6 +405,8 @@ const ITEMS = {
 };
 // Merge indoor items (INDOOR_ITEMS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
+// Merge mountain items (defined in mountains.js)
+if (typeof MOUNTAIN_ITEMS !== 'undefined') Object.assign(ITEMS, MOUNTAIN_ITEMS);
 
 /* ──────────────────────────────────────────────
    GAME DATA: QUESTS
@@ -459,6 +461,8 @@ const QUESTS = [
 ];
 // Merge interior quests (INDOOR_QUESTS defined in interior.js, loaded before game.js)
 if (typeof INDOOR_QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
+// Merge mountain quests (defined in mountains.js)
+if (typeof MOUNTAIN_QUESTS !== 'undefined') QUESTS.push(...MOUNTAIN_QUESTS);
 
 /* ──────────────────────────────────────────────
    GAME DATA: ACHIEVEMENTS
@@ -484,6 +488,7 @@ const ACHIEVEMENTS = [
   { id:'ach18', name:'Все зоны открыты',     icon:'🗺️', desc:'Открой все зоны карты.', secret:false },
   { id:'ach19', name:'Все квесты выполнены', icon:'✅', desc:'Пройди все квесты!', secret:false },
   { id:'ach20', name:'Настоящий хозяин двора',icon:'👑', desc:'Достигни максимальной кошачьей славы!', secret:false },
+  { id:'ach_mtn', name:'Друг гор', icon:'⛰️', desc:'Пройди все квесты Сони в горах.', secret:false },
 ];
 
 /* ──────────────────────────────────────────────
@@ -926,6 +931,17 @@ const NPC_STORIES = {
         { speaker: 'npc',    text: 'Без музыки. Без разговоров.', emotion: 'neutral' },
         { speaker: 'npc',    text: 'Только тишина и ветер.', emotion: 'neutral' },
         { speaker: 'ryzhik', text: 'Мррр...', emotion: 'happy' },
+      ],
+    },
+    {
+      minTrust: 3,
+      lines: [
+        { speaker: 'npc',    text: 'Рыжик… я рада, что ты сходил со мной в горы.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мур-мур.', emotion: 'happy' },
+        { speaker: 'npc',    text: 'Там наверху всё кажется таким маленьким.', emotion: 'nostalgic' },
+        { speaker: 'npc',    text: 'Дом, двор, все хлопоты…', emotion: 'neutral' },
+        { speaker: 'npc',    text: 'Но именно оттуда понимаешь, как сильно любишь это место.', emotion: 'happy' },
+        { speaker: 'ryzhik', text: 'Мрр!', emotion: 'happy' },
       ],
     },
   ],
@@ -2977,6 +2993,7 @@ class Game {
     this.interior       = new InteriorManager();
     this.barn           = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
     this.militaryOffice = (typeof MilitaryOfficeManager !== 'undefined') ? new MilitaryOfficeManager() : null;
+    this.mountains      = (typeof MountainsManager !== 'undefined') ? new MountainsManager() : null;
     this.inventory      = new Inventory();
     this.quests       = new QuestSystem();
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
@@ -3121,6 +3138,7 @@ class Game {
     this.interior     = new InteriorManager();
     this.barn         = (typeof BarnManager !== 'undefined') ? new BarnManager() : null;
     this.militaryOffice = (typeof MilitaryOfficeManager !== 'undefined') ? new MilitaryOfficeManager() : null;
+    this.mountains    = (typeof MountainsManager !== 'undefined') ? new MountainsManager() : null;
     this.upgrades     = new Set();
     this.achievements = new AchievementSystem(this.ui, this.audio, this.telegram);
     this.unlockedZones= ['yard','porch','garden','well','fence'];
@@ -3184,6 +3202,7 @@ class Game {
       if (d.interior && this.interior) this.interior.load(d.interior);
       if (d.barn     && this.barn)     this.barn.load(d.barn);
       if (d.militaryOffice && this.militaryOffice) this.militaryOffice.load(d.militaryOffice);
+      if (d.mountains && this.mountains) this.mountains.load(d.mountains);
       if (d.flags) this.flags = Object.assign({ nickStoryComplete: false }, d.flags);
       this._startPlaying();
       this.ui.notify('✅ Прогресс загружен!');
@@ -3214,6 +3233,7 @@ class Game {
       interior:      this.interior ? this.interior.save() : null,
       barn:          this.barn     ? this.barn.save()     : null,
       militaryOffice: this.militaryOffice ? this.militaryOffice.save() : null,
+      mountains:      this.mountains      ? this.mountains.save()      : null,
       flags:         this.flags || {},
     });
   }
@@ -3290,6 +3310,7 @@ class Game {
     if (this.interior) this.interior.update(dt);
     if (this.barn)     this.barn.update(dt);
     if (this.militaryOffice) this.militaryOffice.update(dt);
+    if (this.mountains) this.mountains.update(dt);
 
     // ── INDOOR (house) mode ──
     if (this.interior && this.interior.active) {
@@ -3367,6 +3388,37 @@ class Game {
       if (nearCert) milHint = '[E] 📄 Поднять потерянную справку';
       if (hintEl) { if (milHint) { hintEl.style.display = 'block'; hintEl.textContent = milHint; } else { hintEl.style.display = 'none'; } }
       if (al) al.textContent = milHint || '';
+
+      if (this.input.consumeAction()) this._handleInteraction();
+      if (this.input.consumeMeow()) { this.player.playAction('meow'); this.audio.meow(); }
+
+      this.ui.updateStats(this.player);
+      this.ui.updateTime(this.time);
+      this.ui.updateWeather(this.weather);
+      this.ui.updateQuestTracker(this.quests);
+
+      if (this._mobileEnterBtn) {
+        this._mobileEnterBtn.style.display = 'block';
+        this._mobileEnterBtn.textContent = '🚪';
+      }
+      return;
+    }
+
+    // ── MOUNTAINS mode ──
+    if (this.mountains && this.mountains.active) {
+      this.mountains.move(this.input.dx, this.input.dy, dt);
+
+      const hintEl = document.getElementById('interact-hint');
+      const al = document.getElementById('action-label');
+      let mtnHint = null;
+      if (this.mountains.nearSonya()) mtnHint = '[E] 🎒 Поговорить с Соней';
+      if (this.mountains.nearUpperViewpoint() && this.quests.isActive('q_sonya_mtn3')) {
+        mtnHint = '[E] ⛰️ Смотровая площадка';
+      }
+      const mtnNear = this.mountains.nearestObject();
+      if (mtnNear && !mtnHint) mtnHint = `[E] ${mtnNear.label}`;
+      if (hintEl) { if (mtnHint) { hintEl.style.display = 'block'; hintEl.textContent = mtnHint; } else { hintEl.style.display = 'none'; } }
+      if (al) al.textContent = mtnHint || '';
 
       if (this.input.consumeAction()) this._handleInteraction();
       if (this.input.consumeMeow()) { this.player.playAction('meow'); this.audio.meow(); }
@@ -3466,6 +3518,62 @@ class Game {
   /* ── INTERACTION ── */
   _handleInteraction() {
     if (this.dialogue.active) { this.dialogue.advance(); return; }
+
+    // ── MOUNTAINS INTERIOR ──
+    if (this.mountains && this.mountains.active) {
+      // Talk to Sonya
+      if (this.mountains.nearSonya()) {
+        const sonya = this.npcs.find(n => n.id === 'sonya');
+        this._handleMountainSonyaDialogue(sonya);
+        return;
+      }
+      // Upper viewpoint (q3 cutscene)
+      if (this.mountains.nearUpperViewpoint() && this.quests.isActive('q_sonya_mtn3')) {
+        const sonya = this.npcs.find(n => n.id === 'sonya');
+        this._triggerMountainVista(sonya);
+        return;
+      }
+      // Pickup items
+      const obj = this.mountains.nearestObject();
+      if (obj) {
+        if (obj.action === 'exit_mountains') {
+          this.mountains.startExit();
+          this.audio.uiClick();
+          this.ui.notify('🌲 Рыжик спускается с тропы...');
+          return;
+        }
+        if (obj.action === 'pickup' && obj.item && !this.mountains.pickedItems.has(obj.id)) {
+          this.mountains.pickedItems.add(obj.id);
+          const added = this.inventory.add(obj.item);
+          if (added) {
+            const idata = ITEMS[obj.item];
+            this.player.playAction('pickup');
+            this.audio.pickup();
+            this.telegram.vibrate(25);
+            this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : obj.item}`);
+            this._checkQuestItem(obj.item);
+          }
+          return;
+        }
+        if (obj.action === 'viewpoint_upper') {
+          this.ui.notify('🏔️ Отсюда виден весь дом. Красивый вид!');
+          return;
+        }
+        if (obj.action === 'sit') {
+          this.ui.notify('🪵 Рыжик устраивается на лавочке. Хорошее место.');
+          return;
+        }
+        if (obj.action === 'examine') {
+          const examineTexts = {
+            mt_viewpoint: '⛰️ С площадки видно весь дом и деревья далеко внизу.',
+            mt_campfire:  '🔥 Остывший костёр. Кто-то сидел здесь совсем недавно.',
+          };
+          this.ui.notify(examineTexts[obj.id] || '🔍 Интересное место.');
+          return;
+        }
+      }
+      return;
+    }
 
     // ── MILITARY OFFICE INTERIOR ──
     if (this.militaryOffice && this.militaryOffice.active) {
@@ -3600,6 +3708,17 @@ class Game {
         this.militaryOffice.startEnter();
         this.audio.uiClick();
         this.ui.notify('📋 Рыжик заходит в военкомат...');
+        return;
+      }
+    }
+
+    // Горная тропа — вход
+    if (this.mountains && !this.mountains.active && this.mountains.unlockedFlag) {
+      const atMtnEntry = this.player.x > 1235 && this.player.x < 1315 && this.player.y > 155 && this.player.y < 235;
+      if (atMtnEntry) {
+        this.mountains.startEnter();
+        this.audio.uiClick();
+        this.ui.notify('⛰️ Рыжик идёт по горной тропе...');
         return;
       }
     }
@@ -4108,6 +4227,10 @@ class Game {
           this._giveQuestReward(def.q2, npc);
           this.achievements.unlock('ach02');
           this._checkAllFriends();
+          // Sonya-specific: unlock mountain chapter after q2
+          if (npc.id === 'sonya') {
+            setTimeout(() => this._unlockMountains(npc), 1200);
+          }
         });
       } else {
         this.dialogue.start(npc, [q2.intro, q2.hint]);
@@ -4420,6 +4543,13 @@ class Game {
       const atMilDoor = this.player.x > 55 && this.player.x < 110 && this.player.y > 1130 && this.player.y < 1195;
       if (atMilDoor) hint = '[E] 📋 Войти в военкомат';
     }
+    // Горная тропа — вход (снаружи)
+    if (!hint && this.mountains && !this.mountains.active) {
+      const atMtnEntry = this.player.x > 1235 && this.player.x < 1315 && this.player.y > 155 && this.player.y < 235;
+      if (atMtnEntry) {
+        hint = this.mountains.unlockedFlag ? '[E] ⛰️ Войти на горную тропу' : '⛰️ Тропа в горы (недоступна)';
+      }
+    }
     this.ui.setInteractHint(hint);
   }
 
@@ -4564,6 +4694,92 @@ class Game {
     }, 4000);
   }
 
+  _unlockMountains(sonya) {
+    if (!this.mountains) return;
+    if (this.mountains.unlockedFlag) return;
+    const lines = [
+      { speaker: 'npc',    text: 'Рыжик… кажется, теперь ты готов увидеть одно место.', emotion: 'happy' },
+      { speaker: 'ryzhik', text: 'Мяу?..', emotion: 'curious' },
+      { speaker: 'npc',    text: 'За лесом начинается старая тропа к холмам.', emotion: 'neutral' },
+      { speaker: 'npc',    text: 'Я редко туда кого-то вожу.', emotion: 'nostalgic' },
+      { speaker: 'npc',    text: 'Там тихо. И оттуда видно весь дом.', emotion: 'happy' },
+      { speaker: 'npc',    text: 'Пойдём. Я покажу дорогу.', emotion: 'happy' },
+    ];
+    this.dialogue.startStory(sonya, lines, () => {
+      this.mountains.unlockedFlag = true;
+      this.quests.unlock('q_sonya_mtn1');
+      setTimeout(() => {
+        this.ui.notify('⛰️ Открыта новая глава: «Тропа в горы»');
+        setTimeout(() => this.ui.notify('⛰️ Открыта новая локация: Горная тропа'), 2500);
+      }, 500);
+    });
+  }
+
+  _handleMountainSonyaDialogue(sonya) {
+    if (!sonya) return;
+    sonya.showEmotion('happy');
+    this.audio.uiClick();
+    if (this.quests.isActive('q_sonya_mtn1')) {
+      this.dialogue.start(sonya, ['Рыжик! Ты добрался! Смотри как тут красиво. Вон там — лучший обзор с площадки.'], () => {
+        sonya.trust = Math.min(3, sonya.trust + 1);
+        this._giveQuestReward({ id: 'q_sonya_mtn1' }, sonya);
+        this.quests.unlock('q_sonya_mtn2');
+        setTimeout(() => this.ui.notify('📋 Новый квест: Горный цветок'), 1500);
+      });
+      return;
+    }
+    if (this.quests.isActive('q_sonya_mtn2')) {
+      if (this.inventory.has('mountainFlower')) {
+        this.dialogue.start(sonya, ['Горный цветок! Именно такой растёт здесь. Прохладный ветер им нравится.'], () => {
+          this.inventory.remove('mountainFlower');
+          sonya.trust = Math.min(3, sonya.trust + 1);
+          this._giveQuestReward({ id: 'q_sonya_mtn2' }, sonya);
+          this.quests.unlock('q_sonya_mtn3');
+          setTimeout(() => this.ui.notify('📋 Новый квест: Вид сверху'), 1500);
+        });
+      } else {
+        this.dialogue.start(sonya, ['Горный цветок? Он растёт ближе к большим камням. Поищи там!']);
+      }
+      return;
+    }
+    if (this.quests.isActive('q_sonya_mtn3')) {
+      if (this.inventory.has('smoothStone')) {
+        this.dialogue.start(sonya, ['Нашёл гладкий камень! Теперь пойдём к верхней площадке. Там лучший вид на дом.']);
+      } else {
+        this.dialogue.start(sonya, ['Поднимись выше! Там лучший вид. И найди гладкий камень — он лежит у площадки.']);
+      }
+      return;
+    }
+    // All mountain quests done
+    const mountainLines = [
+      { speaker: 'npc',    text: 'Раньше я часто приходила сюда одна.', emotion: 'nostalgic' },
+      { speaker: 'npc',    text: 'Когда становилось слишком шумно.', emotion: 'neutral' },
+      { speaker: 'npc',    text: 'Здесь всегда только ветер, облака и тишина.', emotion: 'neutral' },
+      { speaker: 'ryzhik', text: 'Мрр...', emotion: 'happy' },
+      { speaker: 'npc',    text: 'Наверное, поэтому мне нравится это место.', emotion: 'happy' },
+    ];
+    this.dialogue.startStory(sonya, mountainLines);
+  }
+
+  _triggerMountainVista(sonya) {
+    if (!sonya) return;
+    const lines = [
+      { speaker: 'npc',    text: 'Когда смотришь отсюда вниз, дом кажется совсем маленьким.', emotion: 'nostalgic' },
+      { speaker: 'ryzhik', text: 'Мрр...', emotion: 'happy' },
+      { speaker: 'npc',    text: 'Но почему-то именно отсюда он больше всего похож на дом.', emotion: 'happy' },
+      { speaker: 'npc',    text: 'В горах всегда так.', emotion: 'neutral' },
+      { speaker: 'npc',    text: 'Поднимаешься выше — и начинаешь лучше понимать, куда хочешь вернуться.', emotion: 'nostalgic' },
+    ];
+    this.dialogue.startStory(sonya, lines, () => {
+      this.inventory.remove('smoothStone');
+      sonya.trust = 3;
+      this._giveQuestReward({ id: 'q_sonya_mtn3' }, sonya);
+      this.achievements.unlock('ach_mtn');
+      this.player.mood = Math.min(100, this.player.mood + 15);
+      setTimeout(() => this.ui.notify('⛰️ Достижение: Друг гор!'), 1000);
+    });
+  }
+
   _triggerNickCutscene() {
     if (!this.flags) this.flags = {};
     // Exit military office before cutscene
@@ -4688,6 +4904,24 @@ class Game {
       return;
     }
 
+    // ── Mountains rendering ──
+    if (this.mountains && this.mountains.active) {
+      if (typeof drawMountainScene === 'function') {
+        const sonyaNPC = this.npcs.find(n => n.id === 'sonya');
+        drawMountainScene(ctx, {
+          px: this.mountains.px,
+          py: this.mountains.py,
+          t: GFX.t,
+          period: this.time.period,
+          mtn: this.mountains,
+          sonyaNPC: sonyaNPC,
+          cw: this.canvas.width,
+          ch: this.canvas.height,
+        });
+      }
+      return;
+    }
+
     // World (includes sky, ground, structures, weather, lighting)
     this.world.draw(ctx, this.camera, this.time, this.weather, this.ambient);
     // NPCs (screen coords passed via cam offset)
@@ -4703,7 +4937,8 @@ class Game {
     const fadeA = Math.max(
       this.interior       ? this.interior.fadeAlpha       : 0,
       this.barn           ? this.barn.fadeAlpha           : 0,
-      this.militaryOffice ? this.militaryOffice.fadeAlpha : 0
+      this.militaryOffice ? this.militaryOffice.fadeAlpha : 0,
+      this.mountains      ? this.mountains.fadeAlpha      : 0
     );
     if (fadeA > 0) {
       ctx.fillStyle = `rgba(0,0,0,${fadeA})`;
