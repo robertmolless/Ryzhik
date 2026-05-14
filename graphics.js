@@ -1274,6 +1274,26 @@ function drawLightingOverlay(ctx, cw, ch, period, t, cam, weatherType) {
     });
   }
 
+  // God rays / sun shafts (morning & day)
+  if (period === 'morning' || period === 'day') {
+    const rayAlpha = period === 'morning' ? 0.055 : 0.032;
+    const rayCount = 5;
+    const rayBase  = period === 'morning' ? cw * 0.25 : cw * 0.7;
+    ctx.save();
+    for (let ri = 0; ri < rayCount; ri++) {
+      const rw  = 60 + ri * 30;
+      const rox = (ri - rayCount/2) * 55 + Math.sin(t * 0.12 + ri) * 18;
+      ctx.fillStyle = `rgba(255,240,180,${rayAlpha * (1 - ri * 0.1)})`;
+      ctx.beginPath();
+      ctx.moveTo(rayBase + rox - 15, 0);
+      ctx.lineTo(rayBase + rox + 15, 0);
+      ctx.lineTo(rayBase + rox + rw + 80, ch);
+      ctx.lineTo(rayBase + rox + rw - 80, ch);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   // Dust particles (day/morning)
   if (period === 'day' || period === 'morning') {
     ctx.fillStyle = 'rgba(255,240,180,0.45)';
@@ -1289,6 +1309,78 @@ function drawLightingOverlay(ctx, cw, ch, period, t, cam, weatherType) {
     ctx.globalAlpha = 1;
   }
 
+  ctx.restore();
+}
+
+/* === AMBIENT: BIRDS === */
+function drawAmbientBirds(ctx, birds, t) {
+  if (!birds || !birds.length) return;
+  ctx.save();
+  birds.forEach(b => {
+    const wing = Math.sin(b.phase) * b.size * 0.9;
+    ctx.fillStyle = 'rgba(30,20,10,0.75)';
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    // Left wing
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(-b.size * 1.2, -wing * 0.6, -b.size * 2.4, wing * 0.3);
+    ctx.quadraticCurveTo(-b.size * 1.2, wing * 0.3, 0, 0);
+    ctx.fill();
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(b.size * 1.2, -wing * 0.6, b.size * 2.4, wing * 0.3);
+    ctx.quadraticCurveTo(b.size * 1.2, wing * 0.3, 0, 0);
+    ctx.fill();
+    // Body
+    ctx.beginPath(); ctx.ellipse(0, 0, b.size * 0.7, b.size * 0.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  });
+  ctx.restore();
+}
+
+/* === AMBIENT: LEAVES === */
+function drawAmbientLeaves(ctx, leaves, cam, t) {
+  if (!leaves || !leaves.length) return;
+  const ox = -cam.x, oy = -cam.y;
+  ctx.save();
+  leaves.forEach(l => {
+    ctx.save();
+    ctx.translate(l.x + ox, l.y + oy);
+    ctx.rotate(l.rot);
+    ctx.fillStyle = l.color;
+    ctx.globalAlpha = Math.min(1, Math.max(0, 1 - l.y / 700) * 0.85);
+    // Leaf shape (small ellipse with pointed ends)
+    ctx.beginPath();
+    ctx.ellipse(0, 0, l.size * 0.55, l.size, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Vein
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.moveTo(0, -l.size * 0.8); ctx.lineTo(0, l.size * 0.8); ctx.stroke();
+    ctx.restore();
+  });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/* === AMBIENT: PUDDLES === */
+function drawAmbientPuddles(ctx, puddles, cam, t) {
+  if (!puddles || !puddles.length) return;
+  const ox = -cam.x, oy = -cam.y;
+  ctx.save();
+  puddles.forEach(p => {
+    const ripple = Math.sin(p.ph) * 0.3 + 0.7;
+    ctx.fillStyle = `rgba(80,130,210,${0.22 * ripple})`;
+    ctx.beginPath(); ctx.ellipse(p.x+ox, p.y+oy, p.w, p.h, 0, 0, Math.PI*2); ctx.fill();
+    // Ripple ring
+    ctx.strokeStyle = `rgba(140,200,255,${0.25 * ripple})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(p.x+ox, p.y+oy, p.w*0.55 + Math.sin(p.ph*1.3)*6, p.h*0.6, 0, 0, Math.PI*2); ctx.stroke();
+    // Shine
+    ctx.fillStyle = `rgba(200,240,255,${0.12 * ripple})`;
+    ctx.beginPath(); ctx.ellipse(p.x+ox-p.w*0.2, p.y+oy-p.h*0.2, p.w*0.3, p.h*0.3, 0, 0, Math.PI*2); ctx.fill();
+  });
   ctx.restore();
 }
 
@@ -1328,31 +1420,57 @@ function drawFireflies(ctx, fireflies, cam, t) {
 
 /* === COLLECTIBLE ITEMS === */
 function drawCollectible(ctx, item, x, y, t) {
-  const bob = Math.sin(t * 2.5 + x * 0.1) * 3;
-  const spin = t * 0.8;
-  const pulse = 0.6 + 0.4 * Math.sin(t * 3 + x);
+  const bob   = Math.sin(t * 2.5 + x * 0.11) * 3.5;
+  const pulse = 0.6 + 0.4 * Math.sin(t * 2.8 + x * 0.07);
+  const isRare = item.rare;
+  const glowColor = isRare ? 'rgba(255,215,0,' : 'rgba(160,230,120,';
 
   ctx.save();
   ctx.translate(x, y + bob);
 
-  // Outer glow
-  const glow = ctx.createRadialGradient(0, 0, 2, 0, 0, 18);
-  glow.addColorStop(0, 'rgba(255,220,80,0.5)');
-  glow.addColorStop(0.5, 'rgba(255,180,40,0.2)');
+  // Outer glow (larger for rare items)
+  const glowR = isRare ? 22 : 16;
+  const glow = ctx.createRadialGradient(0, 0, 2, 0, 0, glowR);
+  glow.addColorStop(0, glowColor + (pulse * 0.5) + ')');
+  glow.addColorStop(0.55, glowColor + (pulse * 0.18) + ')');
   glow.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(0, 0, glowR, 0, Math.PI * 2); ctx.fill();
 
-  // Sparkle stars
-  ctx.fillStyle = `rgba(255,240,100,${pulse * 0.8})`;
-  for (let si = 0; si < 4; si++) {
-    const sa = spin + si * Math.PI / 2;
-    const sr = 12 + Math.sin(t * 3 + si) * 2;
-    ctx.beginPath(); ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr, 1.5, 0, Math.PI * 2); ctx.fill();
+  // Item card background
+  const cardSize = isRare ? 14 : 11;
+  ctx.fillStyle = isRare
+    ? `rgba(50,40,10,${0.72 + pulse * 0.08})`
+    : `rgba(20,30,15,${0.65 + pulse * 0.07})`;
+  GFX.roundRect(ctx, -cardSize, -cardSize, cardSize*2, cardSize*2, 5); ctx.fill();
+
+  // Card border
+  ctx.strokeStyle = isRare
+    ? `rgba(255,210,60,${0.7 + pulse * 0.3})`
+    : `rgba(120,200,80,${0.5 + pulse * 0.3})`;
+  ctx.lineWidth = isRare ? 1.8 : 1.2;
+  GFX.roundRect(ctx, -cardSize, -cardSize, cardSize*2, cardSize*2, 5); ctx.stroke();
+
+  // Sparkle stars (rare: more/brighter)
+  const sparkCount = isRare ? 6 : 4;
+  const sparkR = isRare ? 15 : 12;
+  ctx.fillStyle = isRare
+    ? `rgba(255,240,80,${pulse * 0.9})`
+    : `rgba(180,240,120,${pulse * 0.7})`;
+  for (let si = 0; si < sparkCount; si++) {
+    const sa = t * 0.7 + si * (Math.PI * 2 / sparkCount);
+    const sr = sparkR + Math.sin(t * 3.5 + si) * 2.5;
+    const ss = isRare ? 1.8 : 1.2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr, ss, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  // Item icon (emoji on canvas)
-  ctx.font = '18px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(255,200,50,0.6)'; ctx.shadowBlur = 6;
+  // Item emoji icon
+  ctx.font = `${isRare ? 14 : 12}px serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = isRare ? 'rgba(255,200,50,0.8)' : 'rgba(100,200,50,0.5)';
+  ctx.shadowBlur = isRare ? 8 : 5;
   ctx.fillText(item.icon[0] || '?', 0, 0);
   ctx.shadowBlur = 0;
 

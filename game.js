@@ -870,17 +870,179 @@ const RANDOM_EVENTS = [
 ];
 
 /* ──────────────────────────────────────────────
+   NPC BEHAVIORS — multi-waypoints + idle activities
+   ────────────────────────────────────────────── */
+const NPC_BEHAVIORS = {
+  lyokha: {
+    waypoints: {
+      morning: [[290,725],[325,740]],
+      day:     [[305,730],[275,750],[330,715],[310,760]],
+      evening: [[240,170],[225,190],[255,185]],
+      night:   [[280,165],[295,175]]
+    },
+    idle: { morning:'sit', day:'wander', evening:'guitar', night:'wander' }
+  },
+  igor: {
+    waypoints: {
+      morning: [[275,745],[250,760]],
+      day:     [[260,730],[295,745],[270,765],[285,720]],
+      evening: [[235,190],[255,205]],
+      night:   [[270,760],[280,745]]
+    },
+    idle: { morning:'sit', day:'wander', evening:'guitar', night:'wander' }
+  },
+  nastya: {
+    waypoints: {
+      morning: [[865,190],[895,185],[875,210]],
+      day:     [[885,200],[845,175],[915,195],[870,220],[855,185]],
+      evening: [[860,183],[875,195]]
+    },
+    idle: { morning:'camera', day:'camera', evening:'sit' }
+  },
+  liza: {
+    waypoints: {
+      morning: [[535,795],[565,800]],
+      day:     [[515,805],[550,780],[535,825],[520,790],[560,800]],
+      evening: [[545,785],[525,795]]
+    },
+    idle: { morning:'wave', day:'wave', evening:'wave' }
+  },
+  mag: {
+    waypoints: {
+      morning: [[1355,685],[1380,670]],
+      day:     [[1365,675],[1370,690]],
+      evening: [[105,205],[115,215]],
+      night:   [[95,210],[115,205],[100,225]]
+    },
+    idle: { morning:'wander', day:'wander', evening:'meditate', night:'meditate' }
+  },
+  sonya: {
+    waypoints: {
+      morning: [[1015,195],[1050,185],[1040,215]],
+      day:     [[1035,205],[1005,195],[1060,185],[1030,225]],
+      evening: [[1010,190],[1025,200]]
+    },
+    idle: { morning:'wander', day:'wander', evening:'sit' }
+  },
+  nena: {
+    waypoints: {
+      morning: [[805,345],[840,355]],
+      day:     [[815,355],[795,340],[840,360],[810,375],[830,340]],
+      evening: [[815,345],[795,360]]
+    },
+    idle: { morning:'notebook', day:'notebook', evening:'sit' }
+  },
+  kristina: {
+    waypoints: {
+      morning: [[175,505],[200,515]],
+      day:     [[185,515],[165,495],[205,510],[180,525],[195,500]],
+      evening: [[178,498],[192,510]]
+    },
+    idle: { morning:'tools', day:'tools', evening:'sit' }
+  },
+  danya: {
+    waypoints: {
+      morning: [[765,725],[790,715]],
+      day:     [[775,715],[755,735],[800,725],[768,740],[785,720]],
+      evening: [[770,725],[755,738]]
+    },
+    idle: { morning:'tinker', day:'tinker', evening:'sit' }
+  },
+  prokhor: {
+    waypoints: {
+      morning: [[415,885],[450,875]],
+      day:     [[425,875],[405,895],[455,880],[420,905],[440,870]],
+      evening: [[418,888],[442,882]]
+    },
+    idle: { morning:'work', day:'work', evening:'sit' }
+  }
+};
+
+/* ──────────────────────────────────────────────
    CAMERA
    ────────────────────────────────────────────── */
 class Camera {
-  constructor() { this.x = 0; this.y = 0; this.targetX = 0; this.targetY = 0; this.smoothing = 0.1; }
+  constructor() { this.x = 0; this.y = 0; this.targetX = 0; this.targetY = 0; this.smoothing = 0.13; this.shakeX = 0; this.shakeY = 0; this.shakeDur = 0; }
   follow(px, py, canvasW, canvasH, worldW, worldH) {
     this.targetX = px - canvasW / 2;
     this.targetY = py - canvasH / 2;
     this.targetX = Math.max(0, Math.min(worldW - canvasW, this.targetX));
     this.targetY = Math.max(0, Math.min(worldH - canvasH, this.targetY));
-    this.x += (this.targetX - this.x) * this.smoothing;
-    this.y += (this.targetY - this.y) * this.smoothing;
+    // Eased lerp: faster when far, slower when close
+    const dist = Math.sqrt((this.targetX-this.x)**2 + (this.targetY-this.y)**2);
+    const ease = Math.min(1, this.smoothing + dist * 0.0003);
+    this.x += (this.targetX - this.x) * ease;
+    this.y += (this.targetY - this.y) * ease;
+  }
+  shake(intensity = 6, dur = 0.3) { this.shakeX = (Math.random()-0.5)*intensity*2; this.shakeY = (Math.random()-0.5)*intensity; this.shakeDur = dur; }
+}
+
+/* ──────────────────────────────────────────────
+   AMBIENT WORLD SYSTEM
+   ────────────────────────────────────────────── */
+class AmbientSystem {
+  constructor() {
+    this.birds   = [];
+    this.leaves  = [];
+    this.puddles = [];
+    this._birdTimer = 0;
+    this._leafTimer = 0;
+    this._hasPuddles = false;
+  }
+  update(dt, time, weather) {
+    const period = time.period;
+    // ── Birds (morning & day only, max 8) ──
+    this._birdTimer -= dt;
+    if (this._birdTimer <= 0 && (period === 'morning' || period === 'day') && this.birds.length < 8) {
+      this._birdTimer = 10 + Math.random() * 15;
+      const count = 2 + Math.floor(Math.random() * 3);
+      const startY = 55 + Math.random() * 120;
+      for (let i = 0; i < count; i++) {
+        this.birds.push({
+          x: -80, y: startY + i * 14 + (Math.random()-0.5)*6,
+          speed: 48 + Math.random() * 30,
+          phase: Math.random() * Math.PI * 2,
+          size: 3.5 + Math.random() * 2.5
+        });
+      }
+    }
+    this.birds.forEach(b => { b.x += b.speed * dt; b.phase += dt * 9; });
+    this.birds = this.birds.filter(b => b.x < 1300);
+
+    // ── Falling leaves (max 14) ──
+    this._leafTimer -= dt;
+    if (this._leafTimer <= 0 && weather.current !== 'rain' && this.leaves.length < 14) {
+      this._leafTimer = 2.5 + Math.random() * 4;
+      this.leaves.push({
+        x: 480 + Math.random() * 520,
+        y: -15,
+        vx: (Math.random()-0.5) * 22,
+        vy: 18 + Math.random() * 28,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random()-0.5) * 2.5,
+        color: ['#c8a020','#e08030','#cc6010','#88aa20','#b8941a','#d4b440'][Math.floor(Math.random()*6)],
+        size: 4.5 + Math.random() * 4.5
+      });
+    }
+    this.leaves.forEach(l => {
+      l.x += (l.vx + Math.sin(GFX.t * 1.6 + l.y * 0.05) * 10) * dt;
+      l.y += l.vy * dt;
+      l.rot += l.rotV * dt;
+    });
+    this.leaves = this.leaves.filter(l => l.y < 750);
+
+    // ── Puddles after rain (persist until day dries them) ──
+    if (weather.current === 'rain' && !this._hasPuddles) {
+      this._hasPuddles = true;
+      this.puddles = [
+        { x:320, y:620, w:46, h:12, ph:0 },
+        { x:510, y:695, w:38, h:10, ph:0.8 },
+        { x:680, y:560, w:54, h:13, ph:1.6 },
+        { x:205, y:745, w:42, h:11, ph:2.3 }
+      ];
+    }
+    if (weather.current !== 'rain' && period === 'day' && this._hasPuddles) this._hasPuddles = false;
+    this.puddles.forEach(p => p.ph += dt * 2.2);
   }
 }
 
@@ -1096,34 +1258,48 @@ class NPC {
     this.bobY = 0;
     this.emotion = null; this.emotionTime = 0;
     this.moveTimer = 0; this.moveTarget = null;
+    this.idleActivity = 'wander';
   }
   get trustLabel() { return this.trustLevels[Math.min(this.trust, this.trustLevels.length-1)]; }
   distTo(px, py) { return Math.sqrt((this.wx-px)**2 + (this.wy-py)**2); }
   update(dt, period) {
     this.animTime += dt;
     this.bobY = Math.sin(this.animTime * 1.8) * 2;
-    // Эмоции
     if (this.emotion) { this.emotionTime -= dt; if (this.emotionTime <= 0) this.emotion = null; }
-    // Движение по расписанию (простая)
+    // Multi-waypoint movement
     this.moveTimer += dt;
-    if (this.moveTimer > 5 && this.schedule) {
+    const beh = (typeof NPC_BEHAVIORS !== 'undefined') ? NPC_BEHAVIORS[this.id] : null;
+    if (this.moveTimer > 4 && this.schedule) {
       this.moveTimer = 0;
       const pos = this.schedule[period];
       if (pos) {
-        this.moveTarget = { x: pos[0] + (Math.random()-0.5)*40, y: pos[1] + (Math.random()-0.5)*40 };
         this.visible = true;
+        if (beh && beh.waypoints && beh.waypoints[period]) {
+          const pts = beh.waypoints[period];
+          const pt = pts[Math.floor(Math.random() * pts.length)];
+          this.moveTarget = { x: pt[0] + (Math.random()-0.5)*12, y: pt[1] + (Math.random()-0.5)*12 };
+        } else {
+          this.moveTarget = { x: pos[0] + (Math.random()-0.5)*38, y: pos[1] + (Math.random()-0.5)*38 };
+        }
+        this.idleActivity = beh && beh.idle && beh.idle[period] ? beh.idle[period] : 'wander';
       } else {
-        this.visible = false; // персонаж отсутствует в это время суток
+        this.visible = false;
       }
     }
     if (this.moveTarget) {
       const dx = this.moveTarget.x - this.wx, dy = this.moveTarget.y - this.wy;
       const d = Math.sqrt(dx*dx+dy*dy);
-      if (d < 3) { this.moveTarget = null; }
+      if (d < 4) { this.moveTarget = null; }
       else {
         if (dx !== 0) this.facing = dx > 0 ? 1 : -1;
-        const s = 30 * dt; this.wx += dx/d*s; this.wy += dy/d*s;
+        const spd = Math.min(d * 2, 38) * dt;
+        this.wx += dx/d*spd; this.wy += dy/d*spd;
       }
+    }
+    // Idle activity emotion hint (every ~15s)
+    if (!this.emotion && this.idleActivity && Math.random() < dt * 0.06) {
+      const actEmo = { guitar:'happy', camera:'happy', notebook:'surprise', tools:'awkward', tinker:'happy', work:'awkward', meditate:'sleep', sit:'sleep', wave:'happy' };
+      if (actEmo[this.idleActivity]) this.showEmotion(actEmo[this.idleActivity]);
     }
   }
   showEmotion(e) { this.emotion = e; this.emotionTime = 2; }
@@ -1298,7 +1474,7 @@ class World {
     });
     this.fireflies = this.fireflies.filter(f => f.life > 0);
   }
-  draw(ctx, cam, time, weather) {
+  draw(ctx, cam, time, weather, ambient) {
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const ox = -cam.x, oy = -cam.y;
     const t = GFX.t;
@@ -1412,8 +1588,17 @@ class World {
     // ── Fireflies ──
     drawFireflies(ctx, this.fireflies, cam, t);
 
+    // ── Ambient: leaves + puddles ──
+    if (ambient) {
+      drawAmbientLeaves(ctx, ambient.leaves, cam, t);
+      drawAmbientPuddles(ctx, ambient.puddles, cam, t);
+    }
+
     // ── Weather ──
     drawWeatherEffects(ctx, weather, cam, cw, ch, t);
+
+    // ── Ambient: birds (above weather, below lighting) ──
+    if (ambient) drawAmbientBirds(ctx, ambient.birds, t);
 
     // ── Lighting overlay (must be last) ──
     drawLightingOverlay(ctx, cw, ch, time.period, t, cam, weather.current);
@@ -1423,37 +1608,87 @@ class World {
   drawMinimap(ctx, camX, camY, playerX, playerY, npcs, zones) {
     const mw = ctx.canvas.width, mh = ctx.canvas.height;
     const sx = mw / this.width, sy = mh / this.height;
-    // Фон
-    ctx.fillStyle = '#1a3a0a';
-    ctx.fillRect(0, 0, mw, mh);
-    // Зоны
+
+    // Base map color
+    ctx.fillStyle = '#2a5a10'; ctx.fillRect(0, 0, mw, mh);
+
+    // Zones (fog of war for locked ones)
     ZONES.forEach(z => {
-      if (!z.unlocked) return;
-      ctx.fillStyle = z.color + '88';
-      ctx.fillRect((z.x + 600) * sx, (z.y + 500) * sy, z.w * sx, z.h * sy);
+      const zx = (z.x+600)*sx, zy = (z.y+500)*sy, zw = z.w*sx, zh = z.h*sy;
+      if (z.unlocked) {
+        ctx.fillStyle = z.color + 'cc'; ctx.fillRect(zx, zy, zw, zh);
+      } else {
+        ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(zx, zy, zw, zh);
+      }
     });
-    // Трава (базовая)
-    ctx.fillStyle = 'rgba(60,120,20,0.6)';
-    ctx.fillRect(0, 0, mw, mh);
-    // Дом
-    ctx.fillStyle = '#8b4513';
-    ctx.fillRect(150*sx, 50*sy, 300*sx, 200*sy);
-    // Пруд
+
+    // Paths
+    ctx.fillStyle = '#c8a060'; ctx.globalAlpha = 0.6;
+    ctx.fillRect(220*sx, 200*sy, 80*sx, 560*sy); // vertical path
+    ctx.fillRect(300*sx, 450*sy, 360*sx, 80*sy); // horizontal path
+    ctx.globalAlpha = 1;
+
+    // Pond
     ctx.fillStyle = '#4488cc';
-    ctx.beginPath(); ctx.ellipse(775*sx, 540*sy, 120*sx, 80*sy, 0, 0, Math.PI*2); ctx.fill();
-    // NPC точки
+    ctx.beginPath(); ctx.ellipse(775*sx, 540*sy, 120*sx, 78*sy, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(100,180,255,0.4)';
+    ctx.beginPath(); ctx.ellipse(760*sx, 525*sy, 70*sx, 45*sy, 0, 0, Math.PI*2); ctx.fill();
+
+    // House icon
+    ctx.fillStyle = '#d4a060';
+    ctx.fillRect(150*sx, 50*sy, 300*sx, 180*sy);
+    ctx.fillStyle = '#a03820';
+    ctx.beginPath(); ctx.moveTo(150*sx,50*sy); ctx.lineTo(300*sx,22*sy); ctx.lineTo(450*sx,50*sy); ctx.closePath(); ctx.fill();
+    ctx.font = `${Math.max(7, mw*0.06)}px serif`; ctx.textAlign = 'center';
+    ctx.fillText('🏠', 300*sx, 135*sy);
+
+    // Barn icon
+    ctx.fillStyle = '#6b4226';
+    ctx.fillRect(50*sx, 350*sy, 120*sx, 100*sy);
+    ctx.font = `${Math.max(6, mw*0.05)}px serif`;
+    ctx.fillText('🏚️', 110*sx, 405*sy);
+
+    // Well
+    ctx.fillStyle = '#7a7060';
+    ctx.beginPath(); ctx.arc(107*sx, 225*sy, 15*sx, 0, Math.PI*2); ctx.fill();
+    ctx.font = `${Math.max(5, mw*0.04)}px serif`;
+    ctx.fillText('🪣', 107*sx, 227*sy);
+
+    // Greenhouse
+    ctx.fillStyle = '#3a6a3a';
+    ctx.fillRect(1100*sx, 200*sy, 200*sx, 200*sy);
+    ctx.font = `${Math.max(6, mw*0.05)}px serif`;
+    ctx.fillText('🌿', 1200*sx, 300*sy);
+
+    // NPC markers with quest icons
     npcs.forEach(n => {
       if (!n.visible) return;
+      const nx = n.wx*sx, ny = n.wy*sy;
+      // Dot with NPC color
       ctx.fillStyle = n.color || '#fff';
-      ctx.beginPath(); ctx.arc(n.wx*sx, n.wy*sy, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(nx, ny, Math.max(2.5, mw*0.022), 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 0.8;
+      ctx.stroke();
+      // Quest stage indicator
+      if (typeof NPC_QUEST_DEFS !== 'undefined' && NPC_QUEST_DEFS[n.id]) {
+        const qs = n.questStage || 0;
+        if (qs < 3) {
+          ctx.font = `${Math.max(6, mw*0.05)}px serif`; ctx.textAlign = 'center';
+          ctx.fillText(qs === 0 ? '❗' : '🔍', nx, ny - Math.max(4, mw*0.035));
+        }
+      }
     });
-    // Камера
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.5;
-    // Игрок
-    ctx.fillStyle = '#ff6600';
-    ctx.beginPath(); ctx.arc(playerX*sx, playerY*sy, 4, 0, Math.PI*2); ctx.fill();
+
+    // Player arrow (orange with direction)
+    const px = playerX*sx, py = playerY*sy;
+    ctx.fillStyle = '#ff6600'; ctx.shadowColor = '#ff6600'; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.arc(px, py, Math.max(3, mw*0.028), 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(playerX*sx, playerY*sy, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, Math.max(1.5, mw*0.012), 0, Math.PI*2); ctx.fill();
+
+    // Active quest markers (show ! near collectibles or areas)
+    ctx.font = `${Math.max(6,mw*0.05)}px serif`; ctx.textAlign = 'center';
   }
   drawBigmap(ctx, unlockedZones, playerX, playerY, npcs) {
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
@@ -2234,6 +2469,7 @@ class Game {
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
     this.achievements = null; // init after ui
     this.miniGame     = null;
+    this.ambient      = new AmbientSystem();
     this.upgrades     = new Set();
     this.mobile       = null;
 
@@ -2380,6 +2616,7 @@ class Game {
     this.achievements.ui = this.ui;
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
     this.world        = new World();
+    this.ambient      = new AmbientSystem();
     this.weather.set('sunny');
     this._startPlaying();
     // Welcome
@@ -2597,6 +2834,9 @@ class Game {
 
     // Weather
     this.weather.update(dt, this.world.width, this.world.height, this.time.period);
+
+    // Ambient
+    if (this.ambient) this.ambient.update(dt, this.time, this.weather);
 
     // NPCs
     this.npcs.forEach(npc => npc.update(dt, this.time.period));
@@ -3522,7 +3762,7 @@ class Game {
     }
 
     // World (includes sky, ground, structures, weather, lighting)
-    this.world.draw(ctx, this.camera, this.time, this.weather);
+    this.world.draw(ctx, this.camera, this.time, this.weather, this.ambient);
     // NPCs (screen coords passed via cam offset)
     const camOffset = { x: -this.camera.x, y: -this.camera.y };
     this.npcs.forEach(npc => npc.draw(ctx, camOffset, this.time.period));
