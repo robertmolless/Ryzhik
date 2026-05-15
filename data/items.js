@@ -42,5 +42,3 @@ const ITEMS = {
   nickBackpack:     { id:'nickBackpack',     name:'Рюкзак Ника',          icon:'🎒', desc:'Потрёпанный рюкзак Ника. Всё своё ношу с собой.', rare:false },
   nickCassette:     { id:'nickCassette',     name:'Кассета Ника',         icon:'📼', desc:'Любимая кассета Ника. Без музыки — никуда.', rare:false },
 };
-if (typeof INDOOR_ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
-if (typeof MOUNTAIN_ITEMS !== 'undefined') Object.assign(ITEMS, MOUNTAIN_ITEMS);

@@ -1,0 +1,17 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Cozy 2D-adventure об уютном рыжем коте. Помогай соседям, собирай предметы, открывай зоны и раскрой тайну старой теплицы!",
+  "main": "data.js",
+  "scripts": {
+    "test": "node smoke_test.js && node e2e_test.js",
+    "smoke": "node smoke_test.js",
+    "e2e": "node e2e_test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}

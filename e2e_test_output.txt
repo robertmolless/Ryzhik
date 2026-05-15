@@ -1,0 +1,54 @@
+Chromium: /nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium
+
+Target: https://b2b8aff1-07a6-457d-bb84-666404cb7775-00-3r0xz1gfvrt7h-bpiapf42.spock.replit.dev
+
+── 1. Splash screen load ──
+  ✓  Splash screen renders with New Game button
+
+── 2. JS errors on initial load ──
+  ✓  Zero JS errors on initial load
+
+── 3. New Game flow ──
+  ✓  Canvas is visible after New Game
+
+── 4. Game object initialisation ──
+  ✓  window.game fully initialised (player, world, inventory, quests, dialogue, achievements, ui, audio, save, camera, input, npcs)
+
+── 5. game/ prototype methods present ──
+  ✓  All 13 Game.prototype methods from game/ files are attached
+
+── 6. NPC data ──
+  ✓  NPC_DATA loaded: ok (11 NPCs)
+
+── 7. Data constants ──
+  ✓  All data constants loaded (ITEMS, QUESTS, ZONES, ACHIEVEMENTS, RANDOM_EVENTS)
+
+── 8. Player movement ──
+  ✓  Arrow key movement processed without JS errors
+
+── 9-11. UI screen keyboard shortcuts ──
+  ✓  Inventory screen (KeyI) opens/closes without errors
+  ✓  Quests screen (KeyQ) opens/closes without errors
+  ✓  Map screen (KeyM) opens/closes without errors
+
+── 12. NPC talk ──
+  ✓  NPC talk triggered without JS errors
+
+── 13. Building entry (house) ──
+  ✓  Building entry: interior.active === true after entry sequence, no errors
+
+── 14. Continue flow ──
+  ✓  Continue flow: save → reload → Continue → canvas visible, game running, no errors
+
+── 15. No failed .js network requests ──
+  ✓  No .js files failed to load over network
+
+── 16. Total JS errors during full session ──
+  ✓  Zero JS errors during entire test session
+
+════════════════════════════════════════════════════════════
+E2E SMOKE TEST RESULT: PASS
+  Passed: 16    Failed: 0    Total: 16
+════════════════════════════════════════════════════════════
+
+Report saved to e2e_test_report.json

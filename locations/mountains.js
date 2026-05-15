@@ -414,3 +414,5 @@ function _mtn_wind(ctx, t, W, H, period) {
   }
   ctx.restore();
 }
+
+if (typeof ITEMS !== 'undefined') Object.assign(ITEMS, MOUNTAIN_ITEMS);

@@ -854,3 +854,5 @@ function _lightenHex(hex, amt) {
   const b = Math.min(255, (n & 0xff) + amt);
   return `rgb(${r},${g},${b})`;
 }
+
+if (typeof ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);

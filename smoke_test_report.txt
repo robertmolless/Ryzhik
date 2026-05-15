@@ -1,0 +1,134 @@
+
+── 1. Script inventory (all <script src=> files exist) ──
+  ✓  EXISTS  graphics.js
+  ✓  EXISTS  npc/lyokha.js
+  ✓  EXISTS  npc/igor.js
+  ✓  EXISTS  npc/nastya.js
+  ✓  EXISTS  npc/sonya.js
+  ✓  EXISTS  npc/liza.js
+  ✓  EXISTS  npc/nena.js
+  ✓  EXISTS  npc/kristina.js
+  ✓  EXISTS  npc/danya.js
+  ✓  EXISTS  npc/prokhor.js
+  ✓  EXISTS  npc/mag.js
+  ✓  EXISTS  npc/nick.js
+  ✓  EXISTS  npc/index.js
+  ✓  EXISTS  data/items.js
+  ✓  EXISTS  data/quests.js
+  ✓  EXISTS  data/zones.js
+  ✓  EXISTS  data/events.js
+  ✓  EXISTS  systems.js
+  ✓  EXISTS  engine/camera.js
+  ✓  EXISTS  engine/input.js
+  ✓  EXISTS  engine/player.js
+  ✓  EXISTS  engine/npc.js
+  ✓  EXISTS  engine/inventory.js
+  ✓  EXISTS  engine/quests.js
+  ✓  EXISTS  engine/dialogue.js
+  ✓  EXISTS  engine/achievements.js
+  ✓  EXISTS  engine/ui.js
+  ✓  EXISTS  engine/minigame.js
+  ✓  EXISTS  locations/house.js
+  ✓  EXISTS  locations/barn.js
+  ✓  EXISTS  locations/military.js
+  ✓  EXISTS  locations/mountains.js
+  ✓  EXISTS  locations/world.js
+  ✓  EXISTS  game_core.js
+  ✓  EXISTS  game/interactions.js
+  ✓  EXISTS  game/npc_talk.js
+  ✓  EXISTS  game/quest_logic.js
+  ✓  EXISTS  game/cutscenes.js
+
+  Total local modules: 38
+
+── 2. Syntax check (node --check) ──
+  ✓  SYNTAX OK  graphics.js
+  ✓  SYNTAX OK  npc/lyokha.js
+  ✓  SYNTAX OK  npc/igor.js
+  ✓  SYNTAX OK  npc/nastya.js
+  ✓  SYNTAX OK  npc/sonya.js
+  ✓  SYNTAX OK  npc/liza.js
+  ✓  SYNTAX OK  npc/nena.js
+  ✓  SYNTAX OK  npc/kristina.js
+  ✓  SYNTAX OK  npc/danya.js
+  ✓  SYNTAX OK  npc/prokhor.js
+  ✓  SYNTAX OK  npc/mag.js
+  ✓  SYNTAX OK  npc/nick.js
+  ✓  SYNTAX OK  npc/index.js
+  ✓  SYNTAX OK  data/items.js
+  ✓  SYNTAX OK  data/quests.js
+  ✓  SYNTAX OK  data/zones.js
+  ✓  SYNTAX OK  data/events.js
+  ✓  SYNTAX OK  systems.js
+  ✓  SYNTAX OK  engine/camera.js
+  ✓  SYNTAX OK  engine/input.js
+  ✓  SYNTAX OK  engine/player.js
+  ✓  SYNTAX OK  engine/npc.js
+  ✓  SYNTAX OK  engine/inventory.js
+  ✓  SYNTAX OK  engine/quests.js
+  ✓  SYNTAX OK  engine/dialogue.js
+  ✓  SYNTAX OK  engine/achievements.js
+  ✓  SYNTAX OK  engine/ui.js
+  ✓  SYNTAX OK  engine/minigame.js
+  ✓  SYNTAX OK  locations/house.js
+  ✓  SYNTAX OK  locations/barn.js
+  ✓  SYNTAX OK  locations/military.js
+  ✓  SYNTAX OK  locations/mountains.js
+  ✓  SYNTAX OK  locations/world.js
+  ✓  SYNTAX OK  game_core.js
+  ✓  SYNTAX OK  game/interactions.js
+  ✓  SYNTAX OK  game/npc_talk.js
+  ✓  SYNTAX OK  game/quest_logic.js
+  ✓  SYNTAX OK  game/cutscenes.js
+
+── 3. Dependency-order check (consumer loads after producer) ──
+  ✓  TelegramBridge  defined in systems.js (index 17) before game_core.js (33)
+  ✓  AudioSystem  defined in systems.js (index 17) before game_core.js (33)
+  ✓  SaveSystem  defined in systems.js (index 17) before game_core.js (33)
+  ✓  TimeSystem  defined in systems.js (index 17) before game_core.js (33)
+  ✓  WeatherSystem  defined in systems.js (index 17) before game_core.js (33)
+  ✓  Camera  defined in engine/camera.js (index 18) before game_core.js (33)
+  ✓  Input  defined in engine/input.js (index 19) before game_core.js (33)
+  ✓  Player  defined in engine/player.js (index 20) before game_core.js (33)
+  ✓  World  defined in locations/world.js (index 32) before game_core.js (33)
+  ✓  InteriorManager  defined in locations/house.js (index 28) before game_core.js (33)
+  ✓  Inventory  defined in engine/inventory.js (index 22) before game_core.js (33)
+  ✓  QuestSystem  defined in engine/quests.js (index 23) before game_core.js (33)
+  ✓  DialogueSystem  defined in engine/dialogue.js (index 24) before game_core.js (33)
+  ✓  AmbientSystem  defined in engine/camera.js (index 18) before game_core.js (33)
+  ✓  UIManager  defined in engine/ui.js (index 26) before game_core.js (33)
+  ✓  AchievementSystem  defined in engine/achievements.js (index 25) before game_core.js (33)
+  ✓  MiniGameSystem  defined in engine/minigame.js (index 27) before game_core.js (33)
+  ✓  NPC  defined in engine/npc.js (index 21) before game_core.js (33)
+  ✓  NPC_DATA  defined in npc/index.js (index 12) before game_core.js (33)
+  ✓  initSplashFireflies  defined in engine/ui.js (index 26) before game_core.js (33)
+  ✓  game/interactions.js loads AFTER game_core.js (index 34 > 33)
+  ✓  game/npc_talk.js loads AFTER game_core.js (index 35 > 33)
+  ✓  game/quest_logic.js loads AFTER game_core.js (index 36 > 33)
+  ✓  game/cutscenes.js loads AFTER game_core.js (index 37 > 33)
+
+── 4. Optional-class guards in game_core.js ──
+  ✓  BarnManager  instantiation is guarded with typeof check
+  ✓  MilitaryOfficeManager  instantiation is guarded with typeof check
+  ✓  MountainsManager  instantiation is guarded with typeof check
+
+── 5. new Game() deferred until window 'load' event ──
+  ✓  window.game = new Game() is inside window.addEventListener('load', ...) — all prototype extensions are registered before construction
+
+── 6. NPC_DATA aggregation completeness ──
+  ✓  NPC_LYOKHA_DATA  referenced in npc/index.js
+  ✓  NPC_IGOR_DATA  referenced in npc/index.js
+  ✓  NPC_NASTYA_DATA  referenced in npc/index.js
+  ✓  NPC_SONYA_DATA  referenced in npc/index.js
+  ✓  NPC_LIZA_DATA  referenced in npc/index.js
+  ✓  NPC_NENA_DATA  referenced in npc/index.js
+  ✓  NPC_KRISTINA_DATA  referenced in npc/index.js
+  ✓  NPC_DANYA_DATA  referenced in npc/index.js
+  ✓  NPC_PROKHOR_DATA  referenced in npc/index.js
+  ✓  NPC_MAG_DATA  referenced in npc/index.js
+  ✓  NPC_NICK_DATA  referenced in npc/index.js
+
+════════════════════════════════════════════════════════════
+SMOKE TEST RESULT: PASS
+  Passed: 115    Failed: 0
+════════════════════════════════════════════════════════════

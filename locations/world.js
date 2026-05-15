@@ -75,7 +75,7 @@ class World {
       { x:1100,y:850, item:'coin',     id:'c43' },
       { x:180, y:850, item:'seeds',    id:'c44' },
       { x:185, y:615, item:'compass',  id:'c_compass' },
-      { x:1090, y:262, item:'sonyaCompass', id:'c_sonya_compass' },
+      { x:960,  y:330, item:'sonyaCompass', id:'c_sonya_compass' },
       { x:200, y:380, item:'tools',    id:'c_tools' },
       { x:230, y:430, item:'plank',    id:'c_plank' },
       { x:75,  y:1115, item:'milStamp', id:'c_milstamp' },
