@@ -21,7 +21,8 @@ const ACHIEVEMENTS = [
   { id:'ach18', name:'Все зоны открыты',     icon:'🗺️', desc:'Открой все зоны карты.', secret:false },
   { id:'ach19', name:'Все квесты выполнены', icon:'✅', desc:'Пройди все квесты!', secret:false },
   { id:'ach20', name:'Настоящий хозяин двора',icon:'👑', desc:'Достигни максимальной кошачьей славы!', secret:false },
-  { id:'ach_mtn', name:'Друг гор', icon:'⛰️', desc:'Пройди все квесты Сони в горах.', secret:false },
+  { id:'ach_mtn',      name:'Друг гор',        icon:'⛰️', desc:'Пройди все квесты Сони в горах.', secret:false },
+  { id:'ach_sonya_mtn',name:'Горный закат',    icon:'🌅', desc:'Заверши горную сюжетную линию Сони.', secret:false },
 ];
 
 const UPGRADES = [

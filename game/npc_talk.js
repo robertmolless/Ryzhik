@@ -12,7 +12,7 @@ Game.prototype._talkToNPC = function(npc) {
   const questStageLimit = (def && def.q3) ? 4 : 3;
   if (def && qs < questStageLimit) choices.push({ text: '📜 Задание', action: () => this._handleQuestDialogue(npc) });
   choices.push({ text: '💬 Поговорить', action: () => this._handleCasualChat(npc) });
-  if (npc.id === 'sonya' && typeof this._sonyaMtnBranchAvailable === 'function' && this._sonyaMtnBranchAvailable() && (this.flags.sonyaMtnStage || 0) > 0) {
+  if (npc.id === 'sonya' && typeof this._sonyaMtnBranchAvailable === 'function' && this._sonyaMtnBranchAvailable()) {
     choices.unshift({ text: '🏔️ Горные дела', action: () => this._handleSonyaMountainBranch(npc) });
   }
   if (this.inventory.items.length > 0) choices.push({ text: '🎁 Отдать предмет', action: () => this._handleGiveItem(npc) });
