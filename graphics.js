@@ -13,7 +13,7 @@ const _sonyaSprite = (() => {
   const img = new Image();
   img.onerror = () => console.warn('[Ryzhik] sonya sprite failed:', img.src);
   img.onload  = () => console.log('[Ryzhik] sonya sprite loaded', img.naturalWidth, img.naturalHeight);
-  img.src = 'assets/characters/sonya/sonya_idle_512.webp';
+  img.src = 'assets/characters/sonya/sonya_idle_512.png';
   return img;
 })();
 
