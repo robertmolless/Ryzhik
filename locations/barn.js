@@ -10,7 +10,7 @@ const BARN_FURNITURE = [
   { id:'barn_hay2',    x:610, y:260, w:75, h:55,  type:'haybale',      label:'Стог сена',              action:null         },
   { id:'barn_cobweb',  x:700, y:165, w:50, h:50,  type:'cobweb',       label:null,                     action:null         },
   { id:'barn_boxes1',  x:680, y:205, w:90, h:80,  type:'boxes',        label:'Коробки',                action:'examine'    },
-  { id:'cassette',     x:485, y:290, w:45, h:40,  type:'cassette_box', label:'📼 Кассета Лёхи',        action:'pickup', item:'cassetteKo' },
+  { id:'cassette',     x:485, y:290, w:45, h:40,  type:'cassette_box', label:'📼 Кассета Лёхи',        action:'pickup', item:'cassette' },
 ];
 
 class BarnManager {

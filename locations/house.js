@@ -856,3 +856,4 @@ function _lightenHex(hex, amt) {
 }
 
 if (typeof ITEMS !== 'undefined') Object.assign(ITEMS, INDOOR_ITEMS);
+if (typeof QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
