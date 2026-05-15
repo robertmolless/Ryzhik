@@ -280,19 +280,19 @@ function _ps_cache(ctx, t, szState, W, H, period) {
   ctx.fillText('🕳️', W*0.52, H*0.72 - 14); ctx.restore();
 }
 
-function _ps_exitSign(ctx, period) {
-  const sx=40, sy=230, sw=52, sh=68;
+function _ps_exitSign(ctx, period, ch) {
+  const sx=40, signY=230 * (ch / 400), sw=52, sh=68 * (ch / 400);
   const pC = period === 'night' ? '#382618' : '#785223';
   ctx.strokeStyle = pC; ctx.lineWidth = 4.5; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(sx+sw*0.5, sy+sh); ctx.lineTo(sx+sw*0.5, sy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sx+sw*0.5, signY+sh); ctx.lineTo(sx+sw*0.5, signY); ctx.stroke();
   const bC = period === 'night' ? '#28200e' : '#685028';
   ctx.fillStyle = bC;
-  if (ctx.roundRect) ctx.roundRect(sx+2, sy+1, sw-4, 27, 5); else ctx.rect(sx+2, sy+1, sw-4, 27);
+  if (ctx.roundRect) ctx.roundRect(sx+2, signY+1, sw-4, 27, 5); else ctx.rect(sx+2, signY+1, sw-4, 27);
   ctx.fill();
   ctx.strokeStyle = period === 'night' ? '#483820' : '#a87a48'; ctx.lineWidth = 1.4; ctx.stroke();
   ctx.fillStyle = period === 'night' ? '#aaa090' : '#ffe8c0';
   ctx.font = 'bold 7.5px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('← Тропа', sx+sw*0.5, sy+14);
+  ctx.fillText('← Тропа', sx+sw*0.5, signY+14);
 }
 
 function _ps_wind(ctx, t, W, H, period) {
@@ -352,10 +352,10 @@ function drawPineSlopeScene(ctx, { px, py, t, period, mtn, cw, ch }) {
   const szState = mtn.subZoneState.pineSlope;
   _ps_cache(ctx, t, szState, W, ch, period);
   _ps_pickups(ctx, t, szState, W, ch);
-  _ps_exitSign(ctx, period);
+  _ps_exitSign(ctx, period, ch);
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py, t, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py * (ch / 400), t, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
   _ps_wind(ctx, t, W, ch, period);

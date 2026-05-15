@@ -262,17 +262,17 @@ function _fm_fireflies(ctx, t, W, H) {
   ctx.globalAlpha=1; ctx.restore();
 }
 
-function _fm_exitSign(ctx, period) {
-  const sx=40,sy=230,sw=52;
+function _fm_exitSign(ctx, period, ch) {
+  const sx=40, signY=230*(ch/400), sw=52, sh=68*(ch/400);
   const pC=period==='night'?'#382618':'#785222';
   ctx.strokeStyle=pC; ctx.lineWidth=4.5; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(sx+sw*0.5,sy+68); ctx.lineTo(sx+sw*0.5,sy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sx+sw*0.5,signY+sh); ctx.lineTo(sx+sw*0.5,signY); ctx.stroke();
   ctx.fillStyle=period==='night'?'#26200e':'#645028';
-  if (ctx.roundRect) ctx.roundRect(sx+2,sy+1,sw-4,27,5); else ctx.rect(sx+2,sy+1,sw-4,27);
+  if (ctx.roundRect) ctx.roundRect(sx+2,signY+1,sw-4,27,5); else ctx.rect(sx+2,signY+1,sw-4,27);
   ctx.fill();
   ctx.fillStyle=period==='night'?'#aaa090':'#ffe8c0';
   ctx.font='bold 7.5px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('← Тропа',sx+sw*0.5,sy+14);
+  ctx.fillText('← Тропа',sx+sw*0.5,signY+14);
 }
 
 function _fm_wind(ctx, t, W, H, period) {
@@ -320,10 +320,10 @@ function drawFlowerMeadowScene(ctx, { px, py, t, period, mtn, cw, ch }) {
   _fm_butterflies(ctx, t, szState);
   _fm_pickups(ctx, t, szState, W, ch);
   if (period === 'night') _fm_fireflies(ctx, t, W, ch);
-  _fm_exitSign(ctx, period);
+  _fm_exitSign(ctx, period, ch);
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py, t, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py * (ch / 400), t, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
   _fm_wind(ctx, t, W, ch, period);

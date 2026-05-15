@@ -149,7 +149,7 @@ class MountainsManager {
     if (this.currentSubZone) return null;
     const portals = [
       { zone:'pineSlope',      x:140, y:318, label:'🌲 Перейти на склон'              },
-      { zone:'stoneViewpoint', x:492, y:118, label:'🪨 К обзорной площадке'          },
+      { zone:'stoneViewpoint', x:492, y:155, label:'🪨 К обзорной площадке'          },
       { zone:'flowerMeadow',   x:498, y:278, label:'🌸 На цветочную поляну'          },
     ];
     let best = null, bestD = 78;
@@ -184,7 +184,7 @@ class MountainsManager {
     if (!this.currentSubZone) {
       const portals = [
         { x:140, y:318, color:'#40a030' },
-        { x:492, y:118, color:'#8888cc' },
+        { x:492, y:155, color:'#8888cc' },
         { x:498, y:278, color:'#c060a0' },
       ];
       for (const p of portals) {
@@ -252,10 +252,14 @@ class MountainsManager {
     this.unlockedFlag = s.unlockedFlag || false;
     this.currentSubZone = s.currentSubZone || null;
     if (s.subZonePos) {
-      this.subZonePos.main          = s.subZonePos.main          || { x:90,  y:295 };
-      this.subZonePos.pineSlope     = s.subZonePos.pineSlope     || { x:200, y:330 };
-      this.subZonePos.stoneViewpoint= s.subZonePos.stoneViewpoint|| { x:160, y:300 };
-      this.subZonePos.flowerMeadow  = s.subZonePos.flowerMeadow  || { x:200, y:330 };
+      const _validPos = (p, def) => {
+        if (!p || p.x < 60 || p.x > 580 || p.y < 86 || p.y > 374) return def;
+        return p;
+      };
+      this.subZonePos.main          = _validPos(s.subZonePos.main,          { x:90,  y:295 });
+      this.subZonePos.pineSlope     = _validPos(s.subZonePos.pineSlope,     { x:200, y:330 });
+      this.subZonePos.stoneViewpoint= _validPos(s.subZonePos.stoneViewpoint,{ x:160, y:300 });
+      this.subZonePos.flowerMeadow  = _validPos(s.subZonePos.flowerMeadow,  { x:200, y:330 });
     }
     if (s.subZoneState) {
       const ps = s.subZoneState.pineSlope;
@@ -302,21 +306,23 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   _mtn_campfire(ctx, t, period);
   _mtn_pickups(ctx, t, mtn, period);
   _mtn_exit_sign(ctx, period);
-  _mtn_portals(ctx, t, period);
+  _mtn_portals(ctx, t, period, ch);
 
+  const sy = ch / 400;
   const showSonya = (period === 'morning' || period === 'day');
   if (showSonya) {
+    const sonyaY = 170 * sy;
     const _sonyaTrust = sonyaNPC ? sonyaNPC.trust : 1;
     const _usedSprite = typeof _drawSonyaSprite === 'function'
-      ? _drawSonyaSprite(ctx, 378, 170, t, -1, false, _sonyaTrust, 'happy')
+      ? _drawSonyaSprite(ctx, 378, sonyaY, t, -1, false, _sonyaTrust, 'happy')
       : false;
     if (!_usedSprite && typeof drawHumanNPC === 'function') {
-      drawHumanNPC(ctx, { id:'sonya', x:378, y:170, t, facing:-1, moving:false, trust: _sonyaTrust, emotion:'happy' });
+      drawHumanNPC(ctx, { id:'sonya', x:378, y:sonyaY, t, facing:-1, moving:false, trust: _sonyaTrust, emotion:'happy' });
     }
     ctx.save();
     const bw = 52;
-    const _nameBgY = _usedSprite ? 170 - 80 : 170 - 52;
-    const _nameTxY = _usedSprite ? 170 - 68 : 170 - 40;
+    const _nameBgY = _usedSprite ? sonyaY - 80 : sonyaY - 52;
+    const _nameTxY = _usedSprite ? sonyaY - 68 : sonyaY - 40;
     ctx.fillStyle = 'rgba(20,10,0,0.78)';
     if (ctx.roundRect) ctx.roundRect(378 - bw * 0.5, _nameBgY, bw, 16, 4);
     else ctx.rect(378 - bw * 0.5, _nameBgY, bw, 16);
@@ -327,7 +333,7 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   }
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py, t, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py * sy, t, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
   _mtn_wind(ctx, t, ROOM_W, ch, period);
@@ -581,11 +587,12 @@ function _mtn_exit_sign(ctx, period) {
   ctx.fillText('← Лес', sx+sw*0.5, sy+16);
 }
 
-function _mtn_portals(ctx, t, period) {
+function _mtn_portals(ctx, t, period, ch) {
+  const sy = (ch || 400) / 400;
   const portals = [
-    { x:140, y:318, label:'🌲 Склон',    color:'#3a6020' },
-    { x:492, y:118, label:'🪨 Площадка', color:'#484870' },
-    { x:498, y:278, label:'🌸 Поляна',   color:'#703060' },
+    { x:140, y:318 * sy, label:'🌲 Склон',    color:'#3a6020' },
+    { x:492, y:155 * sy, label:'🪨 Площадка', color:'#484870' },
+    { x:498, y:278 * sy, label:'🌸 Поляна',   color:'#703060' },
   ];
   const glow = 0.5 + 0.5 * Math.sin(t * 2.0);
   portals.forEach(p => {
