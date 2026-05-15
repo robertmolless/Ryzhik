@@ -119,6 +119,147 @@ Game.prototype._interactBarnFurniture = function(f) {
   }
 };
 
+Game.prototype._handleMountainSubZone = function() {
+  const mtn = this.mountains;
+  const zone = mtn.currentSubZone;
+  const szState = mtn.subZoneState[zone];
+  const obj = mtn.nearestSubObject();
+  if (!obj) { this.player.playAction('purr'); return; }
+
+  switch (obj.action) {
+    case 'exit_subzone':
+      mtn.exitSubZone(); this.audio.uiClick();
+      this.ui.notify('⛰️ Рыжик возвращается на горную тропу...'); break;
+
+    case 'pickup':
+      if (!szState.pickedItems.has(obj.id) && obj.item) {
+        szState.pickedItems.add(obj.id);
+        this.inventory.add(obj.item); this.collectedCount++;
+        const idata = ITEMS[obj.item];
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0]+' '+idata.name : obj.item}`);
+        this._checkQuestItem(obj.item);
+        if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+        if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+      } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
+      break;
+
+    case 'examine': {
+      szState.inspected.add(obj.id);
+      const examineTexts = {
+        ps_pine1:'🌲 Старая сосна скрипит на ветру. Смола пахнет сладко и тягуче.',
+        ps_pine2:'🌲 Раскидистые ветви качаются — кто-то прячется там наверху?',
+        ps_pine3:'🌲 Молодая сосна. Шишки только завязались — ещё зелёные.',
+        sv_boulder1:'🪨 Огромный валун, тёплый от солнца. Рыжик трётся о него лапкой.',
+        sv_boulder2:'🪨 Два сросшихся камня. Похожи на ворота в другой мир.',
+        sv_oldSign:'🪵 Старый деревянный указатель. Надпись почти стёрлась временем.',
+        sv_campfire:'🔥 Небольшое кострище. Угли ещё чуть тёплые.',
+        sv_viewDown:'🌅 Отсюда видно весь двор и дом далеко внизу. Красиво!',
+        fm_flowers:'🌸 Цветы качаются на лёгком ветерке. Тонкий аромат.',
+        fm_stream:'💧 Прозрачный ручеёк журчит по камням. Вода ледяная.',
+        fm_moss:'🌿 Мягкий мох. Рыжик утопает в нём лапками — приятно!',
+      };
+      this.ui.notify(examineTexts[obj.id] || `💭 ${obj.label}...`); break;
+    }
+
+    case 'sit':
+      szState.benchUsed = true;
+      this.ui.notify('🪵 Рыжик устраивается на лавочке. Вид потрясающий!');
+      this.player.energy = Math.min(100, this.player.energy + 8);
+      this.player.mood   = Math.min(100, this.player.mood   + 10);
+      this.player.playAction('purr'); break;
+
+    case 'open_cache':
+      if (!szState.cacheOpened) {
+        szState.cacheOpened = true;
+        this.inventory.add('mountainFeather'); this.collectedCount++;
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(30);
+        this.ui.notify('🪶 В тайнике у корней нашлось горное перышко!');
+        this._checkQuestItem('mountainFeather');
+      } else { this.ui.notify('💭 Тайник пуст.'); }
+      break;
+
+    case 'listen_wind':
+      this.player.mood = Math.min(100, this.player.mood + 6);
+      this.ui.notify('🌬️ Рыжик слушает ветер в соснах. Тихий-тихий звук...');
+      this.player.playAction('purr'); break;
+
+    case 'walk_path':
+      this.ui.notify('🥾 Узкая тропа уходит вдаль. Рыжик осторожно идёт по ней.');
+      this.player.energy = Math.max(0, this.player.energy - 3); break;
+
+    case 'touch_flags':
+      this.ui.notify('🎌 Флажки трепещут на ветру. Разноцветные, потрёпанные временем.');
+      this.player.mood = Math.min(100, this.player.mood + 5); break;
+
+    case 'light_lantern': {
+      const sv = mtn.subZoneState.stoneViewpoint;
+      sv.lanternOn = !sv.lanternOn;
+      this.ui.notify(sv.lanternOn ? '🔦 Маленький фонарь зажёгся! Тепло и уютно.' : '🔦 Фонарь погашен.'); break;
+    }
+
+    case 'camera_scene':
+      this.ui.notify('📸 Рыжик замирает у края площадки. Закат окрашивает всё в золото...');
+      this.player.mood = Math.min(100, this.player.mood + 15);
+      this.player.playAction('purr'); break;
+
+    case 'catch_butterfly':
+      if (szState.butterflyCaught) {
+        this.ui.notify('🦋 Бабочки улетели. Но сегодня одну удалось поймать!');
+      } else {
+        szState.butterflyCaught = true;
+        this.ui.notify('🦋 Рыжик поймал бабочку! Нежно подержал в лапках и отпустил...');
+        this.player.mood = Math.min(100, this.player.mood + 12);
+        this.player.playAction('purr');
+      } break;
+
+    case 'listen_stream':
+      this.player.mood   = Math.min(100, this.player.mood   + 8);
+      this.player.energy = Math.min(100, this.player.energy + 5);
+      this.ui.notify('💧 Рыжик слушает ручеёк. Журчание воды успокаивает...');
+      this.player.playAction('purr'); break;
+
+    case 'collect_petals':
+      if (!szState.inspected.has('petals')) {
+        szState.inspected.add('petals');
+        this.ui.notify('🌸 Рыжик собирает лепестки в лапки. Приятно и нежно!');
+        this.player.mood = Math.min(100, this.player.mood + 7);
+      } else { this.ui.notify('🌸 Лепестки уже собраны.'); }
+      break;
+
+    case 'find_hidden':
+      if (!szState.pickedItems.has('fm_hidden')) {
+        szState.pickedItems.add('fm_hidden');
+        this.inventory.add('warmPebble'); this.collectedCount++;
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        this.ui.notify('🪨 В высокой траве нашёлся тёплый камень!');
+        this._checkQuestItem('warmPebble');
+      } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
+      break;
+
+    case 'pickup_windflower': {
+      const period = this.time.period;
+      if (period !== 'morning' && period !== 'evening') {
+        this.ui.notify('🌺 Цветок закрыт. Приходи утром или вечером...');
+        break;
+      }
+      if (!szState.pickedItems.has(obj.id)) {
+        szState.pickedItems.add(obj.id);
+        this.inventory.add('mountainWindFlower'); this.collectedCount++;
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        this.ui.notify('🌺 Рыжик нашёл ветреный цветок! Пахнет свежим горным ветром.');
+        this._checkQuestItem('mountainWindFlower');
+      } else {
+        this.ui.notify('🌺 Цветок уже сорван. Он снова вырастет позже.');
+      }
+      break;
+    }
+
+    default:
+      this.ui.notify(`💭 ${obj.label}...`); break;
+  }
+};
+
 Game.prototype._findNearestIndoorNPC = function() {
   if (typeof INDOOR_NPC_SCHEDULE === 'undefined') return null;
   const period = this.time.period, floor = this.interior.floor;
