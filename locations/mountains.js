@@ -39,6 +39,19 @@ class MountainsManager {
     this.pickedItems   = new Set();
     this.unlockedFlag  = false;
     this._t            = 0;
+
+    this.currentSubZone = null;
+    this.subZonePos = {
+      main:          { x: 90, y: 295 },
+      pineSlope:     { x: 90, y: 295 },
+      stoneViewpoint:{ x: 90, y: 200 },
+      flowerMeadow:  { x: 90, y: 280 },
+    };
+    this.subZoneState = {
+      pineSlope:     { pickedItems: new Set(), inspected: new Set(), cacheOpened: false },
+      stoneViewpoint:{ pickedItems: new Set(), inspected: new Set(), benchUsed: false, lanternOn: false },
+      flowerMeadow:  { pickedItems: new Set(), inspected: new Set(), butterflyCaught: false },
+    };
   }
   get inMountains() { return this.active; }
   startEnter() {
@@ -51,6 +64,18 @@ class MountainsManager {
     this.fading = true; this.fadeDir = 1; this.fadeAlpha = 0;
     this.pendingAction = { type:'exit' };
   }
+  enterSubZone(name) {
+    if (this.fading) return;
+    this.subZonePos.main = { x: this.px, y: this.py };
+    this.fading = true; this.fadeDir = 1; this.fadeAlpha = 0;
+    this.pendingAction = { type: 'enter_sub', zone: name };
+  }
+  exitSubZone() {
+    if (this.fading) return;
+    if (this.currentSubZone) this.subZonePos[this.currentSubZone] = { x: this.px, y: this.py };
+    this.fading = true; this.fadeDir = 1; this.fadeAlpha = 0;
+    this.pendingAction = { type: 'exit_sub' };
+  }
   update(dt) {
     this._t += dt;
     if (!this.fading) return;
@@ -60,11 +85,28 @@ class MountainsManager {
       if (this.pendingAction) {
         const a = this.pendingAction; this.pendingAction = null;
         if (a.type === 'enter') { this.active = true; this.px = 90; this.py = 295; }
-        else if (a.type === 'exit') { this.active = false; }
+        else if (a.type === 'exit') { this.active = false; this.currentSubZone = null; }
+        else if (a.type === 'enter_sub') {
+          this.currentSubZone = a.zone;
+          this.px = this.subZonePos[a.zone].x;
+          this.py = this.subZonePos[a.zone].y;
+        }
+        else if (a.type === 'exit_sub') {
+          this.currentSubZone = null;
+          this.px = this.subZonePos.main.x;
+          this.py = this.subZonePos.main.y;
+        }
       }
       this.fadeDir = -1;
     }
     if (this.fadeDir === -1 && this.fadeAlpha <= 0) { this.fadeAlpha = 0; this.fading = false; }
+  }
+  _activeObjs() {
+    if (!this.currentSubZone) return MOUNTAIN_OBJECTS;
+    if (this.currentSubZone === 'pineSlope'      && typeof PINE_SLOPE_OBJECTS      !== 'undefined') return PINE_SLOPE_OBJECTS;
+    if (this.currentSubZone === 'stoneViewpoint' && typeof STONE_VIEWPOINT_OBJECTS !== 'undefined') return STONE_VIEWPOINT_OBJECTS;
+    if (this.currentSubZone === 'flowerMeadow'   && typeof FLOWER_MEADOW_OBJECTS   !== 'undefined') return FLOWER_MEADOW_OBJECTS;
+    return [];
   }
   move(dx, dy, dt) {
     this.isMoving = (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01);
@@ -74,7 +116,7 @@ class MountainsManager {
     nx = Math.max(50 + HW, Math.min(590 - HW, nx));
     ny = Math.max(72 + HH, Math.min(388 - HH, ny));
     let bx = false, by = false;
-    for (const o of MOUNTAIN_OBJECTS) {
+    for (const o of this._activeObjs()) {
       if (!o.blocking) continue;
       if (nx - HW < o.x + o.w && nx + HW > o.x && this.py - HH < o.y + o.h && this.py + HH > o.y) bx = true;
       if (this.px - HW < o.x + o.w && this.px + HW > o.x && ny - HH < o.y + o.h && ny + HH > o.y) by = true;
@@ -83,6 +125,7 @@ class MountainsManager {
     if (!by) this.py = ny;
   }
   nearestObject() {
+    if (this.currentSubZone) return null;
     let best = null, bestD = 72;
     for (const o of MOUNTAIN_OBJECTS) {
       if (!o.action) continue;
@@ -92,14 +135,68 @@ class MountainsManager {
     }
     return best;
   }
-  nearSonya() { return Math.hypot(this.px - 378, this.py - 172) < 95; }
+  nearestSubObject() {
+    const objs = this._activeObjs();
+    let best = null, bestD = 72;
+    for (const o of objs) {
+      if (!o.action) continue;
+      const cx = o.x + o.w * 0.5, cy = o.y + o.h * 0.5;
+      const d = Math.hypot(cx - this.px, cy - this.py);
+      if (d < bestD) { bestD = d; best = o; }
+    }
+    return best;
+  }
+  nearestSubZoneTransition() {
+    if (this.currentSubZone) return null;
+    const portals = [
+      { zone:'pineSlope',      x:140, y:318, label:'🌲 Перейти на склон'              },
+      { zone:'stoneViewpoint', x:492, y:118, label:'🪨 К обзорной площадке'          },
+      { zone:'flowerMeadow',   x:498, y:278, label:'🌸 На цветочную поляну'          },
+    ];
+    let best = null, bestD = 78;
+    for (const p of portals) {
+      const d = Math.hypot(p.x - this.px, p.y - this.py);
+      if (d < bestD) { bestD = d; best = p; }
+    }
+    return best;
+  }
+  nearSonya() { return !this.currentSubZone && Math.hypot(this.px - 378, this.py - 172) < 95; }
   nearUpperViewpoint() {
+    if (this.currentSubZone) return false;
     const vp = MOUNTAIN_OBJECTS.find(o => o.id === 'mt_upper');
     if (!vp) return false;
     return Math.hypot(this.px - (vp.x + vp.w * 0.5), this.py - (vp.y + vp.h * 0.5)) < 78;
   }
   save() {
-    return { active: this.active, px: this.px, py: this.py, pickedItems: [...this.pickedItems], unlockedFlag: this.unlockedFlag };
+    return {
+      active: this.active, px: this.px, py: this.py,
+      pickedItems: [...this.pickedItems], unlockedFlag: this.unlockedFlag,
+      currentSubZone: this.currentSubZone,
+      subZonePos: {
+        main:          { ...this.subZonePos.main },
+        pineSlope:     { ...this.subZonePos.pineSlope },
+        stoneViewpoint:{ ...this.subZonePos.stoneViewpoint },
+        flowerMeadow:  { ...this.subZonePos.flowerMeadow },
+      },
+      subZoneState: {
+        pineSlope: {
+          pickedItems: [...this.subZoneState.pineSlope.pickedItems],
+          inspected:   [...this.subZoneState.pineSlope.inspected],
+          cacheOpened: this.subZoneState.pineSlope.cacheOpened,
+        },
+        stoneViewpoint: {
+          pickedItems: [...this.subZoneState.stoneViewpoint.pickedItems],
+          inspected:   [...this.subZoneState.stoneViewpoint.inspected],
+          benchUsed:   this.subZoneState.stoneViewpoint.benchUsed,
+          lanternOn:   this.subZoneState.stoneViewpoint.lanternOn,
+        },
+        flowerMeadow: {
+          pickedItems:     [...this.subZoneState.flowerMeadow.pickedItems],
+          inspected:       [...this.subZoneState.flowerMeadow.inspected],
+          butterflyCaught: this.subZoneState.flowerMeadow.butterflyCaught,
+        },
+      },
+    };
   }
   load(s) {
     if (!s) return;
@@ -108,6 +205,34 @@ class MountainsManager {
     this.py           = s.py           || 295;
     this.pickedItems  = new Set(s.pickedItems || []);
     this.unlockedFlag = s.unlockedFlag || false;
+    this.currentSubZone = s.currentSubZone || null;
+    if (s.subZonePos) {
+      this.subZonePos.main          = s.subZonePos.main          || { x:90, y:295 };
+      this.subZonePos.pineSlope     = s.subZonePos.pineSlope     || { x:90, y:295 };
+      this.subZonePos.stoneViewpoint= s.subZonePos.stoneViewpoint|| { x:90, y:200 };
+      this.subZonePos.flowerMeadow  = s.subZonePos.flowerMeadow  || { x:90, y:280 };
+    }
+    if (s.subZoneState) {
+      const ps = s.subZoneState.pineSlope;
+      if (ps) {
+        this.subZoneState.pineSlope.pickedItems = new Set(ps.pickedItems || []);
+        this.subZoneState.pineSlope.inspected   = new Set(ps.inspected   || []);
+        this.subZoneState.pineSlope.cacheOpened = ps.cacheOpened || false;
+      }
+      const sv = s.subZoneState.stoneViewpoint;
+      if (sv) {
+        this.subZoneState.stoneViewpoint.pickedItems = new Set(sv.pickedItems || []);
+        this.subZoneState.stoneViewpoint.inspected   = new Set(sv.inspected   || []);
+        this.subZoneState.stoneViewpoint.benchUsed   = sv.benchUsed  || false;
+        this.subZoneState.stoneViewpoint.lanternOn   = sv.lanternOn  || false;
+      }
+      const fm = s.subZoneState.flowerMeadow;
+      if (fm) {
+        this.subZoneState.flowerMeadow.pickedItems   = new Set(fm.pickedItems   || []);
+        this.subZoneState.flowerMeadow.inspected     = new Set(fm.inspected     || []);
+        this.subZoneState.flowerMeadow.butterflyCaught = fm.butterflyCaught || false;
+      }
+    }
   }
 }
 
@@ -132,6 +257,7 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   _mtn_campfire(ctx, t, period);
   _mtn_pickups(ctx, t, mtn, period);
   _mtn_exit_sign(ctx, period);
+  _mtn_portals(ctx, t, period);
 
   const showSonya = (period === 'morning' || period === 'day');
   if (showSonya && typeof drawHumanNPC === 'function') {
@@ -400,6 +526,33 @@ function _mtn_exit_sign(ctx, period) {
   ctx.fillStyle = period === 'night' ? '#aaa090' : '#ffe8c0';
   ctx.font = 'bold 8px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('← Лес', sx+sw*0.5, sy+16);
+}
+
+function _mtn_portals(ctx, t, period) {
+  const portals = [
+    { x:140, y:318, label:'🌲 Склон',    color:'#3a6020' },
+    { x:492, y:118, label:'🪨 Площадка', color:'#484870' },
+    { x:498, y:278, label:'🌸 Поляна',   color:'#703060' },
+  ];
+  const glow = 0.5 + 0.5 * Math.sin(t * 2.0);
+  portals.forEach(p => {
+    const pC = period === 'night' ? '#2a2018' : '#6a5030';
+    ctx.strokeStyle = pC; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(p.x, p.y+28); ctx.lineTo(p.x, p.y); ctx.stroke();
+    ctx.fillStyle = p.color;
+    ctx.save();
+    if (ctx.roundRect) ctx.roundRect(p.x-22, p.y-1, 44, 18, 4); else ctx.rect(p.x-22, p.y-1, 44, 18);
+    ctx.fill();
+    ctx.globalAlpha = 0.28 + glow * 0.20;
+    ctx.fillStyle = 'rgba(255,255,200,1)';
+    if (ctx.roundRect) ctx.roundRect(p.x-22, p.y-1, 44, 18, 4); else ctx.rect(p.x-22, p.y-1, 44, 18);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 7px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(p.label, p.x, p.y + 8);
+  });
 }
 
 function _mtn_wind(ctx, t, W, H, period) {

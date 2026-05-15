@@ -379,10 +379,17 @@ class Game {
       const hintEl = document.getElementById('interact-hint');
       const al = document.getElementById('action-label');
       let mtnHint = null;
-      if (this.mountains.nearSonya()) mtnHint = '[E] 🎒 Поговорить с Соней';
-      if (this.mountains.nearUpperViewpoint() && this.quests.isActive('q_sonya_mtn3')) mtnHint = '[E] ⛰️ Смотровая площадка';
-      const mtnNear = this.mountains.nearestObject();
-      if (mtnNear && !mtnHint) mtnHint = `[E] ${mtnNear.label}`;
+      if (this.mountains.currentSubZone) {
+        const subObj = this.mountains.nearestSubObject();
+        if (subObj) mtnHint = `[E] ${subObj.label}`;
+      } else {
+        if (this.mountains.nearSonya()) mtnHint = '[E] 🎒 Поговорить с Соней';
+        if (this.mountains.nearUpperViewpoint() && this.quests.isActive('q_sonya_mtn3')) mtnHint = '[E] ⛰️ Смотровая площадка';
+        const mtnNear = this.mountains.nearestObject();
+        if (mtnNear && !mtnHint) mtnHint = `[E] ${mtnNear.label}`;
+        const trans = this.mountains.nearestSubZoneTransition();
+        if (trans && !mtnHint) mtnHint = `[E] ${trans.label}`;
+      }
       if (hintEl) { if (mtnHint) { hintEl.style.display = 'block'; hintEl.textContent = mtnHint; } else { hintEl.style.display = 'none'; } }
       if (al) al.textContent = mtnHint || '';
       if (this.input.consumeAction()) this._handleInteraction();
@@ -455,6 +462,7 @@ class Game {
     if (this.dialogue.active) { this.dialogue.advance(); return; }
 
     if (this.mountains && this.mountains.active) {
+      if (this.mountains.currentSubZone) { this._handleMountainSubZone(); return; }
       if (this.mountains.nearSonya()) { const sonya = this.npcs.find(n => n.id === 'sonya'); this._handleMountainSonyaDialogue(sonya); return; }
       if (this.mountains.nearUpperViewpoint() && this.quests.isActive('q_sonya_mtn3')) { const sonya = this.npcs.find(n => n.id === 'sonya'); this._triggerMountainVista(sonya); return; }
       const obj = this.mountains.nearestObject();
@@ -477,6 +485,14 @@ class Game {
           const t = { mt_viewpoint:'⛰️ С площадки видно весь дом и деревья далеко внизу.', mt_campfire:'🔥 Остывший костёр. Кто-то сидел здесь совсем недавно.' };
           this.ui.notify(t[obj.id] || '🔍 Интересное место.'); return;
         }
+      }
+      const trans = this.mountains.nearestSubZoneTransition();
+      if (trans) {
+        this.mountains.enterSubZone(trans.zone);
+        this.audio.uiClick();
+        const names = { pineSlope:'Сосновый склон', stoneViewpoint:'Каменная обзорная площадка', flowerMeadow:'Цветочная горная поляна' };
+        this.ui.notify(`🏔️ Рыжик идёт к «${names[trans.zone]}»...`);
+        return;
       }
       return;
     }
@@ -734,7 +750,15 @@ class Game {
     if (this.interior&&this.interior.active) { drawHouseScene(ctx,{floor:this.interior.floor,px:this.interior.px,py:this.interior.py,t:GFX.t,period:this.time.period,interior:this.interior,npcs:this.npcs,cw:this.canvas.width,ch:this.canvas.height}); return; }
     if (this.barn&&this.barn.active) { if(typeof drawBarnScene==='function'){drawBarnScene(ctx,{px:this.barn.px,py:this.barn.py,t:GFX.t,period:this.time.period,barn:this.barn,cw:this.canvas.width,ch:this.canvas.height});} return; }
     if (this.militaryOffice&&this.militaryOffice.active) { if(typeof drawMilitaryOfficeScene==='function'){const nickNPC=this.npcs.find(n=>n.id==='nick');drawMilitaryOfficeScene(ctx,{px:this.militaryOffice.px,py:this.militaryOffice.py,t:GFX.t,period:this.time.period,mil:this.militaryOffice,nickNPC,cw:this.canvas.width,ch:this.canvas.height});} return; }
-    if (this.mountains&&this.mountains.active) { if(typeof drawMountainScene==='function'){const sonyaNPC=this.npcs.find(n=>n.id==='sonya');drawMountainScene(ctx,{px:this.mountains.px,py:this.mountains.py,t:GFX.t,period:this.time.period,mtn:this.mountains,sonyaNPC,cw:this.canvas.width,ch:this.canvas.height});} return; }
+    if (this.mountains&&this.mountains.active) {
+      const _mtnArgs={px:this.mountains.px,py:this.mountains.py,t:GFX.t,period:this.time.period,mtn:this.mountains,cw:this.canvas.width,ch:this.canvas.height};
+      const _subZ=this.mountains.currentSubZone;
+      if (_subZ==='pineSlope'&&typeof drawPineSlopeScene==='function')           drawPineSlopeScene(ctx,_mtnArgs);
+      else if (_subZ==='stoneViewpoint'&&typeof drawStoneViewpointScene==='function') drawStoneViewpointScene(ctx,_mtnArgs);
+      else if (_subZ==='flowerMeadow'&&typeof drawFlowerMeadowScene==='function')    drawFlowerMeadowScene(ctx,_mtnArgs);
+      else if (typeof drawMountainScene==='function'){const sonyaNPC=this.npcs.find(n=>n.id==='sonya');drawMountainScene(ctx,{..._mtnArgs,sonyaNPC});}
+      return;
+    }
     this.world.draw(ctx,this.camera,this.time,this.weather,this.ambient);
     if (this.mountains) this._drawMountainEntrance(ctx,this.camera);
     const camOffset={x:-this.camera.x,y:-this.camera.y};
