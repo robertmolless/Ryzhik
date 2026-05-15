@@ -431,29 +431,38 @@ function drawHumanNPC(ctx, opts = {}) {
   ctx.restore(); // end npc
 }
 
-function _drawSonyaSprite(ctx, x, y, t, facing, trust, emotion) {
+function _drawSonyaSprite(ctx, x, y, t, facing, moving, trust, emotion) {
   const spriteReady = _sonyaSprite.complete && _sonyaSprite.naturalWidth > 0;
   if (!spriteReady) {
-    drawHumanNPC(ctx, { id:'sonya', x, y, t, facing, trust, emotion });
+    drawHumanNPC(ctx, { id:'sonya', x, y, t, facing, moving, trust, emotion });
     return false;
   }
 
   // Sprite is 512x512. Character occupies rows 48–452 (feet at 88.3% of height).
   // Anchor feet (88.3%) to ground level y+26, not sprite bottom.
   const SW = 96, SH = 96;
-  const FEET_PCT = 0.883; // measured from PNG bounding box
+  const FEET_PCT = 0.883;
   const spriteTop = 26 - Math.round(SH * FEET_PCT); // = -59
-  const bob = Math.sin(t * 1.6) * 2;
+
+  // Walk procedural animation: step bounce + lean, idle: slow bob
+  const STEP = t * 9;                                   // step cycle frequency
+  const bob     = moving ? Math.abs(Math.sin(STEP)) * -4 : Math.sin(t * 1.6) * 2;
+  const lean    = moving ? Math.sin(STEP) * 0.06       : 0; // body lean left/right
+  const scaleY  = moving ? 1 - Math.abs(Math.sin(STEP)) * 0.04 : 1; // subtle squash
+  const shadowW = moving ? 22 + Math.abs(Math.sin(STEP)) * 4 : 22;  // shadow stretches on step
 
   ctx.save();
   ctx.translate(x, y + bob);
 
-  // Soft shadow under feet
-  GFX.shadow(ctx, 0, 26, 22, 7, 0.28);
+  // Shadow (wider mid-stride when foot hits ground)
+  GFX.shadow(ctx, 0, 26, shadowW, 7, 0.28);
 
-  // Sprite drawn so character's feet land exactly on ground
+  // Sprite with walk transforms
   ctx.save();
-  ctx.scale(facing, 1);
+  ctx.scale(facing, scaleY);
+  ctx.rotate(lean * facing);
+  // Compensate rotation pivot so feet stay on ground
+  ctx.translate(0, moving ? Math.abs(Math.sin(STEP)) * 2 : 0);
   ctx.drawImage(_sonyaSprite, -SW / 2, spriteTop, SW, SH);
   ctx.restore();
 
