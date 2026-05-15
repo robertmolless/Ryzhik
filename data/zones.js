@@ -1,0 +1,57 @@
+'use strict';
+
+const ACHIEVEMENTS = [
+  { id:'ach01', name:'Первый мяу',           icon:'😺', desc:'Мяукни впервые!', secret:false },
+  { id:'ach02', name:'Первый друг',          icon:'🤝', desc:'Подружись с первым персонажем.', secret:false },
+  { id:'ach03', name:'Рыбак',                icon:'🎣', desc:'Поймай рыбку у пруда.', secret:false },
+  { id:'ach04', name:'Исследователь',        icon:'🔍', desc:'Открой 5 зон карты.', secret:false },
+  { id:'ach05', name:'Друг Лёхи',           icon:'🎸', desc:'Достигни макс. доверия с Лёхой.', secret:false },
+  { id:'ach06', name:'Рок-кот',             icon:'🤘', desc:'Подружись с Игорем.', secret:false },
+  { id:'ach07', name:'Тайный кот',           icon:'🕵️', desc:'Найди тайную кошачью тропу.', secret:true },
+  { id:'ach08', name:'Коллекционер',         icon:'💎', desc:'Собери 10 предметов в инвентарь.', secret:false },
+  { id:'ach09', name:'Герой двора',          icon:'🏅', desc:'Выполни 10 квестов.', secret:false },
+  { id:'ach10', name:'Ночной охотник',       icon:'🌙', desc:'Активно играй ночью.', secret:false },
+  { id:'ach11', name:'Солнечный кот',        icon:'☀️', desc:'Найди Солнечный колокольчик.', secret:false },
+  { id:'ach12', name:'Мастер прыжков',       icon:'🤸', desc:'Прыгни 50 раз.', secret:false },
+  { id:'ach13', name:'Знаток сада',          icon:'🌸', desc:'Исследуй весь сад.', secret:false },
+  { id:'ach14', name:'Хранитель теплицы',    icon:'🌿', desc:'Открой заброшенную теплицу.', secret:false },
+  { id:'ach15', name:'Лучший мурлыка',       icon:'💕', desc:'Используй мурчание 20 раз.', secret:false },
+  { id:'ach16', name:'Полный инвентарь',     icon:'🎒', desc:'Набери 15 предметов.', secret:false },
+  { id:'ach17', name:'Все друзья',           icon:'👥', desc:'Подружись со всеми жителями.', secret:false },
+  { id:'ach18', name:'Все зоны открыты',     icon:'🗺️', desc:'Открой все зоны карты.', secret:false },
+  { id:'ach19', name:'Все квесты выполнены', icon:'✅', desc:'Пройди все квесты!', secret:false },
+  { id:'ach20', name:'Настоящий хозяин двора',icon:'👑', desc:'Достигни максимальной кошачьей славы!', secret:false },
+  { id:'ach_mtn', name:'Друг гор', icon:'⛰️', desc:'Пройди все квесты Сони в горах.', secret:false },
+];
+
+const UPGRADES = [
+  { id:'pillow',  name:'Подушка',       icon:'🛏️', cost:5,  desc:'Мягкая подушка для отдыха. +10 энергии.' },
+  { id:'bowl_up', name:'Новая миска',   icon:'🥣', cost:3,  desc:'Красивая миска. +5 сытости каждый день.' },
+  { id:'awning',  name:'Навес',         icon:'⛱️', cost:8,  desc:'Защищает от дождя.' },
+  { id:'carpet',  name:'Коврик',        icon:'🪡', cost:4,  desc:'Уютный коврик.' },
+  { id:'toy',     name:'Игрушка',       icon:'🐭', cost:3,  desc:'Весёлая игрушка. +5 настроения.' },
+  { id:'lamp',    name:'Фонарик',       icon:'🔦', cost:6,  desc:'Освещает ночью.' },
+  { id:'flowers', name:'Цветы',         icon:'🌸', cost:5,  desc:'Красивые цветы рядом. +5 настроения.' },
+  { id:'sign',    name:'Табличка',      icon:'🪧', cost:2,  desc:'Табличка «Кошачий уголок».' },
+  { id:'corner',  name:'Кошачий уголок',icon:'😺', cost:6,  desc:'Специальное место для Рыжика!' },
+  { id:'box',     name:'Коробка',       icon:'📦', cost:3,  desc:'Любимая коробка! +5 настроения.' },
+  { id:'house',   name:'Мини-домик',    icon:'🏠', cost:15, desc:'Настоящий домик для Рыжика! Максимальный уют.' },
+];
+
+const ZONES = [
+  { id:'yard',        name:'Двор',               color:'#4a8c2a', x:0,    y:0,    w:500,  h:500,  icon:'🏡', unlocked:true  },
+  { id:'porch',       name:'Крыльцо',             color:'#8b6914', x:200,  y:-100, w:200,  h:200,  icon:'🚪', unlocked:true  },
+  { id:'garden',      name:'Огород и сад',        color:'#2d6e15', x:500,  y:0,    w:400,  h:500,  icon:'🌿', unlocked:true  },
+  { id:'barn',        name:'Сарай',               color:'#6b4226', x:-200, y:100,  w:200,  h:250,  icon:'🏚️', unlocked:false },
+  { id:'well',        name:'Колодец',             color:'#444488', x:-200, y:-100, w:150,  h:150,  icon:'🪣', unlocked:true  },
+  { id:'fence',       name:'Забор',               color:'#5c4a32', x:0,    y:500,  w:500,  h:100,  icon:'🪵', unlocked:true  },
+  { id:'pond',        name:'Пруд',                color:'#2244aa', x:600,  y:400,  w:300,  h:250,  icon:'🏊', unlocked:false },
+  { id:'forest_path', name:'Лесная тропинка',     color:'#1a4a0a', x:900,  y:0,    w:250,  h:600,  icon:'🌲', unlocked:false },
+  { id:'mountains',   name:'Горная тропа',        color:'#556688', x:730,  y:-430, w:200,  h:180,  icon:'⛰️', unlocked:false },
+  { id:'clearing',    name:'Поляна',              color:'#3a7a1a', x:900,  y:-200, w:300,  h:300,  icon:'🌼', unlocked:false },
+  { id:'greenhouse',  name:'Заброшенная теплица', color:'#2a5a2a', x:1100, y:200,  w:250,  h:250,  icon:'🌿', unlocked:false },
+  { id:'attic',       name:'Чердак',              color:'#554433', x:200,  y:-300, w:200,  h:150,  icon:'🪜', unlocked:false },
+  { id:'cellar',      name:'Подвал',              color:'#332211', x:200,  y:400,  w:200,  h:150,  icon:'🕯️', unlocked:false },
+  { id:'roof',        name:'Крыша',               color:'#883322', x:100,  y:-400, w:300,  h:100,  icon:'🏠', unlocked:false },
+  { id:'secret_path', name:'Тайная кошачья тропа',color:'#1a3a1a', x:950,  y:600,  w:150,  h:200,  icon:'🐱', unlocked:false },
+];

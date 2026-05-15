@@ -7,6 +7,17 @@
 'use strict';
 
 /* ──────────────────────────────────────────────
+   SONYA SPRITE ASSET
+   ────────────────────────────────────────────── */
+const _sonyaSprite = (() => {
+  const img = new Image();
+  img.onerror = () => console.warn('[Ryzhik] sonya sprite failed:', img.src);
+  img.onload  = () => console.log('[Ryzhik] sonya sprite loaded', img.naturalWidth, img.naturalHeight);
+  img.src = 'assets/characters/sonya/sonya_idle_512.png';
+  return img;
+})();
+
+/* ──────────────────────────────────────────────
    GLOBAL RENDERING HELPERS
    ────────────────────────────────────────────── */
 const GFX = {
@@ -418,6 +429,70 @@ function drawHumanNPC(ctx, opts = {}) {
   }
 
   ctx.restore(); // end npc
+}
+
+function _drawSonyaSprite(ctx, x, y, t, facing, moving, trust, emotion) {
+  const spriteReady = _sonyaSprite.complete && _sonyaSprite.naturalWidth > 0;
+  if (!spriteReady) {
+    drawHumanNPC(ctx, { id:'sonya', x, y, t, facing, moving, trust, emotion });
+    return false;
+  }
+
+  // Sprite is 512x512. Character occupies rows 48–452 (feet at 88.3% of height).
+  // Anchor feet (88.3%) to ground level y+26, not sprite bottom.
+  const SW = 96, SH = 96;
+  const FEET_PCT = 0.883;
+  const spriteTop = 26 - Math.round(SH * FEET_PCT); // = -59
+
+  // Walk procedural animation: step bounce + lean, idle: slow bob
+  const STEP = t * 9;                                   // step cycle frequency
+  const bob     = moving ? Math.abs(Math.sin(STEP)) * -4 : Math.sin(t * 1.6) * 2;
+  const lean    = moving ? Math.sin(STEP) * 0.06       : 0; // body lean left/right
+  const scaleY  = moving ? 1 - Math.abs(Math.sin(STEP)) * 0.04 : 1; // subtle squash
+  const shadowW = moving ? 22 + Math.abs(Math.sin(STEP)) * 4 : 22;  // shadow stretches on step
+
+  ctx.save();
+  ctx.translate(x, y + bob);
+
+  // Shadow (wider mid-stride when foot hits ground)
+  GFX.shadow(ctx, 0, 26, shadowW, 7, 0.28);
+
+  // Sprite with walk transforms
+  ctx.save();
+  ctx.scale(facing, scaleY);
+  ctx.rotate(lean * facing);
+  // Compensate rotation pivot so feet stay on ground
+  ctx.translate(0, moving ? Math.abs(Math.sin(STEP)) * 2 : 0);
+  ctx.drawImage(_sonyaSprite, -SW / 2, spriteTop, SW, SH);
+  ctx.restore();
+
+  // Trust badge
+  if (trust >= 1) {
+    const trustColors = ['','#aaaaaa','#44cc88','#ffd844'];
+    ctx.save(); ctx.translate(0, 26 - SH - 4);
+    for (let i = 0; i < trust; i++) {
+      ctx.fillStyle = trustColors[trust] || '#fff';
+      ctx.font = '8px serif'; ctx.textAlign = 'center';
+      ctx.fillText('♥', -6 + i * 6, 0);
+    }
+    ctx.restore();
+  }
+
+  // Emotion bubble
+  if (emotion) {
+    const emoMap = { happy:'😊', sad:'😢', angry:'😠', surprise:'😲', sleep:'😴', laugh:'😄', awkward:'😅' };
+    ctx.save();
+    ctx.translate(SW / 2, 26 - SH + 10);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    GFX.roundRect(ctx, -10,-10,20,20,6); ctx.fill();
+    ctx.strokeStyle = 'rgba(200,200,200,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.font = '12px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(emoMap[emotion] || '💭', 0, 0);
+    ctx.restore();
+  }
+
+  ctx.restore();
+  return true;
 }
 
 function _drawHair(ctx, color, style, t) {

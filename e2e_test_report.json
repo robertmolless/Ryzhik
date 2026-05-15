@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-05-15T04:31:53.578Z",
+  "url": "https://b2b8aff1-07a6-457d-bb84-666404cb7775-00-3r0xz1gfvrt7h-bpiapf42.spock.replit.dev",
+  "chromium": "/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium",
+  "summary": {
+    "passed": 16,
+    "failed": 0,
+    "total": 16
+  },
+  "checks": [
+    {
+      "name": "Splash screen renders with New Game button",
+      "status": "PASS"
+    },
+    {
+      "name": "Zero JS errors on initial load",
+      "status": "PASS"
+    },
+    {
+      "name": "Canvas is visible after New Game",
+      "status": "PASS"
+    },
+    {
+      "name": "window.game fully initialised (player, world, inventory, quests, dialogue, achievements, ui, audio, save, camera, input, npcs)",
+      "status": "PASS"
+    },
+    {
+      "name": "All 13 Game.prototype methods from game/ files are attached",
+      "status": "PASS"
+    },
+    {
+      "name": "NPC_DATA loaded: ok (11 NPCs)",
+      "status": "PASS"
+    },
+    {
+      "name": "All data constants loaded (ITEMS, QUESTS, ZONES, ACHIEVEMENTS, RANDOM_EVENTS)",
+      "status": "PASS"
+    },
+    {
+      "name": "Arrow key movement processed without JS errors",
+      "status": "PASS"
+    },
+    {
+      "name": "Inventory screen (KeyI) opens/closes without errors",
+      "status": "PASS"
+    },
+    {
+      "name": "Quests screen (KeyQ) opens/closes without errors",
+      "status": "PASS"
+    },
+    {
+      "name": "Map screen (KeyM) opens/closes without errors",
+      "status": "PASS"
+    },
+    {
+      "name": "NPC talk triggered without JS errors",
+      "status": "PASS"
+    },
+    {
+      "name": "Building entry: interior.active === true after entry sequence, no errors",
+      "status": "PASS"
+    },
+    {
+      "name": "Continue flow: save → reload → Continue → canvas visible, game running, no errors",
+      "status": "PASS"
+    },
+    {
+      "name": "No .js files failed to load over network",
+      "status": "PASS"
+    },
+    {
+      "name": "Zero JS errors during entire test session",
+      "status": "PASS"
+    }
+  ],
+  "consoleErrors": []
+}
