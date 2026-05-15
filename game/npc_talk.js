@@ -32,22 +32,22 @@ Game.prototype._handleQuestDialogue = function(npc) {
   if (npc.id === 'nick') {
     if (qs === 0) {
       this.dialogue.startWithChoices(npc, def.q1.intro, [
-        { text:'🐾 Помогу!', action: () => { npc.questStage=1; npc.trust=Math.min(3,npc.trust+1); this.quests.unlock(def.q1.id); this.ui.notify(`📋 Новый квест: ${def.q1.title}`); }},
+        { text:'🐾 Помогу!', action: () => { console.log('[NickQuest] start'); npc.questStage=1; npc.trust=Math.min(3,npc.trust+1); this.quests.unlock(def.q1.id); this.ui.notify(`📋 Новый квест: ${def.q1.title}`); }},
         { text:'💬 Может, потом...', action: () => { this.player.mood=Math.min(100,this.player.mood+3); }},
       ]); return;
     }
     if (qs === 1) {
-      if (this.inventory.has(def.q1.item)) { this.dialogue.start(npc, [def.q1.thanks], () => { this.inventory.remove(def.q1.item); npc.questStage=2; npc.trust=Math.min(3,npc.trust+1); this._giveQuestReward(def.q1,npc); this.quests.unlock(def.q2.id); setTimeout(()=>this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`),2000); }); }
+      if (this.inventory.has(def.q1.item)) { console.log('[NickQuest] hasItem: nickCertificate'); this.dialogue.start(npc, [def.q1.thanks], () => { this.inventory.remove(def.q1.item); npc.questStage=2; npc.trust=Math.min(3,npc.trust+1); this._giveQuestReward(def.q1,npc); this.quests.unlock(def.q2.id); setTimeout(()=>this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q2.title}`),2000); }); }
       else { this.dialogue.start(npc, [def.q1.hint]); } return;
     }
     if (qs === 2) {
-      if (this.inventory.has(def.q2.item)) { this.dialogue.start(npc, [def.q2.thanks], () => { this.inventory.remove(def.q2.item); npc.questStage=3; npc.trust=Math.min(3,npc.trust+1); this._giveQuestReward(def.q2,npc); this.quests.unlock(def.q3.id); setTimeout(()=>this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q3.title}`),2000); }); }
+      if (this.inventory.has(def.q2.item)) { console.log('[NickQuest] hasItem: milStamp'); this.dialogue.start(npc, [def.q2.thanks], () => { this.inventory.remove(def.q2.item); npc.questStage=3; npc.trust=Math.min(3,npc.trust+1); this._giveQuestReward(def.q2,npc); this.quests.unlock(def.q3.id); setTimeout(()=>this.ui.notify(`📋 Новый квест от ${npc.name}: ${def.q3.title}`),2000); }); }
       else { this.dialogue.start(npc, [def.q2.hint]); } return;
     }
     if (qs === 3) {
       const q3=def.q3; const hasMug=this.inventory.has('nickMug'),hasScarf=this.inventory.has('nickScarf'),hasBackpack=this.inventory.has('nickBackpack'),hasCassette=this.inventory.has('nickCassette');
       const hasAll=hasMug&&hasScarf&&hasBackpack&&hasCassette;
-      if (hasAll) { this.dialogue.start(npc,[q3.thanks],()=>{ ['nickMug','nickScarf','nickBackpack','nickCassette'].forEach(i=>this.inventory.remove(i)); npc.questStage=4; npc.trust=3; this._giveQuestReward(q3,npc); this._triggerNickCutscene(); }); }
+      if (hasAll) { console.log('[NickQuest] hasItem: all'); this.dialogue.start(npc,[q3.thanks],()=>{ console.log('[NickQuest] complete'); ['nickMug','nickScarf','nickBackpack','nickCassette'].forEach(i=>this.inventory.remove(i)); npc.questStage=4; npc.trust=3; this._giveQuestReward(q3,npc); this._triggerNickCutscene(); }); }
       else {
         const missing=[];
         if(!hasMug) missing.push('кружку ☕'); if(!hasScarf) missing.push('шарф 🧣'); if(!hasBackpack) missing.push('рюкзак 🎒'); if(!hasCassette) missing.push('кассету 📼');

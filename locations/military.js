@@ -78,7 +78,7 @@ class MilitaryOfficeManager {
     return best;
   }
   nearNick() { return Math.sqrt((this.px - 370) ** 2 + (this.py - 200) ** 2) < 150; }
-  nearCertificate() { return !this.certPickedUp && Math.sqrt((this.px - 420) ** 2 + (this.py - 260) ** 2) < 70; }
+  nearCertificate(qs) { return !this.certPickedUp && (qs || 0) >= 1 && Math.sqrt((this.px - 420) ** 2 + (this.py - 260) ** 2) < 70; }
   save() {
     return { active: this.active, px: this.px, py: this.py, certPickedUp: this.certPickedUp, pickedMilItems: [...this.pickedMilItems] };
   }
@@ -173,7 +173,7 @@ function drawMilitaryOfficeScene(ctx, opts) {
   ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.font = '7px system-ui'; ctx.textAlign = 'center';
   ctx.fillText('ОБЪЯВЛЕНИЯ', 360, 150);
 
-  if (!mil.certPickedUp) {
+  if (!mil.certPickedUp && nickNPC && (nickNPC.questStage || 0) >= 1) {
     const certX = 420, certY = 260, pulse = Math.sin(t * 2.5) * 0.3 + 0.7;
     const grd = ctx.createRadialGradient(certX, certY, 2, certX, certY, 28);
     grd.addColorStop(0, `rgba(255,220,80,${0.45 * pulse})`); grd.addColorStop(1, 'rgba(255,220,80,0)');
