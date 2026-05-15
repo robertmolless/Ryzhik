@@ -12,13 +12,13 @@ const STONE_VIEWPOINT_OBJECTS = [
   { id:'sv_rock1',     x:86,  y:246, w:52,  h:40,  type:'rock',       label:null,                          action:null,             blocking:true  },
   { id:'sv_rock2',     x:516, y:254, w:50,  h:38,  type:'rock',       label:null,                          action:null,             blocking:true  },
   { id:'sv_rock3',     x:130, y:130, w:42,  h:34,  type:'rock',       label:null,                          action:null,             blocking:true  },
-  { id:'sv_bench',     x:242, y:218, w:84,  h:36,  type:'bench',      label:'🪵 Лавочка',                  action:'sit',            blocking:true  },
+  { id:'sv_bench',     x:242, y:218, w:84,  h:36,  type:'bench',      label:'🪵 Лавочка',                  action:'sit',            blocking:false },
   { id:'sv_flags',     x:192, y:154, w:215, h:22,  type:'flags',      label:'🎌 Флажки',                   action:'touch_flags',    blocking:false },
   { id:'sv_oldSign',   x:152, y:176, w:50,  h:64,  type:'sign',       label:'🪵 Старый указатель',         action:'examine',        blocking:false },
   { id:'sv_campfire',  x:406, y:236, w:54,  h:50,  type:'campfire',   label:'🔥 Небольшой костёр',         action:'examine',        blocking:false },
   { id:'sv_viewDown',  x:228, y:132, w:82,  h:48,  type:'viewpoint',  label:'🌅 Посмотреть вниз',          action:'camera_scene',   blocking:false },
   { id:'sv_lantern',   x:334, y:202, w:40,  h:50,  type:'lantern',    label:'🔦 Зажечь фонарь',            action:'light_lantern',  blocking:false },
-  { id:'sv_bell',      x:476, y:186, w:32,  h:26,  type:'bell',       label:'🔔 Старый колокольчик',       action:'pickup', item:'oldBell',     blocking:false },
+  { id:'sv_bell',      x:396, y:226, w:32,  h:26,  type:'bell',       label:'🔔 Старый колокольчик',       action:'pickup', item:'oldBell',     blocking:false },
   { id:'sv_lanternPick',x:140,y:196, w:32,  h:30,  type:'lantern_p',  label:'🔦 Маленький фонарик',        action:'pickup', item:'tinyLantern', blocking:false },
   { id:'sv_smoothSt',  x:298, y:278, w:30,  h:24,  type:'smooth_s',   label:'🪨 Гладкий камень',           action:'pickup', item:'smoothStone', blocking:false },
 ];
@@ -283,9 +283,10 @@ function _sv_lantern(ctx, W, H, period, szState) {
 function _sv_pickups(ctx, t, szState, W, H) {
   const glow=0.5+0.5*Math.sin(t*3.0);
   const items=[
-    { id:'sv_bell',       x:W*0.80, y:H*0.47, emoji:'🔔', shadow:'#b08838' },
-    { id:'sv_lanternPick',x:W*0.24, y:H*0.49, emoji:'🔦', shadow:'#8898a8' },
-    { id:'sv_smoothSt',   x:W*0.50, y:H*0.68, emoji:'🪨', shadow:'#a0a0b0' },
+    { id:'sv_bell',        x:W*0.66, y:H*0.58, emoji:'🔔', shadow:'#b08838' },
+    { id:'sv_lanternPick', x:W*0.24, y:H*0.49, emoji:'🔦', shadow:'#8898a8' },
+    { id:'sv_smoothSt',    x:W*0.50, y:H*0.68, emoji:'🪨', shadow:'#a0a0b0' },
+    { id:'mq_ribbon_sv',   x:W*0.71, y:H*0.42, emoji:'🎀', shadow:'#e06080' },
   ];
   items.forEach(p => {
     if (szState.pickedItems.has(p.id)) return;

@@ -16,13 +16,12 @@ const MOUNTAIN_OBJECTS = [
   { id:'mt_exit',      x:50,  y:205, w:60,  h:95,  type:'trail_sign',      label:'Вернуться к лесу 🌲',  action:'exit_mountains',  blocking:false },
   { id:'mt_ribbon',    x:150, y:150, w:30,  h:60,  type:'ribbon_pole',     label:'🎀 Лента с тропы',       action:'pickup',     item:'trailRibbon',    blocking:false },
   { id:'mt_viewpoint', x:325, y:130, w:105, h:78,  type:'viewpoint',       label:'⛰️ Смотровая площадка', action:'examine',         blocking:false },
-  { id:'mt_bench',     x:335, y:198, w:78,  h:36,  type:'bench',           label:'🪵 Деревянная лавочка', action:'sit',             blocking:true  },
+  { id:'mt_bench',     x:335, y:198, w:78,  h:36,  type:'bench',           label:'🪵 Деревянная лавочка', action:'sit',             blocking:false },
   { id:'mt_campfire',  x:210, y:218, w:52,  h:52,  type:'campfire',        label:'🔥 Маленький костёр',   action:'examine',         blocking:false },
   { id:'mt_flower',    x:420, y:250, w:40,  h:42,  type:'flower',          label:'🌼 Горный цветок',       action:'pickup',     item:'mountainFlower', blocking:false },
   { id:'mt_stone',     x:460, y:112, w:48,  h:32,  type:'smooth_stone',    label:'🪨 Гладкий камень',      action:'pickup',     item:'smoothStone',    blocking:false },
   { id:'mt_upper',     x:430, y:90,  w:88,  h:62,  type:'upper_viewpoint', label:'🏔️ Верхняя площадка',  action:'viewpoint_upper', blocking:false },
-  { id:'mt_rock1',     x:255, y:145, w:68,  h:58,  type:'rock', label:null, action:null, blocking:true  },
-  { id:'mt_rock2',     x:140, y:255, w:78,  h:62,  type:'rock', label:null, action:null, blocking:true  },
+  { id:'mt_rock2',     x:140, y:265, w:72,  h:55,  type:'rock', label:null, action:null, blocking:true  },
   { id:'mt_rock3',     x:490, y:172, w:62,  h:52,  type:'rock', label:null, action:null, blocking:true  },
 ];
 

@@ -11,10 +11,11 @@ const PINE_SLOPE_OBJECTS = [
   { id:'ps_pine1',  x:268, y:98,  w:62,  h:118, type:'pine_trunk',  label:'🌲 Старая сосна',             action:'examine',       blocking:true  },
   { id:'ps_pine2',  x:386, y:82,  w:58,  h:128, type:'pine_trunk',  label:'🌲 Раскидистая сосна',        action:'examine',       blocking:true  },
   { id:'ps_pine3',  x:152, y:126, w:52,  h:112, type:'pine_trunk',  label:'🌲 Молодая сосна',            action:'examine',       blocking:true  },
-  { id:'ps_fence',  x:182, y:186, w:238, h:14,  type:'rope_fence',  label:null,                          action:null,            blocking:true  },
+  { id:'ps_fence_l', x:178, y:186, w:68,  h:14,  type:'rope_fence',  label:null,                          action:null,            blocking:true  },
+  { id:'ps_fence_r', x:336, y:186, w:86,  h:14,  type:'rope_fence',  label:null,                          action:null,            blocking:true  },
   { id:'ps_rock1',  x:88,  y:256, w:50,  h:38,  type:'rock',        label:null,                          action:null,            blocking:true  },
   { id:'ps_rock2',  x:515, y:240, w:52,  h:40,  type:'rock',        label:null,                          action:null,            blocking:true  },
-  { id:'ps_rock3',  x:145, y:220, w:30,  h:22,  type:'rock',        label:null,                          action:null,            blocking:true  },
+  { id:'ps_rock3',  x:155, y:308, w:30,  h:22,  type:'rock',        label:null,                          action:null,            blocking:true  },
   { id:'ps_rock4',  x:488, y:178, w:28,  h:20,  type:'rock',        label:null,                          action:null,            blocking:true  },
   { id:'ps_cone1',  x:218, y:278, w:32,  h:24,  type:'pinecone',    label:'🌲 Сосновая шишка',           action:'pickup', item:'pineCone',       blocking:false },
   { id:'ps_cone2',  x:462, y:298, w:32,  h:24,  type:'pinecone',    label:'🌲 Сосновая шишка',           action:'pickup', item:'pineCone',       blocking:false },
@@ -147,21 +148,32 @@ function _ps_pines(ctx, W, H, period, t) {
 function _ps_ropeFence(ctx, W, H, period, t) {
   const pC = period === 'night' ? '#28180e' : '#685022';
   const rC = period === 'night' ? 'rgba(68,48,28,0.72)' : 'rgba(138,98,52,0.80)';
-  const poles = [W*0.30, W*0.40, W*0.50, W*0.60, W*0.70];
+  // Two fence sections with a clear 90px gap in the centre (x≈246–336)
+  const leftPoles  = [W*0.30, W*0.41];          // 180, 246
+  const rightPoles = [W*0.56, W*0.64, W*0.70];  // 336, 384, 420
   const pY = H * 0.52, pH = H * 0.09;
+
   ctx.fillStyle = pC;
-  poles.forEach(px => { ctx.fillRect(px-3, pY-pH, 5, pH); ctx.fillRect(px-5, pY-pH-3, 9, 5); });
-  ctx.strokeStyle = rC; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
-  [0.28, 0.56].forEach(frac => {
-    const ry = pY - pH * frac;
-    ctx.beginPath();
-    for (let i = 0; i < poles.length; i++) {
-      const sag = Math.sin(t * 0.55 + i * 0.82) * 2.5 + 4;
-      if (i === 0) ctx.moveTo(poles[i], ry);
-      else { const mx = (poles[i-1]+poles[i])*0.5; ctx.quadraticCurveTo(mx, ry+sag, poles[i], ry); }
-    }
-    ctx.stroke();
+  [...leftPoles, ...rightPoles].forEach(px => {
+    ctx.fillRect(px-3, pY-pH, 5, pH);
+    ctx.fillRect(px-5, pY-pH-3, 9, 5);
   });
+
+  const drawSection = (poles) => {
+    ctx.strokeStyle = rC; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+    [0.28, 0.56].forEach(frac => {
+      const ry = pY - pH * frac;
+      ctx.beginPath();
+      for (let i = 0; i < poles.length; i++) {
+        const sag = Math.sin(t * 0.55 + i * 0.82) * 2.5 + 4;
+        if (i === 0) ctx.moveTo(poles[i], ry);
+        else { const mx = (poles[i-1]+poles[i])*0.5; ctx.quadraticCurveTo(mx, ry+sag, poles[i], ry); }
+      }
+      ctx.stroke();
+    });
+  };
+  drawSection(leftPoles);
+  drawSection(rightPoles);
 }
 
 function _ps_rocks(ctx, W, H, period) {
@@ -235,9 +247,10 @@ function _ps_sunbeams(ctx, t, W, H, period) {
 function _ps_pickups(ctx, t, szState, W, H) {
   const glow = 0.5 + 0.5 * Math.sin(t * 3.0);
   const items = [
-    { id:'ps_cone1', x:W*0.36, y:H*0.68, emoji:'🌲', shadow:'#a06030' },
-    { id:'ps_cone2', x:W*0.77, y:H*0.72, emoji:'🌲', shadow:'#a06030' },
-    { id:'ps_leaf',  x:W*0.57, y:H*0.62, emoji:'🍃', shadow:'#88bb88' },
+    { id:'ps_cone1',    x:W*0.36, y:H*0.68, emoji:'🌲', shadow:'#a06030' },
+    { id:'ps_cone2',    x:W*0.77, y:H*0.72, emoji:'🌲', shadow:'#a06030' },
+    { id:'ps_leaf',     x:W*0.57, y:H*0.62, emoji:'🍃', shadow:'#88bb88' },
+    { id:'mq_ribbon_ps',x:W*0.54, y:H*0.60, emoji:'🎀', shadow:'#e06080' },
   ];
   items.forEach(p => {
     if (szState.pickedItems.has(p.id)) return;

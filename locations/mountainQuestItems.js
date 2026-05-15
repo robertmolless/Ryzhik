@@ -26,7 +26,7 @@ const MTN_QUEST_ITEMS = {
 
 // One ribbon pickup per sub-zone
 const MTN_RIBBON_PS = [
-  { id: 'mq_ribbon_ps', x: 192, y: 218, w: 28, h: 24, label: '🎀 Ленточка-метка', action: 'pickup', item: 'trailRibbon', blocking: false },
+  { id: 'mq_ribbon_ps', x: 308, y: 240, w: 28, h: 24, label: '🎀 Ленточка-метка', action: 'pickup', item: 'trailRibbon', blocking: false },
 ];
 const MTN_RIBBON_SV = [
   { id: 'mq_ribbon_sv', x: 414, y: 156, w: 28, h: 24, label: '🎀 Ленточка-метка', action: 'pickup', item: 'trailRibbon', blocking: false },
