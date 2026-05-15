@@ -798,12 +798,12 @@ NPC.prototype.draw = function(ctx, cam, period) {
     }
     ctx.save();
     const bw=this.name.length*6+12;
-    const _nameBgY = usedSprite ? sy-72 : sy-52;
-    const _nameTxY = usedSprite ? sy-60 : sy-40;
+    const _nameBgY = usedSprite ? sy-80 : sy-52;
+    const _nameTxY = usedSprite ? sy-68 : sy-40;
     ctx.fillStyle='rgba(20,10,0,0.75)'; GFX.roundRect(ctx,sx-bw/2,_nameBgY,bw,16,4); ctx.fill();
     ctx.fillStyle=this.color||'#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
     ctx.fillText(this.name,sx,_nameTxY);
-    if (typeof NPC_QUEST_DEFS!=='undefined'&&NPC_QUEST_DEFS[this.id]){const qs=this.questStage||0;const qIcons=['❗','🔍','🔍','❤️'];ctx.font='14px serif';ctx.textAlign='center';ctx.fillText(qIcons[Math.min(qs,3)],sx,usedSprite?sy-78:sy-58);}
+    if (typeof NPC_QUEST_DEFS!=='undefined'&&NPC_QUEST_DEFS[this.id]){const qs=this.questStage||0;const qIcons=['❗','🔍','🔍','❤️'];ctx.font='14px serif';ctx.textAlign='center';ctx.fillText(qIcons[Math.min(qs,3)],sx,usedSprite?sy-86:sy-58);}
     ctx.restore();
   } else {
     ctx.save(); ctx.translate(sx,sy+this.bobY);

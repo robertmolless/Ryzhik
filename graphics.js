@@ -438,20 +438,23 @@ function _drawSonyaSprite(ctx, x, y, t, facing, trust, emotion) {
     return false;
   }
 
-  // Sprite is 512x512 — draw square, anchor bottom-center at feet (+26)
-  const SW = 80, SH = 80;
+  // Sprite is 512x512. Character occupies rows 48–452 (feet at 88.3% of height).
+  // Anchor feet (88.3%) to ground level y+26, not sprite bottom.
+  const SW = 96, SH = 96;
+  const FEET_PCT = 0.883; // measured from PNG bounding box
+  const spriteTop = 26 - Math.round(SH * FEET_PCT); // = -59
   const bob = Math.sin(t * 1.6) * 2;
 
   ctx.save();
   ctx.translate(x, y + bob);
 
   // Soft shadow under feet
-  GFX.shadow(ctx, 0, 26, 20, 6, 0.28);
+  GFX.shadow(ctx, 0, 26, 22, 7, 0.28);
 
-  // Sprite anchored bottom-center at feet level (+26)
+  // Sprite drawn so character's feet land exactly on ground
   ctx.save();
   ctx.scale(facing, 1);
-  ctx.drawImage(_sonyaSprite, -SW / 2, 26 - SH, SW, SH);
+  ctx.drawImage(_sonyaSprite, -SW / 2, spriteTop, SW, SH);
   ctx.restore();
 
   // Trust badge
