@@ -7,6 +7,15 @@
 'use strict';
 
 /* ──────────────────────────────────────────────
+   SONYA SPRITE ASSET
+   ────────────────────────────────────────────── */
+const _sonyaSprite = (() => {
+  const img = new Image();
+  img.src = 'assets/characters/sonya/idle.webp';
+  return img;
+})();
+
+/* ──────────────────────────────────────────────
    GLOBAL RENDERING HELPERS
    ────────────────────────────────────────────── */
 const GFX = {
@@ -418,6 +427,61 @@ function drawHumanNPC(ctx, opts = {}) {
   }
 
   ctx.restore(); // end npc
+}
+
+function _drawSonyaSprite(ctx, x, y, t, facing, trust, emotion) {
+  const spriteReady = _sonyaSprite.complete && _sonyaSprite.naturalWidth > 0;
+  if (!spriteReady) {
+    drawHumanNPC(ctx, { id:'sonya', x, y, t, facing, trust, emotion });
+    return false;
+  }
+
+  const SW = 48, SH = 64;
+  const bob = Math.sin(t * 1.6) * 2;
+
+  ctx.save();
+  ctx.translate(x, y + bob);
+
+  // Soft radial shadow under feet
+  const shGrad = ctx.createRadialGradient(0, 26, 2, 0, 28, 22);
+  shGrad.addColorStop(0, 'rgba(10,5,0,0.45)');
+  shGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = shGrad;
+  ctx.beginPath(); ctx.ellipse(0, 26, 22, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Sprite anchored bottom-center at feet level (+26)
+  ctx.save();
+  ctx.scale(facing, 1);
+  ctx.drawImage(_sonyaSprite, -SW / 2, 26 - SH, SW, SH);
+  ctx.restore();
+
+  // Trust badge
+  if (trust >= 1) {
+    const trustColors = ['','#aaaaaa','#44cc88','#ffd844'];
+    ctx.save(); ctx.translate(0, -SH + 26 - 4);
+    for (let i = 0; i < trust; i++) {
+      ctx.fillStyle = trustColors[trust] || '#fff';
+      ctx.font = '8px serif'; ctx.textAlign = 'center';
+      ctx.fillText('♥', -6 + i * 6, 0);
+    }
+    ctx.restore();
+  }
+
+  // Emotion bubble
+  if (emotion) {
+    const emoMap = { happy:'😊', sad:'😢', angry:'😠', surprise:'😲', sleep:'😴', laugh:'😄', awkward:'😅' };
+    ctx.save();
+    ctx.translate(SW / 2 - 2, 26 - SH + 10);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    GFX.roundRect(ctx, -10,-10,20,20,6); ctx.fill();
+    ctx.strokeStyle = 'rgba(200,200,200,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.font = '12px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(emoMap[emotion] || '💭', 0, 0);
+    ctx.restore();
+  }
+
+  ctx.restore();
+  return true;
 }
 
 function _drawHair(ctx, color, style, t) {
