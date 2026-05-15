@@ -9,7 +9,7 @@ const FLOWER_MEADOW_OBJECTS = [
   { id:'fm_exit',      x:38,  y:228, w:55,  h:70,  type:'trail_sign',   label:'← Вернуться к горной тропе', action:'exit_subzone',   blocking:false },
   { id:'fm_flowers',   x:125, y:195, w:78,  h:58,  type:'flower_patch', label:'🌸 Рассмотреть цветы',        action:'examine',        blocking:false },
   { id:'fm_butterfly', x:295, y:165, w:68,  h:60,  type:'butterfly',    label:'🦋 Поймать бабочку',          action:'catch_butterfly',blocking:false },
-  { id:'fm_stream',    x:458, y:162, w:65,  h:158, type:'stream',       label:'💧 Послушать ручеёк',         action:'listen_stream',  blocking:true  },
+  { id:'fm_stream',    x:458, y:162, w:65,  h:110, type:'stream',       label:'💧 Послушать ручеёк',         action:'listen_stream',  blocking:true  },
   { id:'fm_petals',    x:335, y:228, w:62,  h:46,  type:'petals',       label:'🌸 Собрать лепестки',         action:'collect_petals', blocking:false },
   { id:'fm_moss',      x:235, y:255, w:64,  h:40,  type:'moss',         label:'🌿 Мягкий мох',               action:'examine',        blocking:false },
   { id:'fm_hidden',    x:385, y:275, w:52,  h:40,  type:'grass_hide',   label:'🌿 Поискать в траве',         action:'find_hidden',    blocking:false },
@@ -230,6 +230,8 @@ function _fm_pickups(ctx, t, szState, W, H) {
   const items=[
     { id:'fm_blueflower', x:W*0.32, y:H*0.68, emoji:'💙', shadow:'#6088e0' },
     { id:'fm_mtnflower',  x:W*0.50, y:H*0.72, emoji:'🌼', shadow:'#d8b838' },
+    { id:'mq_ribbon_fm',  x:W*0.35, y:H*0.63, emoji:'🎀', shadow:'#e06080' },
+    { id:'mq_windflower', x:W*0.60, y:H*0.57, emoji:'🌺', shadow:'#e02868' },
   ];
   items.forEach(p => {
     if (szState.pickedItems.has(p.id)) return;
