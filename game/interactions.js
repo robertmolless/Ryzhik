@@ -237,6 +237,24 @@ Game.prototype._handleMountainSubZone = function() {
       } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
       break;
 
+    case 'pickup_windflower': {
+      const period = this.time.period;
+      if (period !== 'morning' && period !== 'evening') {
+        this.ui.notify('🌺 Цветок закрыт. Приходи утром или вечером...');
+        break;
+      }
+      if (!szState.pickedItems.has(obj.id)) {
+        szState.pickedItems.add(obj.id);
+        this.inventory.add('mountainWindFlower'); this.collectedCount++;
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        this.ui.notify('🌺 Рыжик нашёл ветреный цветок! Пахнет свежим горным ветром.');
+        this._checkQuestItem('mountainWindFlower');
+      } else {
+        this.ui.notify('🌺 Цветок уже сорван. Он снова вырастет позже.');
+      }
+      break;
+    }
+
     default:
       this.ui.notify(`💭 ${obj.label}...`); break;
   }

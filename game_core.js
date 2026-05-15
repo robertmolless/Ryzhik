@@ -24,7 +24,7 @@ class Game {
     this.ambient      = new AmbientSystem();
     this.upgrades     = new Set();
     this.mobile       = null;
-    this.flags        = { nickStoryComplete: false };
+    this.flags        = { nickStoryComplete: false, sonyaMtnStage: 0, sonyaMtnArcComplete: false };
 
     this.running      = false;
     this.paused       = false;
@@ -154,7 +154,7 @@ class Game {
     this.achievements.ui = this.ui;
     this.dialogue     = new DialogueSystem(this.audio, this.telegram);
     this.world        = new World();
-    this.flags        = { nickStoryComplete: false };
+    this.flags        = { nickStoryComplete: false, sonyaMtnStage: 0, sonyaMtnArcComplete: false };
     this.ambient      = new AmbientSystem();
     this.weather.set('sunny');
     this._startPlaying();
@@ -463,7 +463,15 @@ class Game {
 
     if (this.mountains && this.mountains.active) {
       if (this.mountains.currentSubZone) { this._handleMountainSubZone(); return; }
-      if (this.mountains.nearSonya()) { const sonya = this.npcs.find(n => n.id === 'sonya'); this._handleMountainSonyaDialogue(sonya); return; }
+      if (this.mountains.nearSonya()) {
+        const sonya = this.npcs.find(n => n.id === 'sonya');
+        if (typeof this._sonyaMtnBranchAvailable === 'function' && this._sonyaMtnBranchAvailable()) {
+          this._handleSonyaMountainBranch(sonya);
+        } else {
+          this._handleMountainSonyaDialogue(sonya);
+        }
+        return;
+      }
       if (this.mountains.nearUpperViewpoint() && this.quests.isActive('q_sonya_mtn3')) { const sonya = this.npcs.find(n => n.id === 'sonya'); this._triggerMountainVista(sonya); return; }
       const obj = this.mountains.nearestObject();
       if (obj) {
