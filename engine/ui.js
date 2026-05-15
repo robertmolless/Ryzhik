@@ -153,3 +153,20 @@ class UIManager {
     };
   }
 }
+
+function initSplashFireflies() {
+  const wrap = document.getElementById('splash-fireflies-wrap');
+  if (!wrap) return;
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'splash-ff';
+    const x = 5 + Math.random() * 90;
+    const y = 10 + Math.random() * 80;
+    const fx = (Math.random() - 0.5) * 60;
+    const fy = -30 - Math.random() * 60;
+    const dur = 3 + Math.random() * 5;
+    const delay = Math.random() * 5;
+    el.style.cssText = `left:${x}%;top:${y}%;--fx:${fx}px;--fy:${fy}px;animation-duration:${dur}s;animation-delay:${delay}s;`;
+    wrap.appendChild(el);
+  }
+}
