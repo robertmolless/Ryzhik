@@ -23,6 +23,7 @@ class BarnManager {
     this.fadeDir     = 0;
     this.pendingAction = null;
     this.pickedItems = new Set();
+    this.facing      = 1;
   }
   get inBarn() { return this.active; }
   startEnter() {
@@ -53,6 +54,7 @@ class BarnManager {
     }
   }
   move(dx, dy, dt) {
+    if (dx > 0.01) this.facing = 1; else if (dx < -0.01) this.facing = -1;
     const speed = 110;
     let nx = this.px + dx * speed * dt;
     let ny = this.py + dy * speed * dt;
@@ -133,7 +135,7 @@ function drawBarnScene(ctx, opts) {
     ctx.save(); ctx.translate(sx3, f.y); _drawBarnFurnitureItem(ctx, f, t, barn); ctx.restore();
   }
 
-  drawCat(ctx, { x: px - camX, y: py, facing: 1, frame: 0, moving: false, jumping: false, jumpY: 0, emotion: null, t: t, food: 80, mood: 80 });
+  drawCat(ctx, { x: px - camX, y: py, facing: barn.facing, frame: 0, moving: false, jumping: false, jumpY: 0, emotion: null, t: t, food: 80, mood: 80 });
 
   const inFront = BARN_FURNITURE.filter(f => f.y + f.h >= py);
   for (const f of inFront) {
