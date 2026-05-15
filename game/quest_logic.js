@@ -81,7 +81,7 @@ Game.prototype._onQuestAdvance = function(qid) {
 };
 
 Game.prototype._checkQuestItem = function(itemId) {
-  const checks={ 'bowl':'q01','barnKey':'q02','flashPart':'q_kristina','sticker':'q_liza','moonBell':'q_mag','sunBell':'q_secret','letter':'q_notes' };
+  const checks={ 'bowl':'q01','barnKey':'q02','flashPart':'q_kristina','sticker':'q_liza','moonBell':'q_mag','sunBell':'q_secret','letter':'q_notes','nickCertificate':'q_nick1','milStamp':'q_nick2','nickMug':'q_nick3','nickScarf':'q_nick3','nickBackpack':'q_nick3','nickCassette':'q_nick3' };
   const qid=checks[itemId]; if(qid&&this.quests.isActive(qid)) this._onQuestAdvance(qid);
   if (itemId==='sticker') { const cnt=this.inventory.count('sticker'); if(cnt>=5&&this.quests.isActive('q_liza')) this._onQuestAdvance('q_liza'); }
   if (itemId==='moonBell'&&this.quests.isActive('q_greenhouse')) { if((this.quests.progress['q_greenhouse']||0)===0) this._onQuestAdvance('q_greenhouse'); }

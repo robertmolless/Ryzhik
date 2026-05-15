@@ -355,9 +355,9 @@ class Game {
       const al = document.getElementById('action-label');
       const milNear = this.militaryOffice.nearestFurniture();
       const nearNick = this.militaryOffice.nearNick();
-      const nearCert = this.militaryOffice.nearCertificate();
       const nickForHint = this.npcs.find(n => n.id === 'nick');
       const nickQS = (nickForHint && nickForHint.questStage) || 0;
+      const nearCert = this.militaryOffice.nearCertificate(nickQS);
       let milHint = null;
       if (milNear) { if (milNear.action !== 'pickup_nick' || nickQS >= 3) { milHint = `[E] ${milNear.label}`; } }
       if (nearNick && !this.flags.nickStoryComplete) milHint = '[E] ☕ Поговорить с Ником';
@@ -514,24 +514,27 @@ class Game {
     }
 
     if (this.militaryOffice && this.militaryOffice.active) {
-      if (this.militaryOffice.nearCertificate()) {
+      const nickForPick = this.npcs.find(n => n.id === 'nick');
+      const nickQSPick = (nickForPick && nickForPick.questStage) || 0;
+      if (this.militaryOffice.nearCertificate(nickQSPick)) {
+        console.log('[NickQuest] pick: nickCertificate');
         this.militaryOffice.certPickedUp = true;
         this.inventory.add('nickCertificate'); this.audio.pickup(); this.telegram.vibrate(25);
         this.ui.notify('📄 Подобрал: Потерянная справка Ника!'); this._checkQuestItem('nickCertificate'); return;
       }
-      const nickForPick = this.npcs.find(n => n.id === 'nick');
-      if (nickForPick && (nickForPick.questStage || 0) >= 3) {
+      if (nickQSPick >= 3) {
         const near = this.militaryOffice.nearestFurniture();
         if (near && near.action === 'pickup_nick') {
           this.militaryOffice.pickedMilItems.add(near.id); this.inventory.add(near.item);
+          console.log(`[NickQuest] pick: ${near.item}`);
+          this._checkQuestItem(near.item);
           this.audio.pickup(); this.telegram.vibrate(25);
           const idata = ITEMS[near.item];
           this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : near.item}`); return;
         }
       }
       if (this.militaryOffice.nearNick()) {
-        const nick = this.npcs.find(n => n.id === 'nick');
-        if (nick && !this.flags.nickStoryComplete) { this._talkToNPC(nick); return; }
+        if (nickForPick && !this.flags.nickStoryComplete) { this._talkToNPC(nickForPick); return; }
       }
       const near = this.militaryOffice.nearestFurniture();
       if (near) {
