@@ -11,7 +11,7 @@
    ────────────────────────────────────────────── */
 const _sonyaSprite = (() => {
   const img = new Image();
-  img.src = 'assets/characters/sonya/idle.webp';
+  img.src = 'assets/characters/sonya/sonya_idle_512.webp';
   return img;
 })();
 
