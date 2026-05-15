@@ -280,8 +280,8 @@ function _ps_cache(ctx, t, szState, W, H, period) {
   ctx.fillText('🕳️', W*0.52, H*0.72 - 14); ctx.restore();
 }
 
-function _ps_exitSign(ctx, period, ch) {
-  const sx=40, signY=230 * (ch / 400), sw=52, sh=68 * (ch / 400);
+function _ps_exitSign(ctx, period) {
+  const sx=40, signY=230, sw=52, sh=68;
   const pC = period === 'night' ? '#382618' : '#785223';
   ctx.strokeStyle = pC; ctx.lineWidth = 4.5; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(sx+sw*0.5, signY+sh); ctx.lineTo(sx+sw*0.5, signY); ctx.stroke();
@@ -334,36 +334,37 @@ function drawPineSlopeScene(ctx, { px, py, t, period, mtn, cw, ch }) {
   const offsetX = W < cw ? (cw - W) * 0.5 : 0;
   ctx.save();
   ctx.translate(-rawCamX + offsetX, 0);
+  ctx.scale(1, ch / 400);
 
-  _ps_sky(ctx, W, ch, period);
-  if (period === 'night') { _ps_stars(ctx, t, W, ch); _ps_moonlight(ctx, t, W, ch); }
-  _ps_distantPeaks(ctx, W, ch, period);
-  _ps_fog(ctx, t, W, ch, period);
-  if (period === 'morning' || period === 'day') _ps_sunbeams(ctx, t, W, ch, period);
-  _ps_ground(ctx, W, ch, period);
-  _ps_path(ctx, W, ch, period);
-  _ps_pines(ctx, W, ch, period, t);
-  _ps_spiderwebs(ctx, W, ch, period);
-  _ps_ropeFence(ctx, W, ch, period, t);
-  _ps_rocks(ctx, W, ch, period);
-  _ps_smallStones(ctx, W, ch, period);
-  _ps_mushrooms(ctx, W, ch, period);
+  _ps_sky(ctx, W, 400, period);
+  if (period === 'night') { _ps_stars(ctx, t, W, 400); _ps_moonlight(ctx, t, W, 400); }
+  _ps_distantPeaks(ctx, W, 400, period);
+  _ps_fog(ctx, t, W, 400, period);
+  if (period === 'morning' || period === 'day') _ps_sunbeams(ctx, t, W, 400, period);
+  _ps_ground(ctx, W, 400, period);
+  _ps_path(ctx, W, 400, period);
+  _ps_pines(ctx, W, 400, period, t);
+  _ps_spiderwebs(ctx, W, 400, period);
+  _ps_ropeFence(ctx, W, 400, period, t);
+  _ps_rocks(ctx, W, 400, period);
+  _ps_smallStones(ctx, W, 400, period);
+  _ps_mushrooms(ctx, W, 400, period);
 
   const szState = mtn.subZoneState.pineSlope;
-  _ps_cache(ctx, t, szState, W, ch, period);
-  _ps_pickups(ctx, t, szState, W, ch);
-  _ps_exitSign(ctx, period, ch);
+  _ps_cache(ctx, t, szState, W, 400, period);
+  _ps_pickups(ctx, t, szState, W, 400);
+  _ps_exitSign(ctx, period);
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py * (ch / 400), t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py, t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
-  _ps_wind(ctx, t, W, ch, period);
-  _ps_zoneLabel(ctx, W, ch, period);
+  _ps_wind(ctx, t, W, 400, period);
+  _ps_zoneLabel(ctx, W, 400, period);
 
   if (mtn.fadeAlpha > 0) {
     ctx.fillStyle = `rgba(0,0,0,${mtn.fadeAlpha})`;
-    ctx.fillRect(-offsetX + rawCamX - 10, 0, cw + 20, ch);
+    ctx.fillRect(-offsetX + rawCamX - 10, 0, cw + 20, 400);
   }
   ctx.restore();
 }

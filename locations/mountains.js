@@ -294,26 +294,26 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
 
   ctx.save();
   ctx.translate(-rawCamX + offsetX, 0);
+  ctx.scale(1, ch / 400);
 
-  _mtn_sky(ctx, ROOM_W, ch, period);
-  _mtn_distant(ctx, ROOM_W, ch, period);
-  _mtn_clouds(ctx, t, ROOM_W, ch, period);
-  _mtn_fog(ctx, t, ROOM_W, ch, period);
-  _mtn_ground(ctx, ROOM_W, ch, period);
-  _mtn_pines(ctx, ROOM_W, ch, period);
+  _mtn_sky(ctx, ROOM_W, 400, period);
+  _mtn_distant(ctx, ROOM_W, 400, period);
+  _mtn_clouds(ctx, t, ROOM_W, 400, period);
+  _mtn_fog(ctx, t, ROOM_W, 400, period);
+  _mtn_ground(ctx, ROOM_W, 400, period);
+  _mtn_pines(ctx, ROOM_W, 400, period);
   _mtn_poles(ctx, t, mtn, period);
-  _mtn_rocks(ctx, ROOM_W, ch, period);
+  _mtn_rocks(ctx, ROOM_W, 400, period);
   _mtn_platform(ctx, period);
   _mtn_upper(ctx, period);
   _mtn_campfire(ctx, t, period);
   _mtn_pickups(ctx, t, mtn, period);
   _mtn_exit_sign(ctx, period);
-  _mtn_portals(ctx, t, period, ch);
+  _mtn_portals(ctx, t, period);
 
-  const sy = ch / 400;
   const showSonya = (period === 'morning' || period === 'day');
   if (showSonya) {
-    const sonyaY = 170 * sy;
+    const sonyaY = 170;
     const _sonyaTrust = sonyaNPC ? sonyaNPC.trust : 1;
     const _usedSprite = typeof _drawSonyaSprite === 'function'
       ? _drawSonyaSprite(ctx, 378, sonyaY, t, -1, false, _sonyaTrust, 'happy')
@@ -335,14 +335,14 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   }
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py * sy, t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py, t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
-  _mtn_wind(ctx, t, ROOM_W, ch, period);
+  _mtn_wind(ctx, t, ROOM_W, 400, period);
 
   if (mtn.fadeAlpha > 0) {
     ctx.fillStyle = `rgba(0,0,0,${mtn.fadeAlpha})`;
-    ctx.fillRect(-offsetX + rawCamX - 10, 0, cw + 20, ch);
+    ctx.fillRect(-offsetX + rawCamX - 10, 0, cw + 20, 400);
   }
 
   ctx.restore();
@@ -589,12 +589,11 @@ function _mtn_exit_sign(ctx, period) {
   ctx.fillText('← Лес', sx+sw*0.5, sy+16);
 }
 
-function _mtn_portals(ctx, t, period, ch) {
-  const sy = (ch || 400) / 400;
+function _mtn_portals(ctx, t, period) {
   const portals = [
-    { x:140, y:318 * sy, label:'🌲 Склон',    color:'#3a6020' },
-    { x:492, y:155 * sy, label:'🪨 Площадка', color:'#484870' },
-    { x:498, y:278 * sy, label:'🌸 Поляна',   color:'#703060' },
+    { x:140, y:318, label:'🌲 Склон',    color:'#3a6020' },
+    { x:492, y:155, label:'🪨 Площадка', color:'#484870' },
+    { x:498, y:278, label:'🌸 Поляна',   color:'#703060' },
   ];
   const glow = 0.5 + 0.5 * Math.sin(t * 2.0);
   portals.forEach(p => {
