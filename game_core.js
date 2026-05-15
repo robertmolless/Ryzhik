@@ -482,15 +482,17 @@ class Game {
       const obj = this.mountains.nearestObject();
       if (obj) {
         if (obj.action === 'exit_mountains') { this.mountains.startExit(); this.audio.uiClick(); this.ui.notify('🌲 Рыжик спускается с тропы...'); return; }
-        if (obj.action === 'pickup' && obj.item && !this.mountains.pickedItems.has(obj.id)) {
-          this.mountains.pickedItems.add(obj.id);
-          const added = this.inventory.add(obj.item);
-          if (added) {
-            const idata = ITEMS[obj.item];
-            this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
-            this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : obj.item}`);
-            this._checkQuestItem(obj.item);
-          }
+        if (obj.action === 'pickup' && obj.item) {
+          if (!this.mountains.pickedItems.has(obj.id)) {
+            this.mountains.pickedItems.add(obj.id);
+            const added = this.inventory.add(obj.item);
+            if (added) {
+              const idata = ITEMS[obj.item];
+              this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+              this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : obj.item}`);
+              this._checkQuestItem(obj.item);
+            }
+          } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
           return;
         }
         if (obj.action === 'viewpoint_upper') { this.ui.notify('🏔️ Отсюда виден весь дом. Красивый вид!'); return; }

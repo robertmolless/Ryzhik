@@ -315,16 +315,19 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   if (showSonya) {
     const sonyaY = 170;
     const _sonyaTrust = sonyaNPC ? sonyaNPC.trust : 1;
+    // Undo the mountain Y scale so the sprite renders at its natural size
+    ctx.save();
+    ctx.scale(1, 400 / ch);
+    const _sy = sonyaY * ch / 400;  // virtual Y → screen Y
     const _usedSprite = typeof _drawSonyaSprite === 'function'
-      ? _drawSonyaSprite(ctx, 378, sonyaY, t, -1, false, _sonyaTrust, 'happy')
+      ? _drawSonyaSprite(ctx, 378, _sy, t, -1, false, _sonyaTrust, 'happy')
       : false;
     if (!_usedSprite && typeof drawHumanNPC === 'function') {
-      drawHumanNPC(ctx, { id:'sonya', x:378, y:sonyaY, t, facing:-1, moving:false, trust: _sonyaTrust, emotion:'happy' });
+      drawHumanNPC(ctx, { id:'sonya', x:378, y:_sy, t, facing:-1, moving:false, trust: _sonyaTrust, emotion:'happy' });
     }
-    ctx.save();
     const bw = 52;
-    const _nameBgY = _usedSprite ? sonyaY - 80 : sonyaY - 52;
-    const _nameTxY = _usedSprite ? sonyaY - 68 : sonyaY - 40;
+    const _nameBgY = _usedSprite ? _sy - 80 : _sy - 52;
+    const _nameTxY = _usedSprite ? _sy - 68 : _sy - 40;
     ctx.fillStyle = 'rgba(20,10,0,0.78)';
     if (ctx.roundRect) ctx.roundRect(378 - bw * 0.5, _nameBgY, bw, 16, 4);
     else ctx.rect(378 - bw * 0.5, _nameBgY, bw, 16);
