@@ -438,60 +438,118 @@ function _drawSonyaSprite(ctx, x, y, t, facing, moving, trust, emotion) {
     return false;
   }
 
-  // Sprite is 512x512. Character occupies rows 48–452 (feet at 88.3% of height).
-  // Anchor feet (88.3%) to ground level y+26, not sprite bottom.
-  const SW = 96, SH = 96;
-  const FEET_PCT = 0.883;
-  const spriteTop = 26 - Math.round(SH * FEET_PCT); // = -59
+  /* ── Cutout animation: sprite sliced into 6 parts, each rotated around its joint.
+     Source image: 512×512 px. Display size: 96×96.
+     Scale factor S = 96/512. Sprite top-left in local coords: (ox, oy).
+     Feet measured at 88.3 % of sprite height → anchored to ground (y+26). ── */
+  const S  = 96 / 512;
+  const ox = -48, oy = -59;          // sprite top-left in local coords
 
-  // Walk procedural animation: step bounce + lean, idle: slow bob
-  const STEP = t * 9;                                   // step cycle frequency
-  const bob     = moving ? Math.abs(Math.sin(STEP)) * -4 : Math.sin(t * 1.6) * 2;
-  const lean    = moving ? Math.sin(STEP) * 0.06       : 0; // body lean left/right
-  const scaleY  = moving ? 1 - Math.abs(Math.sin(STEP)) * 0.04 : 1; // subtle squash
-  const shadowW = moving ? 22 + Math.abs(Math.sin(STEP)) * 4 : 22;  // shadow stretches on step
+  // ── Animation clocks ──
+  const step  = t * 9;               // walk-cycle phase (rad)
+  const breathe = Math.sin(t * 1.1); // idle breath
+
+  // vertical body bounce: up on each footfall, slow bob when idle
+  const bodyY = moving
+    ? Math.abs(Math.sin(step)) * -3.5
+    : Math.sin(t * 1.6) * 2;
+
+  // overall body lean into direction of travel
+  const lean = moving ? Math.sin(step) * 0.04 : 0;
+
+  // limb angles — natural walk: arm swings opposite to same-side leg
+  const legF = moving ?  Math.sin(step) * 0.30         : 0;
+  const legB = moving ? -Math.sin(step) * 0.22         : 0;
+  const armF = moving ? -Math.sin(step) * 0.22         : Math.sin(t * 1.8) * 0.07;
+  const armB = moving ?  Math.sin(step) * 0.16         : -Math.sin(t * 1.8) * 0.05;
+  const nod  = moving ?  Math.sin(step * 2) * 0.045    : Math.sin(t * 0.85) * 0.03;
+  const bth  = breathe * 0.008;      // tiny torso breathing rotation when idle
+
+  /* ── Pivot points in source-image pixels (512×512) ──
+     Measured from bounding-box scan: character cols 164–328, rows 48–452.
+     Hip line at row ~310 (width drops from 133→91 there).
+     Shoulder line at row ~210 (arms fully separate from torso above).  ── */
+  const PIV = {
+    neck : { x: 246, y: 185 },
+    shlL : { x: 190, y: 212 },   // left  shoulder
+    shlR : { x: 312, y: 212 },   // right shoulder
+    hipL : { x: 225, y: 311 },   // left  hip
+    hipR : { x: 278, y: 311 },   // right hip
+  };
+
+  /* ── Source rects [sx, sy, sw, sh] — tight around each body part ── */
+  const HEAD  = [165,  44, 162, 148];   // head + hair
+  const TORSO = [166, 178, 162, 136];   // jacket torso (rows 178-314)
+  const ARM_L = [128, 195,  92, 200];   // left  arm (jacket sleeve, rows 195-395)
+  const ARM_R = [293, 195,  92, 200];   // right arm
+  const LEG_L = [162, 296,  93, 160];   // left  leg (rows 296-456)
+  const LEG_R = [248, 296,  93, 160];   // right leg
+
+  /* drawPart: draw source region [sx,sy,sw,sh] rotated by `angle` around
+     pivot (piv.x, piv.y) in source-image coordinates.
+     The pivot maps to world point (ox+piv.x*S, oy+piv.y*S).            */
+  function drawPart(angle, piv, reg) {
+    const [sx, sy, sw, sh] = reg;
+    const wx = ox + piv.x * S;
+    const wy = oy + piv.y * S;
+    ctx.save();
+    ctx.translate(wx, wy);
+    ctx.rotate(angle);
+    ctx.drawImage(_sonyaSprite,
+      sx, sy, sw, sh,
+      -(piv.x - sx) * S, -(piv.y - sy) * S,
+      sw * S, sh * S
+    );
+    ctx.restore();
+  }
+
+  // ── Main draw ──
+  ctx.save();
+  ctx.translate(x, y + bodyY);
+
+  // shadow widens slightly at footstrike
+  GFX.shadow(ctx, 0, 26, 22 + (moving ? Math.abs(Math.sin(step)) * 4 : 0), 7, 0.28);
 
   ctx.save();
-  ctx.translate(x, y + bob);
+  ctx.scale(facing, 1);
+  ctx.rotate(lean);
 
-  // Shadow (wider mid-stride when foot hits ground)
-  GFX.shadow(ctx, 0, 26, shadowW, 7, 0.28);
+  // Render order: back-to-front so front limbs overlap correctly
+  drawPart(legB,  PIV.hipR,  LEG_R);   // ① back leg
+  drawPart(armB,  PIV.shlR,  ARM_R);   // ② back arm
+  drawPart(bth,   PIV.neck,  TORSO);   // ③ torso (tiny breath rotation)
+  drawPart(armF,  PIV.shlL,  ARM_L);   // ④ front arm
+  drawPart(legF,  PIV.hipL,  LEG_L);   // ⑤ front leg
+  drawPart(nod,   PIV.neck,  HEAD);    // ⑥ head nod
 
-  // Sprite with walk transforms
-  ctx.save();
-  ctx.scale(facing, scaleY);
-  ctx.rotate(lean * facing);
-  // Compensate rotation pivot so feet stay on ground
-  ctx.translate(0, moving ? Math.abs(Math.sin(STEP)) * 2 : 0);
-  ctx.drawImage(_sonyaSprite, -SW / 2, spriteTop, SW, SH);
-  ctx.restore();
+  ctx.restore(); // scale + lean
 
-  // Trust badge
+  // ── Trust badge ──
   if (trust >= 1) {
-    const trustColors = ['','#aaaaaa','#44cc88','#ffd844'];
-    ctx.save(); ctx.translate(0, 26 - SH - 4);
+    const tC = ['','#aaaaaa','#44cc88','#ffd844'];
+    ctx.save(); ctx.translate(0, oy - 5);
     for (let i = 0; i < trust; i++) {
-      ctx.fillStyle = trustColors[trust] || '#fff';
+      ctx.fillStyle = tC[trust] || '#fff';
       ctx.font = '8px serif'; ctx.textAlign = 'center';
       ctx.fillText('♥', -6 + i * 6, 0);
     }
     ctx.restore();
   }
 
-  // Emotion bubble
+  // ── Emotion bubble ──
   if (emotion) {
-    const emoMap = { happy:'😊', sad:'😢', angry:'😠', surprise:'😲', sleep:'😴', laugh:'😄', awkward:'😅' };
+    const EM = { happy:'😊', sad:'😢', angry:'😠', surprise:'😲', sleep:'😴', laugh:'😄', awkward:'😅' };
     ctx.save();
-    ctx.translate(SW / 2, 26 - SH + 10);
+    ctx.translate(28, oy + 12);
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     GFX.roundRect(ctx, -10,-10,20,20,6); ctx.fill();
     ctx.strokeStyle = 'rgba(200,200,200,0.5)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.font = '12px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(emoMap[emotion] || '💭', 0, 0);
+    ctx.fillText(EM[emotion] || '💭', 0, 0);
     ctx.restore();
   }
 
-  ctx.restore();
+  ctx.restore(); // main translate + bodyY
   return true;
 }
 
