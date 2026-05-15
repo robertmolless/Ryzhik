@@ -1,0 +1,134 @@
+'use strict';
+
+Game.prototype._interactFurniture = function(f) {
+  const interior = this.interior;
+  const period = this.time.period;
+  if (f.period && f.period !== period) {
+    const when = f.period === 'evening' ? 'вечером' : 'ночью';
+    this.ui.notify(`💭 Это работает только ${when}...`); return;
+  }
+  switch (f.action) {
+    case 'sit':
+      interior.sitting = !interior.sitting;
+      if (interior.sitting) { this.ui.notify(`😺 Рыжик удобно устроился на ${f.label.toLowerCase()}!`); this.player.energy = Math.min(100, this.player.energy + 5); }
+      else { this.ui.notify('🐾 Рыжик встаёт...'); }
+      this.player.playAction('purr'); break;
+    case 'sleep': this._showSleepMenu(); break;
+    case 'watch':
+      interior.tvOn = !interior.tvOn;
+      this.ui.notify(interior.tvOn ? '📺 Телевизор включён! Что-то интересное...' : '📺 Телевизор выключен.'); break;
+    case 'listen':
+      if (f.id === 'vinyl_pl' || f.label === 'Проигрыватель') { this.ui.notify('🎵 Тихая музыка наполняет комнату...'); }
+      else { this.ui.notify('🎵 Рыжик тихо мурлычет в такт!'); }
+      this.player.mood = Math.min(100, this.player.mood + 10);
+      if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+      if (f.id === 'guitar1' && this.quests.isActive('q_ind2')) this._onQuestAdvance('q_ind2');
+      break;
+    case 'lamp': {
+      const lampId = f.id;
+      interior.lampOn[lampId] = !interior.lampOn[lampId];
+      this.ui.notify(interior.lampOn[lampId] ? '💡 Лампа включена! Как уютно...' : '💡 Лампа выключена.');
+      if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+      break;
+    }
+    case 'open':
+      if (f.id === 'fridge') {
+        interior.fridgeOpen = !interior.fridgeOpen;
+        this.ui.notify(interior.fridgeOpen ? '🧊 Холодильник открыт! Тут яблоки и кефир.' : '🧊 Холодильник закрыт.');
+      } else if (f.id === 'cabinet') {
+        if (!interior.cabinetOpen) {
+          interior.cabinetOpen = true;
+          if (f.item === 'barnKey') {
+            if (!this.unlockedZones.includes('barn') && !this.inventory.has('barnKey')) {
+              interior.pickedItems.add(f.id); this.inventory.add('barnKey'); this.collectedCount++;
+              this.ui.notify('🔑 В кухонном шкафчике нашёлся ключ от сарая!'); this._checkQuestItem('barnKey');
+            } else { this.ui.notify('📦 Шкафчик открыт — ключ уже был взят.'); }
+          } else if (f.item && !interior.pickedItems.has(f.id)) {
+            interior.pickedItems.add(f.id); this.inventory.add(f.item); this.collectedCount++;
+            const idata = ITEMS[f.item]; this.ui.notify(`🔑 В кухонном шкафчике нашёлся ${idata ? idata.name : f.item}!`);
+            this._checkQuestItem(f.item);
+            if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
+          } else { this.ui.notify('📦 Шкафчик пустой — ключ уже взят.'); }
+        } else { this.ui.notify('📦 Шкафчик уже открыт.'); }
+      } else { this.ui.notify('📦 Открыто!'); }
+      break;
+    case 'pickup':
+      if (!interior.pickedItems.has(f.id) && f.item) {
+        interior.pickedItems.add(f.id); this.inventory.add(f.item); this.collectedCount++;
+        const idata = ITEMS[f.item];
+        this.ui.notify(`✨ Нашёл: ${idata ? idata.name : f.item}!`);
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        this._checkQuestItem(f.item);
+        if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+        if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+      } else { this.ui.notify('💭 Рыжик уже взял всё интересное здесь.'); }
+      break;
+    case 'examine': {
+      const examineTexts = {
+        painting:'🖼️ Красивая картина. Горный пейзаж. Похоже, нарисован вручную.',
+        bookshelf:'📚 Книги стоят ровно. «Кошки и их характер», «Сад круглый год»...',
+        window:'🌤️ Из окна виден двор. Рыжик любит тут сидеть.',
+        fireplace:'🔥 Камин потух. Пепел ещё тёплый.',
+        chest:'📦 Старый сундук. Немного скрипит.',
+        wardrobe:'👔 Шкаф с одеждой. Пахнет лавандой.',
+        piano:'🎹 Старое пианино. Несколько клавиш не звучат.',
+        attic_hatch:'🪜 Люк на чердак. Наверное, там что-то интересное!'
+      };
+      this.ui.notify(examineTexts[f.id] || `💭 ${f.label}... Интересно.`);
+      if (f.questId && this.quests.isActive(f.questId)) this._onQuestAdvance(f.questId);
+      break;
+    }
+    case 'eat':
+      if (this.player.food < 100) { this.player.food = Math.min(100, this.player.food + 25); this.ui.notify('🥣 Рыжик поел из своей миски! Вкусно!'); }
+      else { this.ui.notify('🥣 Рыжик сыт и доволен!'); }
+      break;
+    case 'stairs_up':
+      if (this.interior.floor === 1) { this.interior.goFloor(2); this.ui.notify('🪜 Рыжик поднимается на второй этаж...'); if (this.quests.isActive('q_ind4')) this._onQuestAdvance('q_ind4'); }
+      break;
+    case 'stairs_down':
+      if (this.interior.floor === 2) { this.interior.goFloor(1); this.ui.notify('🪜 Рыжик спускается вниз...'); }
+      break;
+    case 'exit_house':
+      interior.startExit(); this.audio.uiClick(); this.ui.notify('🌿 Рыжик выходит из дома...'); break;
+    default: break;
+  }
+};
+
+Game.prototype._interactBarnFurniture = function(f) {
+  const barn = this.barn;
+  switch (f.action) {
+    case 'exit_barn': barn.startExit(); this.audio.uiClick(); this.ui.notify('🌿 Рыжик выходит из сарая...'); break;
+    case 'pickup':
+      if (!barn.pickedItems.has(f.id) && f.item) {
+        barn.pickedItems.add(f.id); this.inventory.add(f.item); this.collectedCount++;
+        const iname = ITEMS[f.item] ? ITEMS[f.item].name : f.item;
+        this.ui.notify(`✨ Рыжик нашёл: ${iname}!`);
+        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        this._checkQuestItem(f.item);
+        if (f.item === 'cassette' && this.quests.isActive('q_lyokha')) setTimeout(() => this.ui.notify('📼 Кассета Лёхи! Верни её ему.'), 1500);
+        if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+        if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+      } else { this.ui.notify('💭 Рыжик уже взял всё интересное здесь.'); }
+      break;
+    case 'sit': this.ui.notify('😺 Рыжик запрыгивает на тюк сена! Тепло и колко...'); this.player.energy = Math.min(100, this.player.energy + 5); this.player.playAction('purr'); break;
+    case 'examine': {
+      const t = { b_shelf1:'🔧 Полка с инструментами. Молоток, гвозди, пила... всё покрыто пылью.', b_shelf2:'📦 Старые банки с краской. Пахнет скипидаром.', b_bike:'🚲 Старый велосипед. Давно не ездил — ручки облезли, но колёса целые!', b_lantern:'🔦 Старый керосиновый фонарь. Маслом ещё пахнет.', b_workbench:'🪚 Верстак с инструментами. Здесь точно что-то чинили.', b_boxes:'📦 Коробки с запчастями. Пыль и время.' };
+      this.ui.notify(t[f.id] || `💭 ${f.label}... Интересно.`); break;
+    }
+    default: break;
+  }
+};
+
+Game.prototype._findNearestIndoorNPC = function() {
+  if (typeof INDOOR_NPC_SCHEDULE === 'undefined') return null;
+  const period = this.time.period, floor = this.interior.floor;
+  let best = null, bestD = 70;
+  for (const [npcId, sched] of Object.entries(INDOOR_NPC_SCHEDULE)) {
+    if (sched.floor !== floor) continue;
+    const pos = sched[period]; if (!pos) continue;
+    const npc = this.npcs.find(n => n.id === npcId); if (!npc) continue;
+    const d = Math.sqrt((pos.x - this.interior.px) ** 2 + (pos.y - this.interior.py) ** 2);
+    if (d < bestD) { bestD = d; best = npc; }
+  }
+  return best;
+};
