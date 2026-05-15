@@ -35,6 +35,7 @@ class MountainsManager {
     this.fadeDir       = 0;
     this.pendingAction = null;
     this.isMoving      = false;
+    this.facing        = 1;
     this.pickedItems   = new Set();
     this.unlockedFlag  = false;
     this._t            = 0;
@@ -109,6 +110,7 @@ class MountainsManager {
   }
   move(dx, dy, dt) {
     this.isMoving = (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01);
+    if (dx > 0.01) this.facing = 1; else if (dx < -0.01) this.facing = -1;
     const speed = 115;
     let nx = this.px + dx * speed * dt, ny = this.py + dy * speed * dt;
     const HW = 10, HH = 14;
@@ -333,7 +335,7 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   }
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py * sy, t, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py * sy, t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
   _mtn_wind(ctx, t, ROOM_W, ch, period);

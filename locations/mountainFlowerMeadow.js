@@ -323,7 +323,7 @@ function drawFlowerMeadowScene(ctx, { px, py, t, period, mtn, cw, ch }) {
   _fm_exitSign(ctx, period, ch);
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py * (ch / 400), t, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py * (ch / 400), t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
   _fm_wind(ctx, t, W, ch, period);

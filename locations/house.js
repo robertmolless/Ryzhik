@@ -100,6 +100,7 @@ class InteriorManager {
     this.pickedItems = new Set();
     this.sitTarget = null;
     this.sitting = false;
+    this.facing = 1;
   }
   get inHouse() { return this.active; }
   startEnter() {
@@ -144,6 +145,7 @@ class InteriorManager {
   }
   move(dx, dy, dt) {
     if (this.sitting) return;
+    if (dx > 0.01) this.facing = 1; else if (dx < -0.01) this.facing = -1;
     const speed = 120;
     let nx = this.px + dx * speed * dt;
     let ny = this.py + dy * speed * dt;
@@ -255,7 +257,7 @@ function drawHouseScene(ctx, opts) {
   ctx.save();
   drawCat(ctx, {
     x: catSX, y: catSY,
-    facing: 1, frame: 0, moving: false,
+    facing: interior.facing, frame: 0, moving: false,
     jumping: false, jumpY: 0,
     emotion: interior.sitting ? 'happy' : null,
     t: t, food: 80, mood: 80,

@@ -23,6 +23,7 @@ class MilitaryOfficeManager {
     this.pendingAction  = null;
     this.certPickedUp   = false;
     this.pickedMilItems = new Set();
+    this.facing         = 1;
   }
   startEnter() {
     if (this.fading) return;
@@ -50,6 +51,7 @@ class MilitaryOfficeManager {
     if (this.fadeDir === -1 && this.fadeAlpha <= 0) { this.fadeAlpha = 0; this.fading = false; }
   }
   move(dx, dy, dt) {
+    if (dx > 0.01) this.facing = 1; else if (dx < -0.01) this.facing = -1;
     const speed = 110;
     let nx = this.px + dx * speed * dt, ny = this.py + dy * speed * dt;
     const HW = 10, HH = 14;
@@ -234,7 +236,7 @@ function drawMilitaryOfficeScene(ctx, opts) {
   }
 
   ctx.save();
-  drawCat(ctx, { x: px, y: py, facing: 1, t: t, moving: false, food: 80, mood: 80 });
+  drawCat(ctx, { x: px, y: py, facing: mil.facing, t: t, moving: false, food: 80, mood: 80 });
   ctx.restore();
 
   const tints = { morning:'rgba(255,180,80,0.07)', day:'rgba(0,0,0,0)', evening:'rgba(180,60,10,0.15)', night:'rgba(8,4,20,0.50)' };
