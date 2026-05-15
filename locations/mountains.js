@@ -316,8 +316,8 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
     }
     ctx.save();
     const bw = 52;
-    const _nameBgY = _usedSprite ? 170 - 72 : 170 - 52;
-    const _nameTxY = _usedSprite ? 170 - 60 : 170 - 40;
+    const _nameBgY = _usedSprite ? 170 - 80 : 170 - 52;
+    const _nameTxY = _usedSprite ? 170 - 68 : 170 - 40;
     ctx.fillStyle = 'rgba(20,10,0,0.78)';
     if (ctx.roundRect) ctx.roundRect(378 - bw * 0.5, _nameBgY, bw, 16, 4);
     else ctx.rect(378 - bw * 0.5, _nameBgY, bw, 16);
