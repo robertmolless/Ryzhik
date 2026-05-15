@@ -42,10 +42,10 @@ class MountainsManager {
 
     this.currentSubZone = null;
     this.subZonePos = {
-      main:          { x: 90, y: 295 },
-      pineSlope:     { x: 90, y: 295 },
-      stoneViewpoint:{ x: 90, y: 200 },
-      flowerMeadow:  { x: 90, y: 280 },
+      main:          { x: 90,  y: 295 },
+      pineSlope:     { x: 200, y: 330 },
+      stoneViewpoint:{ x: 160, y: 300 },
+      flowerMeadow:  { x: 200, y: 330 },
     };
     this.subZoneState = {
       pineSlope:     { pickedItems: new Set(), inspected: new Set(), cacheOpened: false },
@@ -167,6 +167,52 @@ class MountainsManager {
     if (!vp) return false;
     return Math.hypot(this.px - (vp.x + vp.w * 0.5), this.py - (vp.y + vp.h * 0.5)) < 78;
   }
+  drawMinimap(ctx, mmW, mmH, sonyaNPC) {
+    const zone = this.currentSubZone || 'main';
+    const SCENE_W = 600, SCENE_H = 400;
+    const sx = mmW / SCENE_W, sy = mmH / SCENE_H;
+
+    const bgColors = { main:'#2a3a1a', pineSlope:'#1e3018', stoneViewpoint:'#282840', flowerMeadow:'#283820' };
+    ctx.fillStyle = bgColors[zone] || '#2a3a1a';
+    ctx.fillRect(0, 0, mmW, mmH);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    for (const o of this._activeObjs()) {
+      if (!o.blocking) continue;
+      ctx.fillRect(o.x * sx, o.y * sy, Math.max(2, o.w * sx), Math.max(2, o.h * sy));
+    }
+
+    if (!this.currentSubZone) {
+      const portals = [
+        { x:140, y:318, color:'#40a030' },
+        { x:492, y:118, color:'#8888cc' },
+        { x:498, y:278, color:'#c060a0' },
+      ];
+      for (const p of portals) {
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x * sx, p.y * sy, 3, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.fillStyle = '#70c070';
+      ctx.beginPath(); ctx.arc(79 * sx, 252 * sy, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#44aaff';
+      ctx.beginPath(); ctx.arc(378 * sx, 172 * sy, 3, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.fillStyle = '#ff8020';
+    ctx.beginPath(); ctx.arc(this.px * sx, this.py * sy, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(this.px * sx, this.py * sy, 4, 0, Math.PI * 2); ctx.stroke();
+
+    const zoneLabels = { main:'⛰️ Горы', pineSlope:'🌲 Склон', stoneViewpoint:'🪨 Площадка', flowerMeadow:'🌸 Поляна' };
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, mmW, 12);
+    ctx.fillStyle = '#ddd';
+    ctx.font = 'bold 8px system-ui';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(zoneLabels[zone] || zone, 2, 1);
+  }
+
   save() {
     return {
       active: this.active, px: this.px, py: this.py,
@@ -207,10 +253,10 @@ class MountainsManager {
     this.unlockedFlag = s.unlockedFlag || false;
     this.currentSubZone = s.currentSubZone || null;
     if (s.subZonePos) {
-      this.subZonePos.main          = s.subZonePos.main          || { x:90, y:295 };
-      this.subZonePos.pineSlope     = s.subZonePos.pineSlope     || { x:90, y:295 };
-      this.subZonePos.stoneViewpoint= s.subZonePos.stoneViewpoint|| { x:90, y:200 };
-      this.subZonePos.flowerMeadow  = s.subZonePos.flowerMeadow  || { x:90, y:280 };
+      this.subZonePos.main          = s.subZonePos.main          || { x:90,  y:295 };
+      this.subZonePos.pineSlope     = s.subZonePos.pineSlope     || { x:200, y:330 };
+      this.subZonePos.stoneViewpoint= s.subZonePos.stoneViewpoint|| { x:160, y:300 };
+      this.subZonePos.flowerMeadow  = s.subZonePos.flowerMeadow  || { x:200, y:330 };
     }
     if (s.subZoneState) {
       const ps = s.subZoneState.pineSlope;

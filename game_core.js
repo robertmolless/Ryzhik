@@ -399,6 +399,12 @@ class Game {
       this.ui.updateWeather(this.weather);
       this.ui.updateQuestTracker(this.quests);
       if (this._mobileEnterBtn) { this._mobileEnterBtn.style.display = 'block'; this._mobileEnterBtn.textContent = '🚪'; }
+      const mmCanvas = document.getElementById('minimap-canvas');
+      if (mmCanvas) {
+        const mmCtx = mmCanvas.getContext('2d');
+        const sonyaNPC = this.npcs.find(n => n.id === 'sonya');
+        this.mountains.drawMinimap(mmCtx, mmCanvas.width, mmCanvas.height, sonyaNPC);
+      }
       return;
     }
 
