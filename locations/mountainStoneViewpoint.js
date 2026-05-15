@@ -296,8 +296,8 @@ function _sv_pickups(ctx, t, szState, W, H) {
   });
 }
 
-function _sv_exitSign(ctx, period, ch) {
-  const sx=40, signY=230*(ch/400), sw=52, sh=68*(ch/400);
+function _sv_exitSign(ctx, period) {
+  const sx=40, signY=230, sw=52, sh=68;
   const pC=period==='night'?'#382618':'#785222';
   ctx.strokeStyle=pC; ctx.lineWidth=4.5; ctx.lineCap='round';
   ctx.beginPath(); ctx.moveTo(sx+sw*0.5,signY+sh); ctx.lineTo(sx+sw*0.5,signY); ctx.stroke();
@@ -349,36 +349,37 @@ function drawStoneViewpointScene(ctx, { px, py, t, period, mtn, cw, ch }) {
   const offsetX = W < cw ? (cw - W) * 0.5 : 0;
   ctx.save();
   ctx.translate(-rawCamX + offsetX, 0);
+  ctx.scale(1, ch / 400);
 
-  _sv_sky(ctx, W, ch, period);
-  if (period === 'night') { _sv_stars(ctx, t, W, ch); _sv_moon(ctx, W, ch); }
-  _sv_clouds(ctx, t, W, ch, period);
-  _sv_distantLandscape(ctx, W, ch, period);
-  _sv_panoramaHaze(ctx, t, W, ch, period);
-  _sv_ground(ctx, W, ch, period);
-  _sv_platform(ctx, W, ch, period);
-  _sv_boulders(ctx, W, ch, period);
-  _sv_flagRopes(ctx, t, W, ch, period);
-  _sv_oldSign(ctx, W, ch, period);
+  _sv_sky(ctx, W, 400, period);
+  if (period === 'night') { _sv_stars(ctx, t, W, 400); _sv_moon(ctx, W, 400); }
+  _sv_clouds(ctx, t, W, 400, period);
+  _sv_distantLandscape(ctx, W, 400, period);
+  _sv_panoramaHaze(ctx, t, W, 400, period);
+  _sv_ground(ctx, W, 400, period);
+  _sv_platform(ctx, W, 400, period);
+  _sv_boulders(ctx, W, 400, period);
+  _sv_flagRopes(ctx, t, W, 400, period);
+  _sv_oldSign(ctx, W, 400, period);
 
   const szState = mtn.subZoneState.stoneViewpoint;
-  _sv_bench(ctx, W, ch, period, szState);
-  _sv_campfire(ctx, t, W, ch, period);
-  _sv_lantern(ctx, W, ch, period, szState);
-  _sv_pickups(ctx, t, szState, W, ch);
-  if (period === 'night') _sv_valleyFireflies(ctx, t, W, ch);
-  _sv_exitSign(ctx, period, ch);
+  _sv_bench(ctx, W, 400, period, szState);
+  _sv_campfire(ctx, t, W, 400, period);
+  _sv_lantern(ctx, W, 400, period, szState);
+  _sv_pickups(ctx, t, szState, W, 400);
+  if (period === 'night') _sv_valleyFireflies(ctx, t, W, 400);
+  _sv_exitSign(ctx, period);
 
   if (typeof drawCat === 'function') {
-    drawCat(ctx, { x: px, y: py * (ch / 400), t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
+    drawCat(ctx, { x: px, y: py, t, facing: mtn.facing, moving: mtn.isMoving, food: 80, mood: 88 });
   }
 
-  _sv_wind(ctx, t, W, ch, period);
-  _sv_zoneLabel(ctx, W, ch, period);
+  _sv_wind(ctx, t, W, 400, period);
+  _sv_zoneLabel(ctx, W, 400, period);
 
   if (mtn.fadeAlpha > 0) {
     ctx.fillStyle = `rgba(0,0,0,${mtn.fadeAlpha})`;
-    ctx.fillRect(-offsetX + rawCamX - 10, 0, cw + 20, ch);
+    ctx.fillRect(-offsetX + rawCamX - 10, 0, cw + 20, 400);
   }
   ctx.restore();
 }
