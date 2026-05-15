@@ -8,9 +8,9 @@ const PINE_SLOPE_ITEMS = {
 
 const PINE_SLOPE_OBJECTS = [
   { id:'ps_exit',   x:38,  y:228, w:55,  h:70,  type:'trail_sign',  label:'← Вернуться к горной тропе', action:'exit_subzone',  blocking:false },
-  { id:'ps_pine1',  x:268, y:98,  w:62,  h:118, type:'pine_trunk',  label:'🌲 Старая сосна',             action:'examine',       blocking:true  },
-  { id:'ps_pine2',  x:386, y:82,  w:58,  h:128, type:'pine_trunk',  label:'🌲 Раскидистая сосна',        action:'examine',       blocking:true  },
-  { id:'ps_pine3',  x:152, y:126, w:52,  h:112, type:'pine_trunk',  label:'🌲 Молодая сосна',            action:'examine',       blocking:true  },
+  { id:'ps_pine1',  x:268, y:98,  w:62,  h:118, type:'pine_trunk',  label:'🌲 Старая сосна',             action:'examine',       blocking:false },
+  { id:'ps_pine2',  x:386, y:82,  w:58,  h:128, type:'pine_trunk',  label:'🌲 Раскидистая сосна',        action:'examine',       blocking:false },
+  { id:'ps_pine3',  x:152, y:126, w:52,  h:112, type:'pine_trunk',  label:'🌲 Молодая сосна',            action:'examine',       blocking:false },
   { id:'ps_fence_l', x:178, y:186, w:68,  h:14,  type:'rope_fence',  label:null,                          action:null,            blocking:true  },
   { id:'ps_fence_r', x:336, y:186, w:86,  h:14,  type:'rope_fence',  label:null,                          action:null,            blocking:true  },
   { id:'ps_rock1',  x:88,  y:256, w:50,  h:38,  type:'rock',        label:null,                          action:null,            blocking:true  },
