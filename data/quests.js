@@ -44,5 +44,3 @@ const QUESTS = [
   { id:'q_nick2',  title:'Очень важная печать',    icon:'🔏', desc:'Военная печать закатилась за коробки у входа в военкомат.',    steps:['Найди военную печать у входа в военкомат','Отдай Нику'],          reward:{xp:25},                  npc:'nick',   unlock:false },
   { id:'q_nick3',  title:'Побег к костру',         icon:'🔥', desc:'Ник собирает вещи, чтобы наконец выбраться из военкомата.',  steps:['Найди кружку Ника','Найди шарф Ника','Найди рюкзак','Найди кассету','Отдай всё Нику'], reward:{xp:40,event:'nick_free'},npc:'nick',   unlock:false },
 ];
-if (typeof INDOOR_QUESTS !== 'undefined') QUESTS.push(...INDOOR_QUESTS);
-if (typeof MOUNTAIN_QUESTS !== 'undefined') QUESTS.push(...MOUNTAIN_QUESTS);
