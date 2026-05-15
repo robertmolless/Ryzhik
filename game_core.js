@@ -789,13 +789,21 @@ NPC.prototype.draw = function(ctx, cam, period) {
   const cw=ctx.canvas.width, ch=ctx.canvas.height;
   if (sx<-80||sx>cw+80||sy<-80||sy>ch+80) return;
   if (this.human) {
-    drawHumanNPC(ctx,{id:this.id,x:sx,y:sy,t:GFX.t,facing:this.facing,moving:!!this.moveTarget,trust:this.trust,emotion:this.emotion});
+    let usedSprite = false;
+    if (this.id === 'sonya' && typeof _drawSonyaSprite === 'function') {
+      usedSprite = _drawSonyaSprite(ctx, sx, sy, GFX.t, this.facing, !!this.moveTarget, this.trust, this.emotion);
+    }
+    if (!usedSprite) {
+      drawHumanNPC(ctx,{id:this.id,x:sx,y:sy,t:GFX.t,facing:this.facing,moving:!!this.moveTarget,trust:this.trust,emotion:this.emotion});
+    }
     ctx.save();
     const bw=this.name.length*6+12;
-    ctx.fillStyle='rgba(20,10,0,0.75)'; GFX.roundRect(ctx,sx-bw/2,sy-52,bw,16,4); ctx.fill();
+    const _nameBgY = usedSprite ? sy-80 : sy-52;
+    const _nameTxY = usedSprite ? sy-68 : sy-40;
+    ctx.fillStyle='rgba(20,10,0,0.75)'; GFX.roundRect(ctx,sx-bw/2,_nameBgY,bw,16,4); ctx.fill();
     ctx.fillStyle=this.color||'#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
-    ctx.fillText(this.name,sx,sy-40);
-    if (typeof NPC_QUEST_DEFS!=='undefined'&&NPC_QUEST_DEFS[this.id]){const qs=this.questStage||0;const qIcons=['❗','🔍','🔍','❤️'];ctx.font='14px serif';ctx.textAlign='center';ctx.fillText(qIcons[Math.min(qs,3)],sx,sy-58);}
+    ctx.fillText(this.name,sx,_nameTxY);
+    if (typeof NPC_QUEST_DEFS!=='undefined'&&NPC_QUEST_DEFS[this.id]){const qs=this.questStage||0;const qIcons=['❗','🔍','🔍','❤️'];ctx.font='14px serif';ctx.textAlign='center';ctx.fillText(qIcons[Math.min(qs,3)],sx,usedSprite?sy-86:sy-58);}
     ctx.restore();
   } else {
     ctx.save(); ctx.translate(sx,sy+this.bobY);

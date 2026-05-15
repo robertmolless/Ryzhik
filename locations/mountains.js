@@ -310,17 +310,25 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
 
   const sy = ch / 400;
   const showSonya = (period === 'morning' || period === 'day');
-  if (showSonya && typeof drawHumanNPC === 'function') {
+  if (showSonya) {
     const sonyaY = 170 * sy;
-    drawHumanNPC(ctx, { id:'sonya', x:378, y:sonyaY, t, facing:-1, moving:false, trust: sonyaNPC ? sonyaNPC.trust : 1, emotion:'happy' });
+    const _sonyaTrust = sonyaNPC ? sonyaNPC.trust : 1;
+    const _usedSprite = typeof _drawSonyaSprite === 'function'
+      ? _drawSonyaSprite(ctx, 378, sonyaY, t, -1, false, _sonyaTrust, 'happy')
+      : false;
+    if (!_usedSprite && typeof drawHumanNPC === 'function') {
+      drawHumanNPC(ctx, { id:'sonya', x:378, y:sonyaY, t, facing:-1, moving:false, trust: _sonyaTrust, emotion:'happy' });
+    }
     ctx.save();
     const bw = 52;
+    const _nameBgY = _usedSprite ? sonyaY - 80 : sonyaY - 52;
+    const _nameTxY = _usedSprite ? sonyaY - 68 : sonyaY - 40;
     ctx.fillStyle = 'rgba(20,10,0,0.78)';
-    if (ctx.roundRect) ctx.roundRect(378 - bw * 0.5, sonyaY - 52, bw, 16, 4);
-    else ctx.rect(378 - bw * 0.5, sonyaY - 52, bw, 16);
+    if (ctx.roundRect) ctx.roundRect(378 - bw * 0.5, _nameBgY, bw, 16, 4);
+    else ctx.rect(378 - bw * 0.5, _nameBgY, bw, 16);
     ctx.fill();
     ctx.fillStyle = '#44aaff'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText('Соня', 378, sonyaY - 40);
+    ctx.fillText('Соня', 378, _nameTxY);
     ctx.restore();
   }
 
