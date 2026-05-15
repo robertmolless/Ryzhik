@@ -309,7 +309,7 @@ function drawMountainScene(ctx, { px, py, t, period, mtn, sonyaNPC, cw, ch }) {
   if (showSonya) {
     const _sonyaTrust = sonyaNPC ? sonyaNPC.trust : 1;
     const _usedSprite = typeof _drawSonyaSprite === 'function'
-      ? _drawSonyaSprite(ctx, 378, 170, t, -1, _sonyaTrust, 'happy')
+      ? _drawSonyaSprite(ctx, 378, 170, t, -1, false, _sonyaTrust, 'happy')
       : false;
     if (!_usedSprite && typeof drawHumanNPC === 'function') {
       drawHumanNPC(ctx, { id:'sonya', x:378, y:170, t, facing:-1, moving:false, trust: _sonyaTrust, emotion:'happy' });

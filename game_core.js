@@ -791,7 +791,7 @@ NPC.prototype.draw = function(ctx, cam, period) {
   if (this.human) {
     let usedSprite = false;
     if (this.id === 'sonya' && typeof _drawSonyaSprite === 'function') {
-      usedSprite = _drawSonyaSprite(ctx, sx, sy, GFX.t, this.facing, this.trust, this.emotion);
+      usedSprite = _drawSonyaSprite(ctx, sx, sy, GFX.t, this.facing, !!this.moveTarget, this.trust, this.emotion);
     }
     if (!usedSprite) {
       drawHumanNPC(ctx,{id:this.id,x:sx,y:sy,t:GFX.t,facing:this.facing,moving:!!this.moveTarget,trust:this.trust,emotion:this.emotion});
