@@ -484,13 +484,18 @@ class Game {
         if (obj.action === 'exit_mountains') { this.mountains.startExit(); this.audio.uiClick(); this.ui.notify('🌲 Рыжик спускается с тропы...'); return; }
         if (obj.action === 'pickup' && obj.item) {
           if (!this.mountains.pickedItems.has(obj.id)) {
-            this.mountains.pickedItems.add(obj.id);
+            console.log('[Pickup] trying', obj.item);
             const added = this.inventory.add(obj.item);
             if (added) {
+              this.mountains.pickedItems.add(obj.id);
               const idata = ITEMS[obj.item];
               this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+              console.log('[Pickup] added', obj.item);
               this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : obj.item}`);
               this._checkQuestItem(obj.item);
+            } else {
+              console.log('[Pickup] inventory full', obj.item);
+              this.ui.notify('🎒 Инвентарь полон. Освободи место.');
             }
           } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
           return;
@@ -518,19 +523,31 @@ class Game {
       const nickQSPick = (nickForPick && nickForPick.questStage) || 0;
       if (this.militaryOffice.nearCertificate(nickQSPick)) {
         console.log('[NickQuest] pick: nickCertificate');
-        this.militaryOffice.certPickedUp = true;
-        this.inventory.add('nickCertificate'); this.audio.pickup(); this.telegram.vibrate(25);
-        this.ui.notify('📄 Подобрал: Потерянная справка Ника!'); this._checkQuestItem('nickCertificate'); return;
+        console.log('[Pickup] trying', 'nickCertificate');
+        const addedCert = this.inventory.add('nickCertificate');
+        if (addedCert) {
+          this.militaryOffice.certPickedUp = true;
+          console.log('[Pickup] added', 'nickCertificate');
+          this.audio.pickup(); this.telegram.vibrate(25);
+          this.ui.notify('📄 Подобрал: Потерянная справка Ника!'); this._checkQuestItem('nickCertificate');
+        } else { console.log('[Pickup] inventory full', 'nickCertificate'); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
+        return;
       }
       if (nickQSPick >= 3) {
         const near = this.militaryOffice.nearestFurniture();
         if (near && near.action === 'pickup_nick') {
-          this.militaryOffice.pickedMilItems.add(near.id); this.inventory.add(near.item);
           console.log(`[NickQuest] pick: ${near.item}`);
-          this._checkQuestItem(near.item);
-          this.audio.pickup(); this.telegram.vibrate(25);
-          const idata = ITEMS[near.item];
-          this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : near.item}`); return;
+          console.log('[Pickup] trying', near.item);
+          const addedNick = this.inventory.add(near.item);
+          if (addedNick) {
+            this.militaryOffice.pickedMilItems.add(near.id);
+            console.log('[Pickup] added', near.item);
+            this._checkQuestItem(near.item);
+            this.audio.pickup(); this.telegram.vibrate(25);
+            const idata = ITEMS[near.item];
+            this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0] + ' ' + idata.name : near.item}`);
+          } else { console.log('[Pickup] inventory full', near.item); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
+          return;
         }
       }
       if (this.militaryOffice.nearNick()) {
@@ -570,16 +587,21 @@ class Game {
 
     const item = this.world.collectibles.find(c => !c.collected && Math.sqrt((c.x-this.player.x)**2+(c.y-this.player.y)**2) < 50);
     if (item) {
-      item.collected = true;
+      console.log('[Pickup] trying', item.item);
       const added = this.inventory.add(item.item);
       if (added) {
+        item.collected = true;
         const idata = ITEMS[item.item];
         this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+        console.log('[Pickup] added', item.item);
         this.ui.notify(`✨ Подобрал: ${idata.icon[0]} ${idata.name}`);
         this.collectedCount++;
         if (this.collectedCount >= 10) this.achievements.unlock('ach08');
         if (this.collectedCount >= 15) this.achievements.unlock('ach16');
         this._checkQuestItem(item.item);
+      } else {
+        console.log('[Pickup] inventory full', item.item);
+        this.ui.notify('🎒 Инвентарь полон. Освободи место.');
       }
       return;
     }
@@ -632,7 +654,12 @@ class Game {
             }
           }
           const finalItem = this.world.collectibles.find(c => c.id === 'c_final' && !c.collected);
-          if (finalItem) { finalItem.collected = true; this.inventory.add('sunBell'); this.collectedCount++; this.ui.notify('🔔✨ Солнечный колокольчик найден!'); this._checkQuestItem('sunBell'); }
+          if (finalItem) {
+            console.log('[Pickup] trying', 'sunBell');
+            const addedSun = this.inventory.add('sunBell');
+            if (addedSun) { finalItem.collected = true; this.collectedCount++; console.log('[Pickup] added', 'sunBell'); this.ui.notify('🔔✨ Солнечный колокольчик найден!'); this._checkQuestItem('sunBell'); }
+            else { console.log('[Pickup] inventory full', 'sunBell'); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
+          }
           return;
         } else { this.ui.notify('🔒 Теплица закрыта. Маг говорил о колокольчике луны...'); return; }
       }

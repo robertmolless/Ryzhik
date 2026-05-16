@@ -40,27 +40,34 @@ Game.prototype._interactFurniture = function(f) {
           interior.cabinetOpen = true;
           if (f.item === 'barnKey') {
             if (!this.unlockedZones.includes('barn') && !this.inventory.has('barnKey')) {
-              interior.pickedItems.add(f.id); this.inventory.add('barnKey'); this.collectedCount++;
-              this.ui.notify('🔑 В кухонном шкафчике нашёлся ключ от сарая!'); this._checkQuestItem('barnKey');
+              console.log('[Pickup] trying', 'barnKey');
+              const added = this.inventory.add('barnKey');
+              if (added) { interior.pickedItems.add(f.id); this.collectedCount++; console.log('[Pickup] added', 'barnKey'); this.ui.notify('🔑 В кухонном шкафчике нашёлся ключ от сарая!'); this._checkQuestItem('barnKey'); }
+              else { console.log('[Pickup] inventory full', 'barnKey'); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
             } else { this.ui.notify('📦 Шкафчик открыт — ключ уже был взят.'); }
           } else if (f.item && !interior.pickedItems.has(f.id)) {
-            interior.pickedItems.add(f.id); this.inventory.add(f.item); this.collectedCount++;
-            const idata = ITEMS[f.item]; this.ui.notify(`🔑 В кухонном шкафчике нашёлся ${idata ? idata.name : f.item}!`);
-            this._checkQuestItem(f.item);
-            if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3');
+            console.log('[Pickup] trying', f.item);
+            const added = this.inventory.add(f.item);
+            if (added) { interior.pickedItems.add(f.id); this.collectedCount++; console.log('[Pickup] added', f.item); const idata = ITEMS[f.item]; this.ui.notify(`🔑 В кухонном шкафчике нашёлся ${idata ? idata.name : f.item}!`); this._checkQuestItem(f.item); if (f.item === 'houseKey' && this.quests.isActive('q_ind3')) this._onQuestAdvance('q_ind3'); }
+            else { console.log('[Pickup] inventory full', f.item); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
           } else { this.ui.notify('📦 Шкафчик пустой — ключ уже взят.'); }
         } else { this.ui.notify('📦 Шкафчик уже открыт.'); }
       } else { this.ui.notify('📦 Открыто!'); }
       break;
     case 'pickup':
       if (!interior.pickedItems.has(f.id) && f.item) {
-        interior.pickedItems.add(f.id); this.inventory.add(f.item); this.collectedCount++;
-        const idata = ITEMS[f.item];
-        this.ui.notify(`✨ Нашёл: ${idata ? idata.name : f.item}!`);
-        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
-        this._checkQuestItem(f.item);
-        if (this.collectedCount >= 10) this.achievements.unlock('ach08');
-        if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        console.log('[Pickup] trying', f.item);
+        const added = this.inventory.add(f.item);
+        if (added) {
+          interior.pickedItems.add(f.id); this.collectedCount++;
+          console.log('[Pickup] added', f.item);
+          const idata = ITEMS[f.item];
+          this.ui.notify(`✨ Нашёл: ${idata ? idata.name : f.item}!`);
+          this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+          this._checkQuestItem(f.item);
+          if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+          if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        } else { console.log('[Pickup] inventory full', f.item); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
       } else { this.ui.notify('💭 Рыжик уже взял всё интересное здесь.'); }
       break;
     case 'examine': {
@@ -100,14 +107,19 @@ Game.prototype._interactBarnFurniture = function(f) {
     case 'exit_barn': barn.startExit(); this.audio.uiClick(); this.ui.notify('🌿 Рыжик выходит из сарая...'); break;
     case 'pickup':
       if (!barn.pickedItems.has(f.id) && f.item) {
-        barn.pickedItems.add(f.id); this.inventory.add(f.item); this.collectedCount++;
-        const iname = ITEMS[f.item] ? ITEMS[f.item].name : f.item;
-        this.ui.notify(`✨ Рыжик нашёл: ${iname}!`);
-        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
-        this._checkQuestItem(f.item);
-        if (f.item === 'cassette' && this.quests.isActive('q_lyokha')) setTimeout(() => this.ui.notify('📼 Кассета Лёхи! Верни её ему.'), 1500);
-        if (this.collectedCount >= 10) this.achievements.unlock('ach08');
-        if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        console.log('[Pickup] trying', f.item);
+        const added = this.inventory.add(f.item);
+        if (added) {
+          barn.pickedItems.add(f.id); this.collectedCount++;
+          console.log('[Pickup] added', f.item);
+          const iname = ITEMS[f.item] ? ITEMS[f.item].name : f.item;
+          this.ui.notify(`✨ Рыжик нашёл: ${iname}!`);
+          this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+          this._checkQuestItem(f.item);
+          if (f.item === 'cassette' && this.quests.isActive('q_lyokha')) setTimeout(() => this.ui.notify('📼 Кассета Лёхи! Верни её ему.'), 1500);
+          if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+          if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        } else { console.log('[Pickup] inventory full', f.item); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
       } else { this.ui.notify('💭 Рыжик уже взял всё интересное здесь.'); }
       break;
     case 'sit': this.ui.notify('😺 Рыжик запрыгивает на тюк сена! Тепло и колко...'); this.player.energy = Math.min(100, this.player.energy + 5); this.player.playAction('purr'); break;
@@ -133,14 +145,18 @@ Game.prototype._handleMountainSubZone = function() {
 
     case 'pickup':
       if (!szState.pickedItems.has(obj.id) && obj.item) {
-        szState.pickedItems.add(obj.id);
-        this.inventory.add(obj.item); this.collectedCount++;
-        const idata = ITEMS[obj.item];
-        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
-        this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0]+' '+idata.name : obj.item}`);
-        this._checkQuestItem(obj.item);
-        if (this.collectedCount >= 10) this.achievements.unlock('ach08');
-        if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        console.log('[Pickup] trying', obj.item);
+        const added = this.inventory.add(obj.item);
+        if (added) {
+          szState.pickedItems.add(obj.id); this.collectedCount++;
+          console.log('[Pickup] added', obj.item);
+          const idata = ITEMS[obj.item];
+          this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+          this.ui.notify(`✨ Подобрал: ${idata ? idata.icon[0]+' '+idata.name : obj.item}`);
+          this._checkQuestItem(obj.item);
+          if (this.collectedCount >= 10) this.achievements.unlock('ach08');
+          if (this.collectedCount >= 15) this.achievements.unlock('ach16');
+        } else { console.log('[Pickup] inventory full', obj.item); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
       } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
       break;
 
@@ -171,11 +187,15 @@ Game.prototype._handleMountainSubZone = function() {
 
     case 'open_cache':
       if (!szState.cacheOpened) {
-        szState.cacheOpened = true;
-        this.inventory.add('mountainFeather'); this.collectedCount++;
-        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(30);
-        this.ui.notify('🪶 В тайнике у корней нашлось горное перышко!');
-        this._checkQuestItem('mountainFeather');
+        console.log('[Pickup] trying', 'mountainFeather');
+        const addedF = this.inventory.add('mountainFeather');
+        if (addedF) {
+          szState.cacheOpened = true; this.collectedCount++;
+          console.log('[Pickup] added', 'mountainFeather');
+          this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(30);
+          this.ui.notify('🪶 В тайнике у корней нашлось горное перышко!');
+          this._checkQuestItem('mountainFeather');
+        } else { console.log('[Pickup] inventory full', 'mountainFeather'); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
       } else { this.ui.notify('💭 Тайник пуст.'); }
       break;
 
@@ -229,11 +249,15 @@ Game.prototype._handleMountainSubZone = function() {
 
     case 'find_hidden':
       if (!szState.pickedItems.has('fm_hidden')) {
-        szState.pickedItems.add('fm_hidden');
-        this.inventory.add('warmPebble'); this.collectedCount++;
-        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
-        this.ui.notify('🪨 В высокой траве нашёлся тёплый камень!');
-        this._checkQuestItem('warmPebble');
+        console.log('[Pickup] trying', 'warmPebble');
+        const addedP = this.inventory.add('warmPebble');
+        if (addedP) {
+          szState.pickedItems.add('fm_hidden'); this.collectedCount++;
+          console.log('[Pickup] added', 'warmPebble');
+          this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+          this.ui.notify('🪨 В высокой траве нашёлся тёплый камень!');
+          this._checkQuestItem('warmPebble');
+        } else { console.log('[Pickup] inventory full', 'warmPebble'); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
       } else { this.ui.notify('💭 Здесь уже ничего нет.'); }
       break;
 
@@ -244,11 +268,15 @@ Game.prototype._handleMountainSubZone = function() {
         break;
       }
       if (!szState.pickedItems.has(obj.id)) {
-        szState.pickedItems.add(obj.id);
-        this.inventory.add('mountainWindFlower'); this.collectedCount++;
-        this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
-        this.ui.notify('🌺 Рыжик нашёл ветреный цветок! Пахнет свежим горным ветром.');
-        this._checkQuestItem('mountainWindFlower');
+        console.log('[Pickup] trying', 'mountainWindFlower');
+        const addedW = this.inventory.add('mountainWindFlower');
+        if (addedW) {
+          szState.pickedItems.add(obj.id); this.collectedCount++;
+          console.log('[Pickup] added', 'mountainWindFlower');
+          this.player.playAction('pickup'); this.audio.pickup(); this.telegram.vibrate(25);
+          this.ui.notify('🌺 Рыжик нашёл ветреный цветок! Пахнет свежим горным ветром.');
+          this._checkQuestItem('mountainWindFlower');
+        } else { console.log('[Pickup] inventory full', 'mountainWindFlower'); this.ui.notify('🎒 Инвентарь полон. Освободи место.'); }
       } else {
         this.ui.notify('🌺 Цветок уже сорван. Он снова вырастет позже.');
       }
